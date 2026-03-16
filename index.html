@@ -771,23 +771,42 @@ function switchTab(id) {
 async function fetchNews(type) {
   try {
     const queries = type === 'korea'
-      ? ['한국경제 코스피', '금리 환율 무역', '삼성전자 반도체 기업']
-      : ['미국경제 연준 금리', '국제무역 달러 환율'];
+      ? [
+          '환율 원달러 외환시장',
+          '코스피 코스닥 증시 외국인',
+          '한국은행 기준금리 통화정책',
+          '수출 무역수지 경상수지',
+          '반도체 삼성전자 SK하이닉스',
+          '물가 인플레이션 소비자물가',
+        ]
+      : [
+          '미국 연준 금리 FOMC',
+          '국제유가 WTI 원자재',
+          '달러 강세 글로벌 통화',
+          '중국 경제 미중 무역',
+          '나스닥 S&P 미국증시',
+        ];
 
     const allItems = [];
 
     await Promise.all(queries.map(async q => {
       try {
-        const r = await fetch(`/api/news?query=${encodeURIComponent(q)}&display=10&type=${type}`,
+        const r = await fetch(`/api/news?query=${encodeURIComponent(q)}&display=20&type=${type}`,
           { signal: AbortSignal.timeout(8000) });
         const j = await r.json();
         if (j.items) allItems.push(...j.items);
       } catch {}
     }));
 
-    // 중복 제거 (제목 앞 10글자 기준)
+    // 중요도 낮은 뉴스 필터링
+    const skipKeywords = ['구직', '채용', '취업', '대구', '부산', '광주', '인천', '수원', '자립준비', '희망디딤돌', '아침의 주요기사', '오늘의 주요기사', '주요기사', '1부', '2부'];
+    const filtered = allItems.filter(item =>
+      !skipKeywords.some(kw => item.title.includes(kw))
+    );
+
+    // 중복 제거 (제목 앞 15글자 기준)
     const seen = new Set();
-    const unique = allItems.filter(item => {
+    const unique = filtered.filter(item => {
       const key = item.title.slice(0, 15);
       if (seen.has(key)) return false;
       seen.add(key);
@@ -807,10 +826,18 @@ async function fetchNews(type) {
     renderNews(type);
   }
 
-  // 한국 뉴스 로딩 완료되면 자동 브리핑 생성
-  if (type === 'korea' && newsCache.korea.length > 0 && !briefingDone) {
+  // 뉴스 로딩 완료되면 자동 브리핑 생성 (한국+국제 둘 다 로딩 후)
+  if (!briefingDone && newsCache.korea.length > 0 && newsCache.intl.length > 0) {
     briefingDone = true;
     genAutoBriefing();
+  } else if (!briefingDone && type === 'korea' && newsCache.korea.length > 0) {
+    // 국제 뉴스 느리면 한국만으로도 시작
+    setTimeout(() => {
+      if (!briefingDone) {
+        briefingDone = true;
+        genAutoBriefing();
+      }
+    }, 3000);
   }
 }
 
@@ -997,7 +1024,10 @@ async function loadFX(){
 
 /* ═══════════ AUTO BRIEFING ═══════════ */
 async function genAutoBriefing() {
-  const headlines = newsCache.korea.slice(0, 10).map(n => n.title);
+  // 한국 + 국제 뉴스 합쳐서 상위 20개로 브리핑
+  const koreaNews = newsCache.korea.slice(0, 15).map(n => `[국내] ${n.title}`);
+  const intlNews  = newsCache.intl.slice(0, 10).map(n => `[국제] ${n.title}`);
+  const headlines = [...koreaNews, ...intlNews];
   if (!headlines.length) return;
 
   try {
