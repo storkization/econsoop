@@ -795,10 +795,7 @@ document.addEventListener('DOMContentLoaded', () => {
     btn.addEventListener('click', () => switchTab(btn.dataset.tab));
   });
 
-  // 브리핑 즉시 시작 (뉴스 로딩 기다리지 않음)
-  genAutoBriefing();
-
-  // Load news
+  // Load news (브리핑은 뉴스 로딩 후 자동 생성)
   fetchNews('korea');
   fetchNews('intl');
 });
@@ -858,6 +855,11 @@ async function fetchNews(type) {
   if ((type === 'korea' && currentFilter === 'korea') ||
       (type === 'intl'  && currentFilter === 'intl')) {
     renderNews(type);
+  }
+
+  // 한국 뉴스 로딩 완료 시 브리핑 생성
+  if (type === 'korea' && newsCache.korea.length > 0) {
+    genAutoBriefing();
   }
 }
 
@@ -1109,11 +1111,21 @@ async function genAutoBriefing() {
     return;
   }
 
+  // 뉴스 없으면 잠깐 기다렸다가 재시도
+  if (!newsCache.korea.length) {
+    setTimeout(genAutoBriefing, 2000);
+    return;
+  }
+
+  const koreaNews = newsCache.korea.slice(0, 20).map(n => `[국내] ${n.title}`);
+  const intlNews  = newsCache.intl.slice(0, 10).map(n => `[국제] ${n.title}`);
+  const headlines = [...koreaNews, ...intlNews];
+
   try {
     const res = await fetch('/api/briefing', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({})
+      body: JSON.stringify({ headlines })
     });
     const j = await res.json();
     const text = j.briefing || '브리핑 생성 실패';

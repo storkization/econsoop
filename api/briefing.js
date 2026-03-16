@@ -6,10 +6,14 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
+  const { headlines } = req.body;
+
+  if (!headlines || !headlines.length) {
+    return res.status(400).json({ error: 'No headlines provided' });
+  }
+
   try {
-    const today = new Date().toLocaleDateString('ko-KR', {
-      year: 'numeric', month: 'long', day: 'numeric'
-    });
+    const headlineText = headlines.map((h, i) => `${i + 1}. ${h}`).join('\n');
 
     const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
@@ -17,19 +21,21 @@ export default async function handler(req, res) {
         'Content-Type': 'application/json',
         'x-api-key': process.env.ANTHROPIC_API_KEY,
         'anthropic-version': '2023-06-01',
-        'anthropic-beta': 'web-search-2025-03-05',
       },
       body: JSON.stringify({
         model: 'claude-sonnet-4-20250514',
         max_tokens: 1000,
-        tools: [{
-          type: 'web_search_20250305',
-          name: 'web_search',
-          max_uses: 4
-        }],
         messages: [{
           role: 'user',
-          content: `오늘(${today}) 한국 및 글로벌 주요 경제 뉴스를 검색해서 핵심 5가지만 간결하게 브리핑해줘.
+          content: `아래 뉴스 헤드라인 중 투자자 관점에서 가장 중요한 5개를 골라 브리핑해줘.
+
+헤드라인:
+${headlineText}
+
+선별 기준:
+- 거시경제(환율/금리/물가/GDP), 글로벌 시장, 주요 산업 중심
+- 구직/채용/지역행사/단순 기업 홍보 제외
+- 숫자/데이터 있으면 반드시 포함
 
 형식:
 1️⃣ [제목]
@@ -51,12 +57,9 @@ export default async function handler(req, res) {
       return res.status(500).json({ error: data.error.message });
     }
 
-    const text = data.content
-      .filter(block => block.type === 'text')
-      .map(block => block.text)
-      .join('\n');
-
+    const text = data.content?.[0]?.text || '브리핑 생성 실패';
     res.status(200).json({ briefing: text });
+
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
