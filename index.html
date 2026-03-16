@@ -816,32 +816,21 @@ function switchTab(id) {
 async function fetchNews(type) {
   try {
     const queries = type === 'korea'
-      ? [
-          '환율 원달러 외환시장',
-          '코스피 코스닥 증시 외국인',
-          '한국은행 기준금리 통화정책',
-          '수출 무역수지 경상수지',
-          '반도체 삼성전자 SK하이닉스',
-          '물가 인플레이션 소비자물가',
-        ]
-      : [
-          '미국 연준 금리 FOMC',
-          '국제유가 WTI 원자재',
-          '달러 강세 글로벌 통화',
-          '중국 경제 미중 무역',
-          '나스닥 S&P 미국증시',
-        ];
+      ? ['환율 코스피 금리', '수출 반도체 무역수지', '물가 부동산 경제']
+      : ['미국 연준 금리', '국제유가 달러 글로벌경제'];
 
     const allItems = [];
 
-    await Promise.all(queries.map(async q => {
+    // 순차 요청으로 429 방지
+    for (const q of queries) {
       try {
-        const r = await fetch(`/api/news?query=${encodeURIComponent(q)}&display=20&type=${type}`,
+        const r = await fetch(`/api/news?query=${encodeURIComponent(q)}&display=15&type=${type}`,
           { signal: AbortSignal.timeout(8000) });
         const j = await r.json();
         if (j.items) allItems.push(...j.items);
+        await new Promise(resolve => setTimeout(resolve, 300));
       } catch {}
-    }));
+    }
 
     // 중요도 낮은 뉴스 필터링
     const skipKeywords = ['구직', '채용', '취업', '대구', '부산', '광주', '인천', '수원', '자립준비', '희망디딤돌', '아침의 주요기사', '오늘의 주요기사', '주요기사', '1부', '2부'];
