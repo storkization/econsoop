@@ -16,8 +16,7 @@
 
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=IBM+Plex+Mono:wght@400;500;600&family=Noto+Sans+KR:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
   <style>
     :root {
@@ -45,7 +44,7 @@
       height:100%;
       background: linear-gradient(160deg, #1B2A4A 0%, #0F1E38 100%);
       color:var(--text);
-      font-family:'Pretendard', -apple-system, sans-serif;
+      font-family:'Noto Sans KR', -apple-system, sans-serif;
       overflow:hidden;
       position:relative;
     }
@@ -110,7 +109,7 @@
       flex:1; padding:10px 2px;
       background:none; border:none;
       color:var(--text-muted);
-      font-family:'Pretendard', -apple-system, sans-serif;
+      font-family:'Noto Sans KR', -apple-system, sans-serif;
       font-size:12px; cursor:pointer;
       position:relative;
       transition:color 0.2s;
@@ -171,7 +170,7 @@
       border-radius:20px;
       background:#FFFFFF;
       color:var(--text-muted);
-      font-family:'Pretendard', -apple-system, sans-serif;
+      font-family:'Noto Sans KR', -apple-system, sans-serif;
       font-size:12px; cursor:pointer;
       transition:all .2s;
     }
@@ -486,7 +485,7 @@
       background:var(--accent);
       border:none; border-radius:var(--radius);
       color:#fff;
-      font-family:'Pretendard', -apple-system, sans-serif;
+      font-family:'Noto Sans KR', -apple-system, sans-serif;
       font-size:15px; font-weight:700;
       cursor:pointer; text-align:center;
       transition:all .2s;
@@ -1074,10 +1073,12 @@ function renderBriefing(text) {
       const content = line.replace('📊', '').replace(/^[\s|:·]+/, '');
       html += `<div class="b-body"><span class="b-label b-label-stat">📊 영향</span>${highlightKeywords(content)}</div>`;
 
-    // 🔮 전망
-    } else if (line.startsWith('🔮')) {
-      const content = line.replace('🔮', '').replace(/^[\s|:·]+/, '');
-      html += `<div class="b-body"><span class="b-label b-label-out">🔮 전망</span>${highlightKeywords(content)}</div>`;
+    // 🔮 전망 or 💼 액션
+    } else if (line.startsWith('🔮') || line.startsWith('💼')) {
+      const emoji = line[0];
+      const label = line.startsWith('💼') ? '💼 액션' : '🔮 전망';
+      const content = line.slice(2).replace(/^[\s|:·]+/, '');
+      html += `<div class="b-body"><span class="b-label b-label-out">${label}</span>${highlightKeywords(content)}</div>`;
 
     // 💡 총평
     } else if (line.startsWith('💡')) {
