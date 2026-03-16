@@ -523,7 +523,29 @@
       color:#111827; white-space:pre-line;
     }
 
-    /* ── MODAL ── */
+    /* ── BRIEFING TYPOGRAPHY ── */
+    .b-h1 {
+      font-size:15px; font-weight:800;
+      color:#FFFFFF; margin:16px 0 6px;
+      line-height:1.4; letter-spacing:-0.3px;
+    }
+    .b-h1:first-child { margin-top:0; }
+    .b-h2 {
+      font-size:14px; font-weight:700;
+      color:#FFFFFF;
+    }
+    .b-body {
+      font-size:12px; color:rgba(255,255,255,0.75);
+      line-height:1.6; margin:3px 0;
+      display:flex; gap:6px;
+    }
+    .b-icon { flex-shrink:0; }
+    .b-point {
+      margin-top:16px; padding-top:14px;
+      border-top:1px solid rgba(255,255,255,0.15);
+      font-size:13px; font-weight:700;
+      color:#FFD700; line-height:1.6;
+    }
     .modal-backdrop {
       display:none; position:fixed; inset:0;
       background:rgba(0,0,0,.75);
@@ -573,7 +595,7 @@
   <!-- HEADER -->
   <div class="header">
     <div class="header-top">
-      <div class="app-logo">eco<em>brief</em></div>
+      <div class="app-logo">Shawn's <em>EcoBrief</em></div>
       <div class="header-right">
         <div class="live-dot">LIVE</div>
         <div class="header-date" id="headerDate"></div>
@@ -742,11 +764,18 @@ document.addEventListener('DOMContentLoaded', () => {
   // Header date
   const d = new Date();
   const days = ['일','월','화','수','목','금','토'];
-  document.getElementById('headerDate').textContent =
-    `${d.getFullYear()}.${pad(d.getMonth()+1)}.${pad(d.getDate())} ${days[d.getDay()]}`;
+  const dateStr = `${d.getFullYear()}. ${String(d.getMonth()+1).padStart(2,'0')}. ${String(d.getDate()).padStart(2,'0')} ${days[d.getDay()]}요일`;
+  document.getElementById('headerDate').textContent = dateStr;
 
   // API key
   if (apiKey) document.getElementById('apiKey').value = apiKey;
+
+  // 캐시된 브리핑 즉시 표시 (속도 개선)
+  const cached = localStorage.getItem('eco_briefing');
+  const cachedTime = localStorage.getItem('eco_briefing_time');
+  if (cached && cachedTime && Date.now() - cachedTime < 60 * 60 * 1000) {
+    renderBriefing(cached);
+  }
 
   // Tab switching
   document.querySelectorAll('.tab-btn').forEach(btn => {
@@ -1023,8 +1052,36 @@ async function loadFX(){
 }
 
 /* ═══════════ AUTO BRIEFING ═══════════ */
+function renderBriefing(text) {
+  const el = document.getElementById('briefing-text');
+  if (!el) return;
+
+  // 마크다운 파싱 → HTML
+  const html = text
+    // 이모지 번호 헤딩 (1️⃣ ~ 🔟) → H1
+    .replace(/^([1-9]️⃣|🔟)\s*\*{0,2}(.+?)\*{0,2}$/gm,
+      '<div class="b-h1">$1 $2</div>')
+    // **굵은글씨** → H2
+    .replace(/\*\*(.+?)\*\*/g, '<span class="b-h2">$1</span>')
+    // 📌📊🔮 라인 → body
+    .replace(/^(📌|📊|🔮)(.+)$/gm,
+      '<div class="b-body"><span class="b-icon">$1</span>$2</div>')
+    // 💡 마지막 줄
+    .replace(/^(💡.+)$/gm, '<div class="b-point">$1</div>')
+    // 줄바꿈
+    .replace(/\n/g, '');
+
+  el.innerHTML = html || text;
+}
+
 async function genAutoBriefing() {
-  // 한국 + 국제 뉴스 합쳐서 상위 20개로 브리핑
+  const cached = localStorage.getItem('eco_briefing');
+  const cachedTime = localStorage.getItem('eco_briefing_time');
+  if (cached && cachedTime && Date.now() - cachedTime < 60 * 60 * 1000) {
+    renderBriefing(cached);
+    return;
+  }
+
   const koreaNews = newsCache.korea.slice(0, 15).map(n => `[국내] ${n.title}`);
   const intlNews  = newsCache.intl.slice(0, 10).map(n => `[국제] ${n.title}`);
   const headlines = [...koreaNews, ...intlNews];
@@ -1037,8 +1094,10 @@ async function genAutoBriefing() {
       body: JSON.stringify({ headlines })
     });
     const j = await res.json();
-    const el = document.getElementById('briefing-text');
-    if (el) el.textContent = j.briefing || '브리핑 생성 실패';
+    const text = j.briefing || '브리핑 생성 실패';
+    localStorage.setItem('eco_briefing', text);
+    localStorage.setItem('eco_briefing_time', Date.now());
+    renderBriefing(text);
   } catch {
     const el = document.getElementById('briefing-text');
     if (el) el.textContent = '브리핑 생성 중 오류 발생';
