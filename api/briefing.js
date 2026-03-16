@@ -8,7 +8,7 @@ export default async function handler(req, res) {
 
   try {
     const today = new Date().toLocaleDateString('ko-KR', {
-      year: 'numeric', month: 'long', day: 'numeric', weekday: 'long'
+      year: 'numeric', month: 'long', day: 'numeric'
     });
 
     const response = await fetch('https://api.anthropic.com/v1/messages', {
@@ -20,52 +20,37 @@ export default async function handler(req, res) {
         'anthropic-beta': 'web-search-2025-03-05',
       },
       body: JSON.stringify({
-        model: 'claude-haiku-4-5-20251001',
-        max_tokens: 1500,
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
         tools: [{
           type: 'web_search_20250305',
-          name: 'web_search'
+          name: 'web_search',
+          max_uses: 4
         }],
         messages: [{
           role: 'user',
-          content: `오늘은 ${today}입니다.
-
-당신은 기관투자자 수준의 경제 분석가입니다.
-웹서치를 활용해서 오늘 한국 및 글로벌 주요 경제 뉴스를 직접 검색하고,
-진짜 중요한 핵심 이슈 10가지를 선별해서 투자자 관점의 브리핑을 작성해주세요.
-
-검색 시 포함할 것:
-- 오늘자 한국 경제 뉴스 (환율, 증시, 금리, 수출 등)
-- 오늘자 글로벌 경제 뉴스 (미국 연준, 유가, 달러 등)
-- 지정학적 리스크나 주요 정책 변화
-
-선별 기준:
-- 구직/채용/지역행사/사소한 기업소식 제외
-- 거시경제, 글로벌 시장, 주요 산업 중심
-- 숫자/데이터가 있으면 반드시 포함
+          content: `오늘(${today}) 한국 및 글로벌 주요 경제 뉴스를 검색해서 핵심 5가지만 간결하게 브리핑해줘.
 
 형식:
-1️⃣ [이슈 제목]
-📌 배경: [왜 지금 중요한지]
-📊 영향: [시장/산업 영향, 수치 포함]
-🔮 전망: [앞으로 어떻게 될지]
+1️⃣ [제목]
+📌 배경: [한줄]
+📊 영향: [한줄]
+🔮 전망: [한줄]
 
-(2~10번 동일)
+(2~5번 동일)
 
-💡 오늘의 투자 포인트: [전체 흐름 핵심 2줄]`
+💡 오늘의 투자 포인트: [한줄]`
         }]
       })
     });
 
     const data = await response.json();
 
-    // 에러 응답 체크
     if (data.error) {
       console.error('Anthropic API error:', JSON.stringify(data));
-      return res.status(500).json({ error: data.error.message || JSON.stringify(data.error) });
+      return res.status(500).json({ error: data.error.message });
     }
 
-    // 텍스트 블록만 추출
     const text = data.content
       .filter(block => block.type === 'text')
       .map(block => block.text)
