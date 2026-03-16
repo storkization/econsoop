@@ -59,6 +59,12 @@ export default async function handler(req, res) {
 
     const data = await response.json();
 
+    // 에러 응답 체크
+    if (data.error) {
+      console.error('Anthropic API error:', JSON.stringify(data));
+      return res.status(500).json({ error: data.error.message || JSON.stringify(data.error) });
+    }
+
     // 텍스트 블록만 추출
     const text = data.content
       .filter(block => block.type === 'text')
