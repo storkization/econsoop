@@ -594,6 +594,29 @@
 
     <!-- ▸ NEWS -->
     <div class="tab-panel active" id="tab-news">
+      <!-- AI 브리핑 카드 -->
+      <div id="briefing-card" style="
+        background: linear-gradient(135deg, #1A3A6E 0%, #0F2247 100%);
+        border-radius:14px; padding:18px; margin-bottom:12px;
+        box-shadow:0 4px 20px rgba(0,0,0,0.2);
+      ">
+        <div style="
+          font-family:'IBM Plex Mono',monospace;
+          font-size:9px; color:rgba(255,255,255,0.5);
+          text-transform:uppercase; letter-spacing:2px; margin-bottom:10px;
+          display:flex; align-items:center; gap:6px;
+        ">
+          <span style="width:6px;height:6px;background:#3ECF6B;border-radius:50%;display:inline-block;animation:blink 2s infinite"></span>
+          AI 일일 브리핑
+        </div>
+        <div id="briefing-text" style="
+          font-size:13px; line-height:1.8; color:#FFFFFF; white-space:pre-line;
+        ">
+          <div class="dots"><span></span><span></span><span></span></div>
+          <span style="color:rgba(255,255,255,0.5);font-size:12px">뉴스 분석 중...</span>
+        </div>
+      </div>
+
       <div class="news-filter">
         <button class="filter-btn active" data-filter="korea" onclick="setFilter('korea')">🇰🇷 한국</button>
         <button class="filter-btn" data-filter="intl"  onclick="setFilter('intl')">🌐 국제</button>
@@ -712,6 +735,7 @@ let newsCache = { korea:[], intl:[] };
 let currentFilter = 'korea';
 let fxRates = null;
 let apiKey = localStorage.getItem('eco_api_key') || '';
+let briefingDone = false;
 
 /* ═══════════ INIT ═══════════ */
 document.addEventListener('DOMContentLoaded', () => {
@@ -761,11 +785,12 @@ async function fetchNews(type) {
       } catch {}
     }));
 
-    // 중복 제거 (제목 기준)
+    // 중복 제거 (제목 앞 10글자 기준)
     const seen = new Set();
     const unique = allItems.filter(item => {
-      if (seen.has(item.title)) return false;
-      seen.add(item.title);
+      const key = item.title.slice(0, 15);
+      if (seen.has(key)) return false;
+      seen.add(key);
       return true;
     });
 
@@ -780,6 +805,12 @@ async function fetchNews(type) {
   if ((type === 'korea' && currentFilter === 'korea') ||
       (type === 'intl'  && currentFilter === 'intl')) {
     renderNews(type);
+  }
+
+  // 한국 뉴스 로딩 완료되면 자동 브리핑 생성
+  if (type === 'korea' && newsCache.korea.length > 0 && !briefingDone) {
+    briefingDone = true;
+    genAutoBriefing();
   }
 }
 
@@ -837,11 +868,14 @@ function renderNews(type) {
 function esc(s){ return (s||'').replace(/'/g,"\\'"); }
 function openLink(u){ if(u) window.open(u,'_blank'); }
 function ago(d){
-  const m = Math.floor((Date.now()-d)/60000);
-  if(m<60)return m+'분 전';
-  const h=Math.floor(m/60);
-  if(h<24)return h+'시간 전';
-  return Math.floor(h/24)+'일 전';
+  const date = d instanceof Date ? d : new Date(d);
+  if (isNaN(date.getTime())) return '방금 전';
+  const m = Math.floor((Date.now() - date) / 60000);
+  if(m < 1) return '방금 전';
+  if(m < 60) return m + '분 전';
+  const h = Math.floor(m / 60);
+  if(h < 24) return h + '시간 전';
+  return Math.floor(h / 24) + '일 전';
 }
 
 /* ═══════════ STOCKS ═══════════ */
@@ -958,6 +992,26 @@ async function loadFX(){
     }).join('');
   } catch {
     document.getElementById('usdkrw').textContent = 'ERR';
+  }
+}
+
+/* ═══════════ AUTO BRIEFING ═══════════ */
+async function genAutoBriefing() {
+  const headlines = newsCache.korea.slice(0, 10).map(n => n.title);
+  if (!headlines.length) return;
+
+  try {
+    const res = await fetch('/api/briefing', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ headlines })
+    });
+    const j = await res.json();
+    const el = document.getElementById('briefing-text');
+    if (el) el.textContent = j.briefing || '브리핑 생성 실패';
+  } catch {
+    const el = document.getElementById('briefing-text');
+    if (el) el.textContent = '브리핑 생성 중 오류 발생';
   }
 }
 
