@@ -1,5 +1,5 @@
 const CACHE = 'ecobrief-v20';
-const ASSETS = ['./index.html', './manifest.json'];
+const ASSETS = ['./manifest.json'];
 
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS)));
@@ -14,10 +14,16 @@ self.addEventListener('activate', e => {
 });
 
 self.addEventListener('fetch', e => {
-  // Network-first for API calls, cache-first for app shell
-  if (e.request.url.includes('api.') || e.request.url.includes('allorigins')) {
-    return; // network only for data
+  // index.html은 항상 네트워크 우선 (최신 배포 즉시 반영)
+  if (e.request.mode === 'navigate') {
+    e.respondWith(fetch(e.request).catch(() => caches.match(e.request)));
+    return;
   }
+  // API 호출은 네트워크만
+  if (e.request.url.includes('/api/')) {
+    return;
+  }
+  // 나머지(manifest 등)는 캐시 우선
   e.respondWith(
     caches.match(e.request).then(cached => cached || fetch(e.request))
   );
