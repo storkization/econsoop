@@ -35,11 +35,15 @@ ${headlineText}
 두 가지를 작성해줘.
 
 [SUMMARY]
-오늘 ${label} 분야를 딱 3줄로 요약해줘. 경제 초보자도 바로 이해할 수 있게, 핵심 숫자/키워드 포함. 각 줄은 완결된 문장으로.
+오늘 ${label} 분야를 딱 3줄로 요약해줘. 경제 초보자도 바로 이해할 수 있게, 핵심 숫자/키워드 포함. 각 줄은 "~이다" "~했다" "~전망이다" 같은 짧고 간결한 종결형으로 끝낼 것.
 줄1: (가장 중요한 이슈)
 줄2: (두 번째 이슈 또는 연관 흐름)
 줄3: (투자자 관점 핵심 포인트)
 [/SUMMARY]
+
+[ONELINER]
+오늘 ${label} 전체를 단 한 문장으로 종합 분석해줘. "~이다" 또는 "~전망이다"로 끝내는 간결한 문장. 핵심 키워드와 숫자 포함. 20~35자 이내.
+[/ONELINER]
 
 [BRIEFING]
 투자자/경제 입문자 관점에서 가장 중요한 5개를 골라 브리핑해줘.
@@ -73,9 +77,11 @@ ${headlineText}
     const fullText = data.content?.[0]?.text || '';
     const summaryMatch = fullText.match(/\[SUMMARY\]([\s\S]*?)\[\/SUMMARY\]/);
     const briefingMatch = fullText.match(/\[BRIEFING\]([\s\S]*?)\[\/BRIEFING\]/);
+    const onelinerMatch = fullText.match(/\[ONELINER\]([\s\S]*?)\[\/ONELINER\]/);
     const summary = summaryMatch ? summaryMatch[1].trim() : '';
     const briefing = briefingMatch ? briefingMatch[1].trim() : fullText;
-    res.status(200).json({ briefing, summary });
+    const oneliner = onelinerMatch ? onelinerMatch[1].trim() : '';
+    res.status(200).json({ briefing, summary, oneliner });
 
   } catch (err) {
     res.status(500).json({ error: err.message });

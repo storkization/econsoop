@@ -171,21 +171,21 @@
       overflow:hidden;
     }
     .summary-report-header {
-      text-align:center;
+      text-align:left;
       padding:20px 24px 16px;
       border-bottom:1.5px solid #1A7A45;
       background:#FFFFFF;
     }
     .summary-report-eyebrow {
       font-family:'Playfair Display', serif;
-      font-size:13px; font-weight:700;
+      font-size:12px; font-weight:700;
       color:#1A7A45;
-      letter-spacing:0.5px;
-      margin-bottom:8px;
+      letter-spacing:0.3px;
+      margin-bottom:4px;
     }
     .summary-report-title {
       font-family:'Playfair Display', serif;
-      font-size:20px; font-weight:900;
+      font-size:22px; font-weight:900;
       color:#111827; letter-spacing:-0.5px;
       line-height:1.2; margin-bottom:6px;
     }
@@ -195,14 +195,21 @@
       font-size:10px; color:#111827;
       letter-spacing:0.5px;
     }
-    .summary-note-label {
-      font-family:'Playfair Display', serif;
-      font-size:12px; font-weight:700;
-      color:#1A7A45;
-      font-style:italic;
-      text-align:center;
-      padding:12px 24px 0;
-      letter-spacing:0.3px;
+    .summary-oneliner {
+      padding:14px 24px;
+      border-bottom:1.5px solid #1A7A45;
+      background:#F7FBF8;
+    }
+    .summary-oneliner-label {
+      font-family:'IBM Plex Mono', monospace;
+      font-size:9px; color:#1A7A45;
+      text-transform:uppercase; letter-spacing:2px;
+      margin-bottom:6px;
+    }
+    .summary-oneliner-text {
+      font-size:15px; font-weight:700;
+      color:#111827; line-height:1.5;
+      letter-spacing:-0.2px;
     }
     .summary-line-wrap {
       padding:14px 24px;
@@ -218,7 +225,7 @@
       text-transform:uppercase;
     }
     .tag-issue  { background:#E8F5EE; color:#1A7A45; border:1px solid #1A7A45; }
-    .tag-market { background:#E8F5EE; color:#1A7A45; border:1px solid #1A7A45; }
+    .tag-market { background:#EEF2FF; color:#3730A3; border:1px solid #3730A3; }
     .tag-invest { background:#FEF9E7; color:#92600A; border:1px solid #D4A017; }
     .summary-line-text {
       font-size:14px; font-weight:600;
@@ -981,7 +988,7 @@ const FX_LIST = [
 const TAB_LABEL = { economy:'경제', industry:'산업', global:'국제' };
 
 /* ═══════════ CACHE VERSION ═══════════ */
-const CACHE_VERSION = 'v8';
+const CACHE_VERSION = 'v11';
 (function clearOldCache() {
   const savedVersion = localStorage.getItem('eco_cache_version');
   if (savedVersion !== CACHE_VERSION) {
@@ -1208,6 +1215,7 @@ async function genTabSummary(tab) {
     const result = {
       summary: j.summary || '',
       briefing: j.briefing || '',
+      oneliner: j.oneliner || '',
       topNews: unique.slice(0, 7),
     };
     summaryCache[tab] = result;
@@ -1239,9 +1247,9 @@ function renderTabSummary(tab, result) {
       .filter(l => l.length > 0).slice(0, 3);
 
     const tags = [
-      { cls:'tag-issue',  label:'핵심 이슈' },
-      { cls:'tag-market', label:'시장 흐름' },
-      { cls:'tag-invest', label:'투자 포인트' },
+      { cls:'tag-issue',  label:'🌿 핵심 이슈' },
+      { cls:'tag-market', label:'📈 시장 흐름' },
+      { cls:'tag-invest', label:'💡 투자 포인트' },
     ];
 
     // 날짜/시간
@@ -1256,7 +1264,11 @@ function renderTabSummary(tab, result) {
         <div class="summary-report-title">오늘의 <em>${tabLabel}</em></div>
         <div class="summary-report-date">${dateStr}</div>
       </div>
-      <div class="summary-note-label">✦ Shawn's Note ✦</div>
+      ${result.oneliner ? `
+      <div class="summary-oneliner">
+        <div class="summary-oneliner-label">🌲 종합 분석</div>
+        <div class="summary-oneliner-text">${result.oneliner}</div>
+      </div>` : ''}
       ${lines.map((line, i) => `
         <div class="summary-line-wrap">
           <div class="summary-line-tag ${tags[i].cls}">${tags[i].label}</div>
