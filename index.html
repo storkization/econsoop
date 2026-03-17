@@ -267,9 +267,11 @@
     .insight-line:last-child { margin-bottom:0; }
     .insight-badge {
       flex-shrink:0;
+      width: 36px;
+      text-align: center;
       font-family:'IBM Plex Mono', monospace;
       font-size:9px; font-weight:700;
-      color:#fff; padding:3px 7px;
+      color:#fff; padding:3px 0;
       border-radius:4px; letter-spacing:0.5px;
       line-height:1.4;
       margin-top:2px;
@@ -1068,7 +1070,7 @@ const FX_LIST = [
 const TAB_LABEL = { economy:'경제', industry:'산업', global:'국제' };
 
 /* ═══════════ CACHE VERSION ═══════════ */
-const CACHE_VERSION = 'v18';
+const CACHE_VERSION = 'v19';
 (function clearOldCache() {
   const savedVersion = localStorage.getItem('eco_cache_version');
   if (savedVersion !== CACHE_VERSION) {
