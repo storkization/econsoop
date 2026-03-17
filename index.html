@@ -1289,9 +1289,13 @@ function renderTabSummary(tab, result) {
     const lines = [m1, m2, m3].map(m => m ? m[1].trim() : null).filter(Boolean);
     console.log('[PARSED LINES]', lines);
 
-    // 패턴 매칭 실패 시 줄바꿈으로 폴백
+    // 패턴 매칭 실패 시 한국어 문장 끝으로 분리 폴백
     const finalLines = lines.length >= 2 ? lines :
-      result.summary.split('\n').map(l => l.replace(/^줄\d+:\s*/, '').trim()).filter(l => l.length > 10).slice(0, 3);
+      result.summary
+        .split(/(?<=다\.|했다\.|이다\.)\s+/)
+        .map(l => l.replace(/^줄\d+:\s*/, '').trim())
+        .filter(l => l.length > 10)
+        .slice(0, 3);
 
     const tags = [
       { cls:'tag-issue',  wrap:'wrap-issue',  label:'🌿 핵심 이슈' },
