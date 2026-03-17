@@ -229,14 +229,16 @@
     }
     .summary-oneliner-label {
       font-family:'IBM Plex Mono', monospace;
-      font-size:9px; color:rgba(255,255,255,0.6);
-      text-transform:uppercase; letter-spacing:2px;
-      margin-bottom:8px;
+      font-size:10px; color:rgba(255,255,255,0.5);
+      text-transform:uppercase; letter-spacing:2.5px;
+      margin-bottom:10px;
     }
     .summary-oneliner-text {
       font-size:15px; font-weight:700;
-      color:#FFFFFF; line-height:1.6;
-      letter-spacing:-0.2px;
+      color:#FFFFFF; line-height:1.65;
+      letter-spacing:-0.3px;
+      border-left:2px solid rgba(255,255,255,0.3);
+      padding-left:12px;
     }
     .summary-line-wrap {
       padding:14px 24px;
@@ -254,6 +256,9 @@
     .tag-issue  { background:#E8F5EE; color:#1A7A45; border:1px solid #1A7A45; }
     .tag-market { background:#EEF2FF; color:#3730A3; border:1px solid #3730A3; }
     .tag-invest { background:#FEF9E7; color:#92600A; border:1px solid #D4A017; }
+    .summary-line-wrap.wrap-issue  { border-left:3px solid #1A7A45; background:#FAFFFD; }
+    .summary-line-wrap.wrap-market { border-left:3px solid #3730A3; background:#F9FAFF; }
+    .summary-line-wrap.wrap-invest { border-left:3px solid #D4A017; background:#FFFDF5; }
     .summary-line-text {
       font-size:14px; font-weight:600;
       color:#111827; line-height:1.75;
@@ -1285,9 +1290,9 @@ function renderTabSummary(tab, result) {
       result.summary.split('\n').map(l => l.replace(/^줄\d+:\s*/, '').trim()).filter(l => l.length > 10).slice(0, 3);
 
     const tags = [
-      { cls:'tag-issue',  label:'🌿 핵심 이슈' },
-      { cls:'tag-market', label:'📈 시장 흐름' },
-      { cls:'tag-invest', label:'💡 투자 포인트' },
+      { cls:'tag-issue',  wrap:'wrap-issue',  label:'🌿 핵심 이슈' },
+      { cls:'tag-market', wrap:'wrap-market',  label:'📈 시장 흐름' },
+      { cls:'tag-invest', wrap:'wrap-invest',  label:'💡 투자 포인트' },
     ];
 
     // 날짜/시간
@@ -1303,14 +1308,14 @@ function renderTabSummary(tab, result) {
         <div class="summary-report-date">${dateStr}</div>
       </div>
       ${finalLines.map((line, i) => `
-        <div class="summary-line-wrap">
+        <div class="summary-line-wrap ${tags[i] ? tags[i].wrap : ''}">
           <div class="summary-line-tag ${tags[i] ? tags[i].cls : 'tag-issue'}">${tags[i] ? tags[i].label : ''}</div>
           <div class="summary-line-text">${line}</div>
         </div>
       `).join('')}
       ${result.oneliner ? `
       <div class="summary-oneliner">
-        <div class="summary-oneliner-label">🌲 종합 분석</div>
+        <div class="summary-oneliner-label">✦ Shawn's Insight</div>
         <div class="summary-oneliner-text">${result.oneliner}</div>
       </div>` : ''}
     `;
