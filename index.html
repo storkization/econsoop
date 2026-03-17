@@ -1070,7 +1070,7 @@ const FX_LIST = [
 const TAB_LABEL = { economy:'경제', industry:'산업', global:'국제' };
 
 /* ═══════════ CACHE VERSION ═══════════ */
-const CACHE_VERSION = 'v19';
+const CACHE_VERSION = 'v20';
 (function clearOldCache() {
   const savedVersion = localStorage.getItem('eco_cache_version');
   if (savedVersion !== CACHE_VERSION) {
@@ -1375,8 +1375,8 @@ function renderTabSummary(tab, result) {
       .map(s => s.replace(/^문장\d+:\s*|^Shawn's Insight:\s*/i, '').trim())
       .filter(s => s.length > 5)
       .slice(0, 3);
-    const labels = ['현황', '리스크', '주목'];
-    const colors = ['#1A7A45', '#C0392B', '#1A5CAD'];
+    const labels = ['흐름', '변수', '포인트'];
+    const colors = ['#1A7A45', '#8B4513', '#1A5CAD'];
     insightEl.innerHTML = `
       <div class="insight-section-label">💡 원포인트 요약 by Shawn</div>
       <div class="insight-card">
