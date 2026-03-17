@@ -1313,13 +1313,10 @@ async function genTabSummary(tab) {
       updateBriefingTimestamp();
     }
   } catch(err) {
+    console.error('[BRIEFING ERROR]', err.message, err);
     stopLoadingMsg();
     const card = document.getElementById(`${tab}-summary-card`);
-    if (card) card.innerHTML = `<p style="color:rgba(255,255,255,0.5);font-size:13px;">브리핑 생성 중 오류가 발생했습니다.</p>`;
-    if (tab === 'economy') {
-      const bt = document.getElementById('briefing-text');
-      if (bt) bt.innerHTML = `<p style="color:#6B7280;font-size:13px;">브리핑 생성 중 오류: ${err.message}</p>`;
-    }
+    if (card) card.innerHTML = `<div style="padding:20px;text-align:center;color:#DC2626;font-size:13px;">오류: ${err.message}</div>`;
   }
 }
 
