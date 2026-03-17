@@ -104,22 +104,59 @@
       background:#FFFFFF;
       border-bottom:2px solid #E5E7EB;
       flex-shrink:0;
+      overflow-x:auto;
+      -webkit-overflow-scrolling:touch;
+      scrollbar-width:none;
     }
+    .tabs::-webkit-scrollbar { display:none; }
     .tab-btn {
-      flex:1; padding:10px 2px;
+      flex-shrink:0;
+      padding:10px 14px;
       background:none; border:none;
       color:var(--text-muted);
       font-family:'Noto Sans KR', -apple-system, sans-serif;
       font-size:12px; cursor:pointer;
       position:relative;
       transition:color 0.2s;
+      white-space:nowrap;
     }
-    .tab-btn.active { color:var(--accent); }
+    .tab-btn.active { color:var(--accent); font-weight:700; }
     .tab-btn.active::after {
       content:''; position:absolute;
       bottom:-2px; left:15%; right:15%; height:2px;
       background:var(--accent);
       border-radius:2px 2px 0 0;
+    }
+
+    /* ── CHIPS ── */
+    .chips-wrap {
+      background:#FFFFFF;
+      border-bottom:1px solid #E5E7EB;
+      padding:8px 12px;
+      display:flex; gap:6px;
+      overflow-x:auto;
+      -webkit-overflow-scrolling:touch;
+      scrollbar-width:none;
+      flex-shrink:0;
+    }
+    .chips-wrap::-webkit-scrollbar { display:none; }
+    .chip {
+      flex-shrink:0;
+      padding:5px 13px;
+      border-radius:20px;
+      border:1px solid #E5E7EB;
+      background:#F9FAFB;
+      color:var(--text-muted);
+      font-size:11px; font-weight:500;
+      cursor:pointer;
+      white-space:nowrap;
+      transition:all .2s;
+      font-family:'Noto Sans KR', -apple-system, sans-serif;
+    }
+    .chip.active {
+      background:var(--accent);
+      border-color:var(--accent);
+      color:#fff; font-weight:700;
     }
 
     /* ── CONTENT ── */
@@ -618,18 +655,28 @@
 
   <!-- TABS -->
   <div class="tabs">
-    <button class="tab-btn active" data-tab="news">📰 뉴스</button>
+    <button class="tab-btn active" data-tab="economy">🏦 경제</button>
+    <button class="tab-btn" data-tab="industry">🏭 산업</button>
+    <button class="tab-btn" data-tab="global">🌐 국제</button>
     <button class="tab-btn" data-tab="stocks">📈 주식</button>
     <button class="tab-btn" data-tab="fx">💱 환율</button>
     <button class="tab-btn" data-tab="ai">✨ AI</button>
   </div>
 
+  <!-- CHIPS (뉴스 탭용) -->
+  <div class="chips-wrap" id="chips-row">
+    <button class="chip active" data-chip="all">전체</button>
+    <button class="chip" data-chip="policy">경제정책</button>
+    <button class="chip" data-chip="macro">거시경제</button>
+    <button class="chip" data-chip="fx-news">외환·환율</button>
+    <button class="chip" data-chip="welfare">고용·복지</button>
+  </div>
+
   <!-- CONTENT -->
   <div class="content">
 
-    <!-- ▸ NEWS -->
-    <div class="tab-panel active" id="tab-news">
-      <!-- AI 브리핑 카드 -->
+    <!-- ▸ 경제/산업/국제 (공통 뉴스 패널) -->
+    <div class="tab-panel active" id="tab-economy">
       <div id="briefing-card" style="
         background: #EBF4FF;
         border-radius:14px; padding:20px; margin-bottom:12px;
@@ -639,26 +686,41 @@
         <div style="
           font-family:'IBM Plex Mono',monospace;
           font-size:9px; color:#4A7AB5;
-          text-transform:uppercase; letter-spacing:2px; margin-bottom:14px;
+          text-transform:uppercase; letter-spacing:2px; margin-bottom:6px;
           display:flex; align-items:center; gap:6px;
         ">
           <span style="width:6px;height:6px;background:#3ECF6B;border-radius:50%;display:inline-block;animation:blink 2s infinite"></span>
-          AI 일일 브리핑 · 실시간 경제 분석
+          Shawn Kim's Daily Briefing
         </div>
+        <div style="
+          font-family:'IBM Plex Mono',monospace;
+          font-size:9px; color:#6B9FD4;
+          letter-spacing:1px; margin-bottom:14px;
+        " id="briefing-timestamp">—</div>
         <div id="briefing-text" style="color:#111827;">
           <div class="dots" style="margin-bottom:8px"><span style="background:#4A7AB5"></span><span style="background:#4A7AB5"></span><span style="background:#4A7AB5"></span></div>
           <span style="color:#6B7280;font-size:13px">뉴스 분석 중...</span>
         </div>
       </div>
 
-      <div class="news-filter">
-        <button class="filter-btn active" data-filter="korea" onclick="setFilter('korea')">🇰🇷 한국</button>
-        <button class="filter-btn" data-filter="intl"  onclick="setFilter('intl')">🌐 국제</button>
+      <!-- 3줄 요약 -->
+      <div id="summary-card" style="
+        background: linear-gradient(135deg, #0F2247 0%, #1A3A6E 100%);
+        border-radius:14px; padding:22px 20px; margin-bottom:12px;
+        box-shadow:0 4px 20px rgba(0,0,0,0.25);
+        min-height:100px; display:flex; flex-direction:column; justify-content:center;
+      ">
+        <div id="summary-text" style="color:rgba(255,255,255,0.4); font-size:13px; text-align:center;">
+          <div class="dots"><span></span><span></span><span></span></div>
+        </div>
       </div>
+
       <div id="news-content">
         <div class="loading-wrap"><div class="dots"><span></span><span></span><span></span></div><p style="margin-top:14px">뉴스 불러오는 중...</p></div>
       </div>
     </div>
+    <div class="tab-panel" id="tab-industry"><div id="news-content-industry" class="news-content-area"><div class="loading-wrap"><div class="dots"><span></span><span></span><span></span></div><p style="margin-top:14px">뉴스 불러오는 중...</p></div></div></div>
+    <div class="tab-panel" id="tab-global"><div id="news-content-global" class="news-content-area"><div class="loading-wrap"><div class="dots"><span></span><span></span><span></span></div><p style="margin-top:14px">뉴스 불러오는 중...</p></div></div></div>
 
     <!-- ▸ STOCKS -->
     <div class="tab-panel" id="tab-stocks">
@@ -727,16 +789,31 @@
 
 <script>
 /* ═══════════ CONFIG ═══════════ */
-const RSS2JSON = url => `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(url)}`;
-
-const FEEDS = {
-  korea: [
-    { name:'한국경제', url:'https://www.hankyung.com/feed/economy' },
-    { name:'매일경제', url:'https://rss.mk.co.kr/economy' },
+/* ═══════════ CATEGORY CONFIG ═══════════ */
+const CATEGORY_CHIPS = {
+  economy: [
+    { id:'all',     label:'전체',     queries:['경제정책 금리 기준금리', '거시경제 GDP 성장률', '환율 외환 달러', '고용 복지 실업'] },
+    { id:'policy',  label:'경제정책', queries:['경제정책 기준금리 한국은행 정부'] },
+    { id:'macro',   label:'거시경제', queries:['GDP 성장률 물가 무역수지 경상수지'] },
+    { id:'fx-news', label:'외환·환율',queries:['환율 원달러 외환시장 달러 강세'] },
+    { id:'welfare', label:'고용·복지',queries:['고용 취업 실업률 임금 복지'] },
   ],
-  intl: [
-    { name:'연합뉴스', url:'https://www.yna.co.kr/rss/international.xml' },
-  ]
+  industry: [
+    { id:'all',    label:'전체',         queries:['반도체 삼성전자 SK하이닉스', '자동차 현대 배터리', '바이오 제약 헬스케어', '건설 부동산', '재계 대기업 경영'] },
+    { id:'semi',   label:'반도체·전자',  queries:['반도체 삼성전자 SK하이닉스 AI칩 HBM'] },
+    { id:'auto',   label:'자동차·배터리',queries:['자동차 현대차 기아 배터리 전기차'] },
+    { id:'bio',    label:'바이오·헬스',  queries:['바이오 제약 헬스케어 신약 임상'] },
+    { id:'realty', label:'건설·부동산',  queries:['건설 부동산 아파트 분양 주택'] },
+    { id:'biz',    label:'경영·재계',    queries:['재계 대기업 경영 M&A 실적'] },
+  ],
+  global: [
+    { id:'all',    label:'전체',      queries:['미국 연준 Fed 금리', '중국 경제 위안화', '일본 엔화', '유럽 ECB', '국제유가 원자재'] },
+    { id:'us',     label:'미국',      queries:['미국 연준 Fed 나스닥 S&P 트럼프 관세'] },
+    { id:'china',  label:'중국',      queries:['중국 경제 위안화 무역 수출'] },
+    { id:'japan',  label:'일본',      queries:['일본 경제 엔화 닛케이'] },
+    { id:'europe', label:'유럽',      queries:['유럽 ECB 유로 독일 영국'] },
+    { id:'em',     label:'중동·신흥국',queries:['중동 유가 OPEC 신흥국 인도'] },
+  ],
 };
 
 const INDICES = [
@@ -765,143 +842,133 @@ const FX_LIST = [
 ];
 
 /* ═══════════ STATE ═══════════ */
-let newsCache = { korea:[], intl:[] };
-let currentFilter = 'korea';
+let newsCache = {};  // key: "economy-all", "industry-semi" 등
+let currentTab = 'economy';
+let currentChip = 'all';
 let fxRates = null;
 let apiKey = localStorage.getItem('eco_api_key') || '';
-let briefingDone = false;
 
 /* ═══════════ INIT ═══════════ */
 document.addEventListener('DOMContentLoaded', () => {
-  // Header date
   const d = new Date();
   const days = ['일','월','화','수','목','금','토'];
-  const dateStr = `${d.getFullYear()}. ${String(d.getMonth()+1).padStart(2,'0')}. ${String(d.getDate()).padStart(2,'0')} ${days[d.getDay()]}요일`;
-  document.getElementById('headerDate').textContent = dateStr;
+  document.getElementById('headerDate').textContent =
+    `${d.getFullYear()}. ${String(d.getMonth()+1).padStart(2,'0')}. ${String(d.getDate()).padStart(2,'0')} ${days[d.getDay()]}요일`;
 
-  // API key
   if (apiKey) document.getElementById('apiKey').value = apiKey;
 
-  // 캐시된 브리핑 즉시 표시 (속도 개선)
-  const cached = localStorage.getItem('eco_briefing');
-  const cachedTime = localStorage.getItem('eco_briefing_time');
+  // 캐시된 브리핑 즉시 표시
+  const cached    = localStorage.getItem('eco_briefing');
+  const cachedSum = localStorage.getItem('eco_summary');
+  const cachedTime= localStorage.getItem('eco_briefing_time');
   if (cached && cachedTime && Date.now() - cachedTime < 60 * 60 * 1000) {
+    updateBriefingTimestamp();
     renderBriefing(cached);
+    if (cachedSum) renderSummary(cachedSum);
   }
 
-  // Tab switching
+  // 탭 전환
   document.querySelectorAll('.tab-btn').forEach(btn => {
     btn.addEventListener('click', () => switchTab(btn.dataset.tab));
   });
 
-  // Load news (브리핑은 뉴스 로딩 후 자동 생성)
-  fetchNews('korea');
-  fetchNews('intl');
+  // 첫 로드
+  loadNewsTab('economy', 'all');
 });
 
 function pad(n) { return String(n).padStart(2,'0'); }
 
+/* ═══════════ TAB & CHIP SWITCHING ═══════════ */
 function switchTab(id) {
+  currentTab = id;
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab===id));
   document.querySelectorAll('.tab-panel').forEach(p => p.classList.toggle('active', p.id==='tab-'+id));
-  if (id==='stocks' && !document.querySelector('.stock-row')) loadStocks();
-  if (id==='fx'     && !fxRates) loadFX();
+
+  const chipsRow = document.getElementById('chips-row');
+  const newsTab = ['economy','industry','global'].includes(id);
+  chipsRow.style.display = newsTab ? 'flex' : 'none';
+
+  if (newsTab) {
+    currentChip = 'all';
+    renderChips(id);
+    loadNewsTab(id, 'all');
+  }
+  if (id==='stocks') loadStocks();
+  if (id==='fx' && !fxRates) loadFX();
 }
 
-/* ═══════════ NEWS ═══════════ */
-async function fetchNews(type) {
-  try {
-    const queries = type === 'korea'
-      ? ['환율 코스피 금리', '수출 반도체 무역수지', '물가 부동산 경제']
-      : ['미국 연준 금리', '국제유가 달러 글로벌경제'];
-
-    const allItems = [];
-
-    // 순차 요청으로 429 방지
-    for (const q of queries) {
-      try {
-        const r = await fetch(`/api/news?query=${encodeURIComponent(q)}&display=15&type=${type}`,
-          { signal: AbortSignal.timeout(8000) });
-        const j = await r.json();
-        if (j.items) allItems.push(...j.items);
-        await new Promise(resolve => setTimeout(resolve, 300));
-      } catch {}
-    }
-
-    // 중요도 낮은 뉴스 필터링
-    const skipKeywords = ['구직', '채용', '취업', '대구', '부산', '광주', '인천', '수원', '자립준비', '희망디딤돌', '아침의 주요기사', '오늘의 주요기사', '주요기사', '1부', '2부'];
-    const filtered = allItems.filter(item =>
-      !skipKeywords.some(kw => item.title.includes(kw))
-    );
-
-    // 중복 제거 (제목 앞 15글자 기준)
-    const seen = new Set();
-    const unique = filtered.filter(item => {
-      const key = item.title.slice(0, 15);
-      if (seen.has(key)) return false;
-      seen.add(key);
-      return true;
-    });
-
-    // 날짜순 정렬
-    unique.sort((a, b) => new Date(b.date) - new Date(a.date));
-
-    newsCache[type] = unique.slice(0, 30);
-  } catch {
-    newsCache[type] = [];
-  }
-
-  if ((type === 'korea' && currentFilter === 'korea') ||
-      (type === 'intl'  && currentFilter === 'intl')) {
-    renderNews(type);
-  }
-
-  // 한국 뉴스 로딩 완료 시 브리핑 생성
-  if (type === 'korea' && newsCache.korea.length > 0) {
-    genAutoBriefing();
-  }
+function renderChips(tab) {
+  const chips = CATEGORY_CHIPS[tab];
+  const row = document.getElementById('chips-row');
+  row.innerHTML = chips.map(c =>
+    `<button class="chip ${c.id===currentChip?'active':''}" onclick="selectChip('${c.id}')">${c.label}</button>`
+  ).join('');
 }
 
-function setFilter(f) {
-  currentFilter = f;
-  document.querySelectorAll('.filter-btn').forEach(b => b.classList.toggle('active', b.dataset.filter===f));
-  renderNews(f);
+function selectChip(chipId) {
+  currentChip = chipId;
+  renderChips(currentTab);
+  loadNewsTab(currentTab, chipId);
 }
 
-function renderNews(type) {
-  const items = newsCache[type];
-  const c = document.getElementById('news-content');
-  if (!items.length) {
-    c.innerHTML = `<div class="loading-wrap"><div class="dots"><span></span><span></span><span></span></div><p style="margin-top:14px">뉴스 불러오는 중...</p></div>`;
+/* ═══════════ NEWS FETCH ═══════════ */
+async function loadNewsTab(tab, chip) {
+  const key = `${tab}-${chip}`;
+  const contentId = tab === 'economy' ? 'news-content' : `news-content-${tab}`;
+  const el = document.getElementById(contentId);
+
+  // 캐시 있으면 바로 렌더
+  if (newsCache[key]) {
+    renderNewsList(newsCache[key], contentId);
     return;
   }
 
-  let h = '';
-  const [hero, sub, ...rest] = items;
+  el.innerHTML = `<div class="loading-wrap"><div class="dots"><span></span><span></span><span></span></div><p style="margin-top:14px">뉴스 불러오는 중...</p></div>`;
 
-  // Hero
-  h += `<div class="news-hero" onclick="openLink('${esc(hero.link)}')">
-    ${hero.img ? `<img class="news-hero-img" src="${esc(hero.img)}" alt="" onerror="this.style.display='none'">` : ''}
-    <div class="news-hero-body">
-      <div class="news-source-tag">${hero.source}</div>
-      <div class="news-hero-title">${hero.title}</div>
-      <div class="news-hero-time">${ago(hero.date)}</div>
-    </div>
-  </div>`;
+  const chipConfig = CATEGORY_CHIPS[tab].find(c => c.id === chip);
+  if (!chipConfig) return;
 
-  // Sub-hero
-  if (sub) h += `<div class="news-sub" onclick="openLink('${esc(sub.link)}')">
-    <div class="news-sub-body">
-      <div class="news-sub-title">${sub.title}</div>
-      <div class="news-sub-meta"><span>${sub.source}</span><span>${ago(sub.date)}</span></div>
-    </div>
-  </div>`;
+  const allItems = [];
+  for (const q of chipConfig.queries) {
+    try {
+      const r = await fetch(`/api/news?query=${encodeURIComponent(q)}&display=15&type=general`,
+        { signal: AbortSignal.timeout(8000) });
+      const j = await r.json();
+      if (j.items) allItems.push(...j.items);
+      await new Promise(res => setTimeout(res, 250));
+    } catch {}
+  }
 
-  h += `<div class="section-label">주요 뉴스</div>`;
+  const skipKw = ['구직','채용','취업','자립준비','희망디딤돌','주요기사','1부','2부'];
+  const filtered = allItems.filter(it => !skipKw.some(kw => it.title.includes(kw)));
 
-  rest.slice(0,18).forEach((it,i) => {
+  const seen = new Set();
+  const unique = filtered.filter(it => {
+    const k = it.title.slice(0,15);
+    if (seen.has(k)) return false;
+    seen.add(k); return true;
+  });
+  unique.sort((a,b) => new Date(b.date) - new Date(a.date));
+
+  newsCache[key] = unique.slice(0, 25);
+  renderNewsList(newsCache[key], contentId);
+
+  // economy-all 로딩 완료 시 브리핑 생성
+  if (tab === 'economy' && chip === 'all' && unique.length > 0) {
+    genAutoBriefing(unique);
+  }
+}
+
+function renderNewsList(items, contentId) {
+  const c = document.getElementById(contentId);
+  if (!items || !items.length) {
+    c.innerHTML = `<div class="loading-wrap"><p>뉴스를 찾을 수 없습니다</p></div>`;
+    return;
+  }
+  let h = `<div class="section-label">주요 뉴스</div>`;
+  items.forEach((it, i) => {
     h += `<div class="news-item">
-      <div class="news-num">${pad(i+3)}</div>
+      <div class="news-num">${pad(i+1)}</div>
       <div class="news-body" onclick="openLink('${esc(it.link)}')">
         <div class="news-title">${it.title}</div>
         <div class="news-meta"><span>${it.source}</span><span>${ago(it.date)}</span></div>
@@ -909,7 +976,6 @@ function renderNews(type) {
       <button class="ai-pill" onclick="analyzeNews(this,'${esc(it.title)}')">AI 분석</button>
     </div>`;
   });
-
   c.innerHTML = h;
 }
 
@@ -925,6 +991,7 @@ function ago(d){
   if(h < 24) return h + '시간 전';
   return Math.floor(h / 24) + '일 전';
 }
+
 
 /* ═══════════ STOCKS ═══════════ */
 async function loadStocks(){
@@ -1044,6 +1111,14 @@ async function loadFX(){
 }
 
 /* ═══════════ AUTO BRIEFING ═══════════ */
+function updateBriefingTimestamp() {
+  const el = document.getElementById('briefing-timestamp');
+  if (!el) return;
+  const t = localStorage.getItem('eco_briefing_time');
+  const d = t ? new Date(Number(t)) : new Date();
+  el.textContent = `${d.getMonth()+1}월 ${d.getDate()}일 · ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')} 기준`;
+}
+
 function renderBriefing(text) {
   const el = document.getElementById('briefing-text');
   if (!el) return;
@@ -1104,23 +1179,20 @@ function highlightKeywords(text) {
   return text;
 }
 
-async function genAutoBriefing() {
-  const cached = localStorage.getItem('eco_briefing');
-  const cachedTime = localStorage.getItem('eco_briefing_time');
+async function genAutoBriefing(newsItems) {
+  const cached    = localStorage.getItem('eco_briefing');
+  const cachedSum = localStorage.getItem('eco_summary');
+  const cachedTime= localStorage.getItem('eco_briefing_time');
   if (cached && cachedTime && Date.now() - cachedTime < 60 * 60 * 1000) {
+    updateBriefingTimestamp();
     renderBriefing(cached);
+    if (cachedSum) renderSummary(cachedSum);
     return;
   }
 
-  // 뉴스 없으면 잠깐 기다렸다가 재시도
-  if (!newsCache.korea.length) {
-    setTimeout(genAutoBriefing, 2000);
-    return;
-  }
+  if (!newsItems || !newsItems.length) return;
 
-  const koreaNews = newsCache.korea.slice(0, 20).map(n => `[국내] ${n.title}`);
-  const intlNews  = newsCache.intl.slice(0, 10).map(n => `[국제] ${n.title}`);
-  const headlines = [...koreaNews, ...intlNews];
+  const headlines = newsItems.slice(0, 25).map(n => n.title);
 
   try {
     const res = await fetch('/api/briefing', {
@@ -1132,6 +1204,8 @@ async function genAutoBriefing() {
     const text = j.briefing || '브리핑 생성 실패';
     localStorage.setItem('eco_briefing', text);
     localStorage.setItem('eco_briefing_time', Date.now());
+    updateBriefingTimestamp();
+    if (j.summary) { localStorage.setItem('eco_summary', j.summary); renderSummary(j.summary); }
     renderBriefing(text);
   } catch {
     const el = document.getElementById('briefing-text');
@@ -1139,12 +1213,32 @@ async function genAutoBriefing() {
   }
 }
 
+function renderSummary(text) {
+  const el = document.getElementById('summary-text');
+  if (!el || !text) return;
+  const lines = text.split('\n')
+    .map(l => l.replace(/^줄\d+:\s*/, '').trim())
+    .filter(l => l.length > 0)
+    .slice(0, 3);
+  if (!lines.length) return;
+  el.innerHTML = lines.map((line, i) => {
+    const icons = ['📌','📊','💡'];
+    return `<div style="
+      font-size:${i===0?'17px':'15px'};
+      font-weight:${i===0?'800':'600'};
+      color:${i===0?'#FFFFFF':'rgba(255,255,255,0.8)'};
+      line-height:1.55; margin-bottom:${i<2?'12px':'0'};
+      letter-spacing:-0.3px;
+    ">${icons[i]} ${line}</div>`;
+  }).join('');
+}
+
 /* ═══════════ AI ═══════════ */
 function saveKey(v){ apiKey=v; localStorage.setItem('eco_api_key',v); }
 
 async function genBriefing(){
   if(!apiKey){ alert('API 키를 입력해주세요'); return; }
-  const news = [...newsCache.korea.slice(0,5),...newsCache.intl.slice(0,5)];
+  const news = newsCache['economy-all'] || [];
   if(!news.length){ alert('뉴스를 먼저 불러와야 합니다'); return; }
 
   const btn = document.getElementById('briefBtn');

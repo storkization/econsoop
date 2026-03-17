@@ -24,33 +24,41 @@ export default async function handler(req, res) {
       },
       body: JSON.stringify({
         model: 'claude-sonnet-4-20250514',
-        max_tokens: 1000,
+        max_tokens: 1500,
         messages: [{
           role: 'user',
-          content: `아래 뉴스 헤드라인 중 투자자/경제 입문자 관점에서 가장 중요한 5개를 골라 브리핑해줘.
+          content: `아래 뉴스 헤드라인을 분석해서 두 가지를 작성해줘.
 
 헤드라인:
 ${headlineText}
+
+---
+
+[SUMMARY]
+오늘 시장을 딱 3줄로 요약해줘. 경제 초보자도 바로 이해할 수 있게, 핵심 숫자/키워드 포함. 각 줄은 완결된 문장으로.
+줄1: (가장 중요한 이슈)
+줄2: (두 번째 이슈 또는 연관 흐름)
+줄3: (투자자 관점 핵심 포인트)
+[/SUMMARY]
+
+[BRIEFING]
+투자자/경제 입문자 관점에서 가장 중요한 5개를 골라 브리핑해줘.
 
 선별 기준:
 - 거시경제(환율/금리/물가/GDP), 글로벌 시장, 주요 산업 중심
 - 구직/채용/지역행사/단순 기업 홍보 제외
 - 숫자/데이터 있으면 반드시 포함
 
-각 이슈마다 반드시 포함할 것:
-- 이게 왜 지금 중요한지 (배경)
-- 시장/내 자산에 구체적으로 어떤 영향인지 (숫자 포함)
-- 개인투자자가 지금 당장 어떻게 행동해야 하는지 (액션 포인트)
-
 형식:
 1️⃣ [제목]
-📌 배경: [왜 지금 중요한지 - 맥락 설명]
+📌 배경: [왜 지금 중요한지]
 📊 영향: [구체적 수치와 함께 시장 영향]
 💼 액션: [개인투자자가 지금 취해야 할 행동]
 
 (2~5번 동일)
 
-💡 오늘의 한마디: [경제 초보자도 이해할 수 있는 오늘 시장 핵심 메시지 - 비유나 쉬운 언어로]`
+💡 오늘의 한마디: [경제 초보자도 이해할 수 있는 오늘 시장 핵심 메시지]
+[/BRIEFING]`
         }]
       })
     });
@@ -62,8 +70,15 @@ ${headlineText}
       return res.status(500).json({ error: data.error.message });
     }
 
-    const text = data.content?.[0]?.text || '브리핑 생성 실패';
-    res.status(200).json({ briefing: text });
+    const fullText = data.content?.[0]?.text || '';
+
+    const summaryMatch = fullText.match(/\[SUMMARY\]([\s\S]*?)\[\/SUMMARY\]/);
+    const briefingMatch = fullText.match(/\[BRIEFING\]([\s\S]*?)\[\/BRIEFING\]/);
+
+    const summary = summaryMatch ? summaryMatch[1].trim() : '';
+    const briefing = briefingMatch ? briefingMatch[1].trim() : fullText;
+
+    res.status(200).json({ briefing, summary });
 
   } catch (err) {
     res.status(500).json({ error: err.message });

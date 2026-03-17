@@ -2,11 +2,13 @@ export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET');
 
-  const { query = '경제', display = 20, type = 'korea' } = req.query;
+  const { query = '경제', display = 20, type = 'general' } = req.query;
 
   const searchQuery = type === 'intl'
     ? query || '국제경제 미국 금리 무역'
-    : query || '한국경제 코스피 주식 금리';
+    : type === 'korea'
+    ? query || '한국경제 코스피 주식 금리'
+    : query || '경제';
 
   try {
     const url = `https://openapi.naver.com/v1/search/news.json?query=${encodeURIComponent(searchQuery)}&display=${display}&sort=date`;
