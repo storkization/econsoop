@@ -23,7 +23,7 @@ export default async function handler(req, res) {
         'anthropic-version': '2023-06-01',
       },
       body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
+        model: 'claude-sonnet-4-5',
         max_tokens: 1500,
         messages: [{
           role: 'user',
@@ -65,9 +65,9 @@ ${headlineText}
 
     const data = await response.json();
 
-    if (data.error) {
+    if (!response.ok || data.error) {
       console.error('Anthropic API error:', JSON.stringify(data));
-      return res.status(500).json({ error: data.error.message });
+      return res.status(500).json({ error: data.error?.message || JSON.stringify(data) });
     }
 
     const fullText = data.content?.[0]?.text || '';
