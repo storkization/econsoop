@@ -1082,6 +1082,9 @@ async function genTabSummary(tab) {
       body: JSON.stringify({ headlines, tab, label })
     });
     const j = await res.json();
+    if (!res.ok) {
+      throw new Error(j.error || `API 오류 ${res.status}`);
+    }
     const result = {
       summary: j.summary || '',
       briefing: j.briefing || '',
@@ -1096,9 +1099,13 @@ async function genTabSummary(tab) {
       renderBriefing(result.briefing);
       updateBriefingTimestamp();
     }
-  } catch {
-    document.getElementById(`${tab}-summary-card`).innerHTML =
-      `<p style="color:rgba(255,255,255,0.5);font-size:13px;">브리핑 생성 중 오류가 발생했습니다.</p>`;
+  } catch(err) {
+    const card = document.getElementById(`${tab}-summary-card`);
+    if (card) card.innerHTML = `<p style="color:rgba(255,255,255,0.5);font-size:13px;">브리핑 생성 중 오류가 발생했습니다.</p>`;
+    if (tab === 'economy') {
+      const bt = document.getElementById('briefing-text');
+      if (bt) bt.innerHTML = `<p style="color:#6B7280;font-size:13px;">브리핑 생성 중 오류: ${err.message}</p>`;
+    }
   }
 }
 
@@ -1325,7 +1332,11 @@ function updateBriefingTimestamp() {
 
 function renderBriefing(text) {
   const el = document.getElementById('briefing-text');
-  if (!el || !text) return;
+  if (!el) return;
+  if (!text) {
+    el.innerHTML = `<p style="color:#6B7280;font-size:13px;">브리핑 데이터가 없습니다.</p>`;
+    return;
+  }
   const lines = text.split('\n');
   let html = '';
   for (let line of lines) {
