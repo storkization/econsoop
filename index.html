@@ -1279,11 +1279,15 @@ async function genTabSummary(tab) {
 function renderTabSummary(tab, result) {
   const card = document.getElementById(`${tab}-summary-card`);
   if (card && result.summary) {
-    // 줄1:/줄2:/줄3: 패턴으로 정확하게 추출
-    const m1 = result.summary.match(/줄1:\s*(.+?)(?=\s*줄[23]:|$)/);
-    const m2 = result.summary.match(/줄2:\s*(.+?)(?=\s*줄3:|$)/);
-    const m3 = result.summary.match(/줄3:\s*(.+?)(?=$)/);
+    // 디버그: 실제 summary 포맷 확인
+    console.log('[SUMMARY RAW]', JSON.stringify(result.summary));
+
+    // 줄1:/줄2:/줄3: 패턴 (한줄/멀티라인 모두 대응)
+    const m1 = result.summary.match(/줄1:\s*(.+?)(?=\s*줄2:|$)/s);
+    const m2 = result.summary.match(/줄2:\s*(.+?)(?=\s*줄3:|$)/s);
+    const m3 = result.summary.match(/줄3:\s*(.+?)$/s);
     const lines = [m1, m2, m3].map(m => m ? m[1].trim() : null).filter(Boolean);
+    console.log('[PARSED LINES]', lines);
 
     // 패턴 매칭 실패 시 줄바꿈으로 폴백
     const finalLines = lines.length >= 2 ? lines :
