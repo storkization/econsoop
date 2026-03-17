@@ -981,7 +981,7 @@ const FX_LIST = [
 const TAB_LABEL = { economy:'경제', industry:'산업', global:'국제' };
 
 /* ═══════════ CACHE VERSION ═══════════ */
-const CACHE_VERSION = 'v7';
+const CACHE_VERSION = 'v8';
 (function clearOldCache() {
   const savedVersion = localStorage.getItem('eco_cache_version');
   if (savedVersion !== CACHE_VERSION) {
@@ -1141,7 +1141,7 @@ function setLoadingMsg(tab, phase) {
   }
 
   render();
-  _loadingInterval = setInterval(render, 2500);
+  _loadingInterval = setInterval(render, 4000);
 }
 
 function stopLoadingMsg() {
