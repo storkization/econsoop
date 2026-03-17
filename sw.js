@@ -1,4 +1,4 @@
-const CACHE = 'ecobrief-v1';
+const CACHE = 'ecobrief-v20';
 const ASSETS = ['./index.html', './manifest.json'];
 
 self.addEventListener('install', e => {
