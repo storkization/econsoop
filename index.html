@@ -248,10 +248,11 @@
     .insight-line:last-child { margin-bottom:0; }
     .insight-icon { flex-shrink:0; font-size:13px; margin-top:2px; }
     .insight-section-label {
-      font-family:'IBM Plex Mono', monospace;
-      font-size:9px; color:var(--text-muted);
-      text-transform:uppercase; letter-spacing:2px;
-      margin: 14px 16px 8px;
+      font-family:'Noto Sans KR', sans-serif;
+      font-size:15px; font-weight:800;
+      color:#1A7A45;
+      letter-spacing:-0.3px;
+      margin: 18px 16px 8px;
     }
     .insight-card {
       background: linear-gradient(135deg, #0D3320 0%, #1A5C35 100%);
@@ -259,13 +260,19 @@
       margin: 0 16px 14px;
       padding: 18px 20px;
     }
+    .insight-line {
+      display:flex; gap:10px; align-items:flex-start;
+      margin-bottom:12px;
+    }
+    .insight-line:last-child { margin-bottom:0; }
     .insight-badge {
       flex-shrink:0;
       font-family:'IBM Plex Mono', monospace;
       font-size:9px; font-weight:700;
-      color:#fff; padding:2px 7px;
+      color:#fff; padding:3px 7px;
       border-radius:4px; letter-spacing:0.5px;
-      margin-top:3px;
+      line-height:1.4;
+      margin-top:2px;
     }
     .insight-text {
       font-size:14px; font-weight:600;
@@ -1369,7 +1376,7 @@ function renderTabSummary(tab, result) {
     const labels = ['현황', '리스크', '주목'];
     const colors = ['#1A7A45', '#C0392B', '#1A5CAD'];
     insightEl.innerHTML = `
-      <div class="insight-section-label">✦ Shawn's Insight</div>
+      <div class="insight-section-label">💡 원포인트 요약 by Shawn</div>
       <div class="insight-card">
         ${sentences.map((s, i) => `
           <div class="insight-line">
