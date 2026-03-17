@@ -163,17 +163,71 @@
       color:#fff; font-weight:700;
     }
 
-    /* ── SUMMARY CARD ── */
+    /* ── SUMMARY CARD (보고서 스타일) ── */
     .summary-card {
-      background: linear-gradient(135deg, #0F2247 0%, #1A3A6E 100%);
-      border-radius:14px; padding:22px 20px; margin-bottom:12px;
-      box-shadow:0 4px 20px rgba(0,0,0,0.25);
-      min-height:110px; display:flex; flex-direction:column; justify-content:center;
+      background: #0B1629;
+      border-radius:16px; padding:28px 24px;
+      margin-bottom:14px;
+      box-shadow:0 8px 32px rgba(0,0,0,0.35);
+      border:1px solid rgba(255,255,255,0.07);
     }
-    .summary-line {
-      line-height:1.6; margin-bottom:10px; letter-spacing:-0.3px;
+    .summary-report-header {
+      text-align:center;
+      padding-bottom:18px;
+      margin-bottom:18px;
+      border-bottom:1px solid rgba(255,255,255,0.1);
     }
-    .summary-line:last-child { margin-bottom:0; }
+    .summary-report-eyebrow {
+      font-family:'IBM Plex Mono', monospace;
+      font-size:9px; letter-spacing:3px;
+      color:rgba(255,255,255,0.35);
+      text-transform:uppercase;
+      margin-bottom:10px;
+    }
+    .summary-report-title {
+      font-family:'Playfair Display', serif;
+      font-size:22px; font-weight:900;
+      color:#FFFFFF; letter-spacing:-0.5px;
+      line-height:1.2; margin-bottom:8px;
+    }
+    .summary-report-title em {
+      color:#5B9BF5; font-style:normal;
+    }
+    .summary-report-date {
+      font-family:'IBM Plex Mono', monospace;
+      font-size:10px; color:rgba(255,255,255,0.4);
+      letter-spacing:0.5px;
+    }
+    .summary-note-label {
+      font-family:'Playfair Display', serif;
+      font-size:13px; font-weight:700;
+      color:rgba(255,255,255,0.5);
+      font-style:italic;
+      text-align:center;
+      margin-bottom:16px;
+      letter-spacing:0.3px;
+    }
+    .summary-line-wrap {
+      padding:12px 0;
+      border-bottom:1px solid rgba(255,255,255,0.06);
+    }
+    .summary-line-wrap:last-child { border-bottom:none; padding-bottom:0; }
+    .summary-line-tag {
+      display:inline-block;
+      font-family:'IBM Plex Mono', monospace;
+      font-size:9px; font-weight:600;
+      padding:2px 7px; border-radius:3px;
+      margin-bottom:6px; letter-spacing:1px;
+      text-transform:uppercase;
+    }
+    .tag-issue { background:rgba(91,155,245,0.15); color:#5B9BF5; }
+    .tag-market { background:rgba(52,211,153,0.15); color:#34D399; }
+    .tag-invest { background:rgba(251,191,36,0.15); color:#FBBF24; }
+    .summary-line-text {
+      font-size:14px; font-weight:600;
+      color:#F0F4FF; line-height:1.6;
+      letter-spacing:-0.2px;
+    }
 
     /* ── 1면 카드 ── */
     .front-section {
@@ -751,30 +805,13 @@
 
     <!-- ▸ 경제 탭 -->
     <div class="tab-panel" id="tab-economy">
-      <!-- AI 브리핑 카드 (종합 칩에서만 표시) -->
-      <div id="briefing-card" style="
-        background:#EBF4FF; border-radius:14px; padding:20px; margin-bottom:12px;
-        box-shadow:0 2px 12px rgba(0,0,0,0.08); border:1px solid #C7E0FF; display:none;
-      ">
-        <div style="font-family:'IBM Plex Mono',monospace; font-size:9px; color:#4A7AB5;
-          text-transform:uppercase; letter-spacing:2px; margin-bottom:6px;
-          display:flex; align-items:center; gap:6px;">
-          <span style="width:6px;height:6px;background:#3ECF6B;border-radius:50%;display:inline-block;animation:blink 2s infinite"></span>
-          Shawn Kim's Daily Briefing
-        </div>
-        <div style="font-family:'IBM Plex Mono',monospace; font-size:9px; color:#6B9FD4;
-          letter-spacing:1px; margin-bottom:14px;" id="briefing-timestamp">—</div>
-        <div id="briefing-text" style="color:#111827;">
-          <div class="dots" style="margin-bottom:8px"><span style="background:#4A7AB5"></span><span style="background:#4A7AB5"></span><span style="background:#4A7AB5"></span></div>
-          <span style="color:#6B7280;font-size:13px">분석 중...</span>
-        </div>
-      </div>
-
       <!-- 종합 뷰 (summary 칩) -->
       <div id="economy-summary-view">
         <div class="summary-card" id="economy-summary-card">
-          <div style="color:rgba(255,255,255,0.4); text-align:center; font-size:13px;">
+          <div style="text-align:center; padding:20px 0;">
+            <div style="font-family:'IBM Plex Mono',monospace; font-size:9px; color:rgba(255,255,255,0.3); letter-spacing:3px; text-transform:uppercase; margin-bottom:16px;">Shawn Kim's Daily Briefing</div>
             <div class="dots"><span></span><span></span><span></span></div>
+            <div style="color:rgba(255,255,255,0.3); font-size:12px; margin-top:12px;">뉴스 분석 중...</div>
           </div>
         </div>
         <div id="economy-summary-news"></div>
@@ -1019,17 +1056,12 @@ function selectChip(tab, chipId) {
   if (chipId === 'summary') {
     summaryView.style.display = 'block';
     subView.style.display = 'none';
-    // 종합 없으면 생성
     if (!summaryCache[tab]) genTabSummary(tab);
   } else {
     summaryView.style.display = 'none';
     subView.style.display = 'block';
     loadSubNews(tab, chipId);
   }
-
-  // 경제 탭 브리핑 카드 표시
-  const bc = document.getElementById('briefing-card');
-  if (bc) bc.style.display = (tab==='economy' && chipId==='summary') ? 'block' : 'none';
 }
 
 /* ═══════════ 종합 생성 ═══════════ */
@@ -1110,18 +1142,38 @@ async function genTabSummary(tab) {
 }
 
 function renderTabSummary(tab, result) {
-  // 3줄 요약 카드
   const card = document.getElementById(`${tab}-summary-card`);
   if (card && result.summary) {
     const lines = result.summary.split('\n')
       .map(l => l.replace(/^줄\d+:\s*/, '').trim())
       .filter(l => l.length > 0).slice(0, 3);
-    const icons = ['📌','📊','💡'];
-    card.innerHTML = lines.map((line, i) =>
-      `<div class="summary-line" style="font-size:${i===0?'17px':'15px'};font-weight:${i===0?'800':'600'};color:${i===0?'#FFFFFF':'rgba(255,255,255,0.82)'};">
-        ${icons[i]} ${line}
-      </div>`
-    ).join('');
+
+    const tags = [
+      { cls:'tag-issue',  label:'핵심 이슈' },
+      { cls:'tag-market', label:'시장 흐름' },
+      { cls:'tag-invest', label:'투자 포인트' },
+    ];
+
+    // 날짜/시간
+    const t = localStorage.getItem(`eco_summary_time_${tab}`);
+    const d = t ? new Date(Number(t)) : new Date();
+    const dateStr = `${d.getMonth()+1}월 ${d.getDate()}일 · ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')} 기준`;
+    const tabLabel = TAB_LABEL[tab];
+
+    card.innerHTML = `
+      <div class="summary-report-header">
+        <div class="summary-report-eyebrow">Shawn Kim's Daily Briefing</div>
+        <div class="summary-report-title">오늘의 <em>${tabLabel}</em></div>
+        <div class="summary-report-date">${dateStr}</div>
+      </div>
+      <div class="summary-note-label">✦ Shawn's Note ✦</div>
+      ${lines.map((line, i) => `
+        <div class="summary-line-wrap">
+          <div class="summary-line-tag ${tags[i].cls}">${tags[i].label}</div>
+          <div class="summary-line-text">${line}</div>
+        </div>
+      `).join('')}
+    `;
   }
 
   // AI가 고른 주요 뉴스
