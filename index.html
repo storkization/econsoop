@@ -1070,7 +1070,7 @@ const FX_LIST = [
 const TAB_LABEL = { economy:'경제', industry:'산업', global:'국제' };
 
 /* ═══════════ CACHE VERSION ═══════════ */
-const CACHE_VERSION = 'v20';
+const CACHE_VERSION = 'v21';
 (function clearOldCache() {
   const savedVersion = localStorage.getItem('eco_cache_version');
   if (savedVersion !== CACHE_VERSION) {
@@ -1244,13 +1244,16 @@ async function genTabSummary(tab) {
   const cachedTime = localStorage.getItem(cacheTimeKey);
 
   if (cached && cachedTime && Date.now() - cachedTime < 60*60*1000) {
-    summaryCache[tab] = JSON.parse(cached);
-    renderTabSummary(tab, summaryCache[tab]);
-    if (tab === 'economy') {
-      renderBriefing(summaryCache[tab].briefing || '');
-      updateBriefingTimestamp();
+    const parsed = JSON.parse(cached);
+    if (parsed.summary) {
+      summaryCache[tab] = parsed;
+      renderTabSummary(tab, summaryCache[tab]);
+      if (tab === 'economy') {
+        renderBriefing(summaryCache[tab].briefing || '');
+        updateBriefingTimestamp();
+      }
+      return;
     }
-    return;
   }
 
   const label = TAB_LABEL[tab];
