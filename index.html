@@ -112,19 +112,19 @@
     .header-top { display:flex; justify-content:space-between; align-items:flex-end; }
     .app-logo {
       font-family:var(--font-serif);
-      font-size:var(--fs-app-title); font-weight:var(--fw-black);
+      font-size:28px; font-weight:var(--fw-black);
       letter-spacing:-0.5px; color:var(--text);
     }
     .app-logo em { color:var(--accent); font-style:normal; }
     .app-logo span {
-      color:var(--text-muted); font-size:var(--fs-caption);
-      font-family:var(--font-mono); font-weight:var(--fw-regular);
-      letter-spacing:1px; margin-left:6px; vertical-align:middle;
+      color:var(--text-muted); font-size:13px;
+      font-family:var(--font-sans); font-weight:var(--fw-semi);
+      letter-spacing:-0.2px; margin-left:6px; vertical-align:middle;
     }
     .header-right { text-align:right; }
     .header-date {
       font-family:var(--font-mono);
-      font-size:var(--fs-caption); color:var(--text-muted);
+      font-size:12px; color:var(--text-muted);
       line-height:1.6;
     }
     .header-sub {
@@ -515,13 +515,11 @@
         <div class="header-date" id="headerDate"></div>
       </div>
     </div>
-    <div class="header-sub" style="flex-direction:column;align-items:flex-start;gap:4px;margin-top:6px;">
-      <span class="header-sub-main" style="font-size:12px;">숲을 보는 숀킴의 경제 채널</span>
-      <div style="display:flex;align-items:center;gap:8px;">
-        <span class="header-sub-by" style="font-size:10px;">Created by <em>김도훈</em></span>
-        <span class="header-sub-by" style="font-size:10px;">Edited by <em>Shawn's AI</em></span>
-        <span class="header-sub-model">AI · claude-haiku-4</span>
-      </div>
+    <div class="header-sub" style="flex-direction:column;align-items:flex-start;gap:3px;margin-top:8px;">
+      <span style="font-family:var(--font-sans);font-size:13px;font-weight:700;color:var(--accent);letter-spacing:-0.2px;">숲을 보는 숀킴의 경제 채널</span>
+      <span style="font-family:var(--font-mono);font-size:11px;color:var(--text-muted);">Created by <em style="font-style:normal;font-weight:700;color:var(--text);">김도훈</em></span>
+      <span style="font-family:var(--font-mono);font-size:11px;color:var(--text-muted);">Written by <em style="font-style:normal;font-weight:700;color:var(--text);">Shawn's AI</em></span>
+      <span style="font-family:var(--font-mono);font-size:11px;color:var(--text-dim);">Made Possible with <em style="font-style:normal;font-weight:700;color:var(--accent);">claude-haiku-4</em></span>
     </div>
   </div>
 
@@ -733,7 +731,7 @@ const FX_LIST = [
 const TAB_LABEL = { economy:'경제', industry:'산업', global:'국제' };
 
 /* ═══════════ CACHE VERSION ═══════════ */
-const CACHE_VERSION = 'v49';
+const CACHE_VERSION = 'v50';
 (function clearOldCache() {
   const savedVersion = localStorage.getItem('eco_cache_version');
   if (savedVersion !== CACHE_VERSION) {
