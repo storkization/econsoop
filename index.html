@@ -948,7 +948,7 @@ const FX_LIST = [
 const TAB_LABEL = { economy:'경제', industry:'산업', global:'국제' };
 
 /* ═══════════ CACHE VERSION ═══════════ */
-const CACHE_VERSION = 'v28';
+const CACHE_VERSION = 'v29';
 (function clearOldCache() {
   const savedVersion = localStorage.getItem('eco_cache_version');
   if (savedVersion !== CACHE_VERSION) {
@@ -1289,14 +1289,21 @@ function renderTabSummary(tab, result) {
         .filter(s => s.length > 5)
         .slice(0, 3);
     }
-    const labels = ['Why', 'So What', 'Focus'];
+    const labels = [
+      { ko: '배경(상황)', en: 'Why' },
+      { ko: '시장 영향',  en: 'So What' },
+      { ko: '주목할 점', en: 'Focus' },
+    ];
     const colors = ['#1A7A45', '#8B4513', '#1A5CAD'];
     insightEl.innerHTML = `
       <div class="insight-section-label">💡 원포인트 요약 by Shawn</div>
       <div class="insight-card">
         ${sentences.map((s, i) => `
-          <div class="insight-line">
-            <span class="insight-badge" style="background:${colors[i]};">${labels[i]}</span>
+          <div class="insight-line" style="margin-bottom:${i < sentences.length - 1 ? '18px' : '0'};">
+            <span class="insight-badge" style="background:${colors[i]};width:auto;min-width:52px;padding:4px 8px;line-height:1.5;text-align:center;">
+              <span style="display:block;font-size:10px;font-weight:800;letter-spacing:-0.2px;">${labels[i].ko}</span>
+              <span style="display:block;font-size:8px;opacity:0.75;font-weight:500;letter-spacing:0.5px;">${labels[i].en}</span>
+            </span>
             <span class="insight-text">${s}</span>
           </div>
         `).join('')}
