@@ -78,9 +78,9 @@ ${headlineText}
     }
 
     const fullText = data.content?.[0]?.text || '';
-    const summaryMatch = fullText.match(/\[SUMMARY\]([\s\S]*?)\[\/SUMMARY\]/);
-    const briefingMatch = fullText.match(/\[BRIEFING\]([\s\S]*?)\[\/BRIEFING\]/);
-    const onelinerMatch = fullText.match(/\[ONELINER\]([\s\S]*?)\[\/ONELINER\]/);
+    const summaryMatch = fullText.match(/\[SUMMARY\]([\s\S]*?)(?=\[\/SUMMARY\]|\[ONELINER\]|\[BRIEFING\]|$)/);
+    const onelinerMatch = fullText.match(/\[ONELINER\]([\s\S]*?)(?=\[\/ONELINER\]|\[BRIEFING\]|$)/);
+    const briefingMatch = fullText.match(/\[BRIEFING\]([\s\S]*?)(?=\[\/BRIEFING\]|$)/);
     const summary = summaryMatch ? summaryMatch[1].trim() : '';
     const briefing = briefingMatch ? briefingMatch[1].trim() : fullText;
     const oneliner = onelinerMatch ? onelinerMatch[1].trim() : '';
