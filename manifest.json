@@ -1,17 +1,23 @@
 {
-  "name": "이코노미 브리핑",
-  "short_name": "이코노미",
+  "name": "Econ.SOOP",
+  "short_name": "Econ.SOOP",
   "description": "AI 경제 뉴스 브리핑 앱",
   "start_url": "./index.html",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#1B2A4A",
-  "theme_color": "#1B2A4A",
+  "background_color": "#EAF3EE",
+  "theme_color": "#1A7A45",
   "icons": [
     {
-      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect width='192' height='192' rx='40' fill='%230B0B12'/><text x='96' y='130' font-size='100' text-anchor='middle'>📰</text></svg>",
+      "src": "img/Econ_Soop192.png",
       "sizes": "192x192",
-      "type": "image/svg+xml"
+      "type": "image/png"
+    },
+    {
+      "src": "img/econ_soop512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
     }
   ]
 }
