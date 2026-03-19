@@ -2,6 +2,9 @@
   "functions": {
     "api/briefing.js": {
       "maxDuration": 60
+    },
+    "api/column.js": {
+      "maxDuration": 60
     }
   }
 }

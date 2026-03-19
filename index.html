@@ -809,6 +809,7 @@
           </div>
         </div>
         <div id="economy-insight"></div>
+        <div id="economy-column"></div>
         <div id="economy-summary-news"></div>
       </div>
 
@@ -829,6 +830,7 @@
           </div>
         </div>
         <div id="industry-insight"></div>
+        <div id="industry-column"></div>
         <div id="industry-summary-news"></div>
       </div>
       <div id="industry-sub-view" style="display:none;">
@@ -847,6 +849,7 @@
           </div>
         </div>
         <div id="global-insight"></div>
+        <div id="global-column"></div>
         <div id="global-summary-news"></div>
       </div>
       <div id="global-sub-view" style="display:none;">
@@ -948,7 +951,7 @@ const FX_LIST = [
 const TAB_LABEL = { economy:'경제', industry:'산업', global:'국제' };
 
 /* ═══════════ CACHE VERSION ═══════════ */
-const CACHE_VERSION = 'v36';
+const CACHE_VERSION = 'v37';
 (function clearOldCache() {
   const savedVersion = localStorage.getItem('eco_cache_version');
   if (savedVersion !== CACHE_VERSION) {
@@ -1382,7 +1385,27 @@ function renderTabSummary(tab, result) {
       </div>`;
   }
 
-  // AI가 고른 주요 뉴스
+  // 칼럼 펼치기 버튼
+  const columnEl = document.getElementById(`${tab}-column`);
+  if (columnEl) {
+    columnEl.innerHTML = `
+      <div style="margin:0 0 14px;">
+        <button onclick="loadColumn('${tab}')"
+          id="${tab}-column-btn"
+          style="width:100%;background:#FFFFFF;border:1.5px solid #1A7A45;border-radius:12px;padding:14px 20px;
+                 display:flex;align-items:center;justify-content:space-between;cursor:pointer;">
+          <div style="display:flex;align-items:center;gap:10px;">
+            <span style="font-size:20px;">📰</span>
+            <div style="text-align:left;">
+              <div style="font-size:13px;font-weight:800;color:#111827;">오늘의 ${TAB_LABEL[tab]} 칼럼</div>
+              <div style="font-size:11px;color:#6B7280;margin-top:2px;">by Shawn Kim · 탭해서 펼치기</div>
+            </div>
+          </div>
+          <span style="font-size:18px;color:#1A7A45;">▼</span>
+        </button>
+        <div id="${tab}-column-body" style="display:none;"></div>
+      </div>`;
+  }
   const newsEl = document.getElementById(`${tab}-summary-news`);
   if (newsEl && result.topNews) {
     let h = `<div class="section-label">AI 추천 주요뉴스</div><div style="border-radius:var(--radius); overflow:hidden; box-shadow:0 2px 8px rgba(0,0,0,0.06);">`;
@@ -1398,6 +1421,83 @@ function renderTabSummary(tab, result) {
     h += `</div>`;
     newsEl.innerHTML = h;
   }
+}
+
+/* ═══════════ 칼럼 ═══════════ */
+const columnCache = {};
+
+async function loadColumn(tab) {
+  const body = document.getElementById(`${tab}-column-body`);
+  const btn  = document.getElementById(`${tab}-column-btn`);
+  if (!body) return;
+
+  // 토글
+  if (body.style.display === 'block') {
+    body.style.display = 'none';
+    btn.querySelector('span:last-child').textContent = '▼';
+    return;
+  }
+
+  body.style.display = 'block';
+  btn.querySelector('span:last-child').textContent = '▲';
+
+  // 캐시 확인 (스케줄 기반)
+  if (columnCache[tab]) {
+    renderColumn(tab, columnCache[tab]);
+    return;
+  }
+
+  // 로딩
+  body.innerHTML = `
+    <div style="padding:24px;text-align:center;">
+      <div class="dots" style="margin-bottom:12px;"><span></span><span></span><span></span></div>
+      <div style="font-size:12px;color:#6B7280;">칼럼 작성 중...</div>
+    </div>`;
+
+  const cached = summaryCache[tab];
+  if (!cached?.summary) {
+    body.innerHTML = `<div style="padding:20px;text-align:center;font-size:12px;color:#DC2626;">브리핑을 먼저 생성해주세요.</div>`;
+    return;
+  }
+
+  try {
+    const res = await fetch('/api/column', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ summary: cached.summary, oneliner: cached.oneliner, label: TAB_LABEL[tab] }),
+      signal: (() => { const c = new AbortController(); setTimeout(() => c.abort(), 55000); return c.signal; })()
+    });
+    const j = await res.json();
+    if (!res.ok) throw new Error(j.error || `오류 ${res.status}`);
+    columnCache[tab] = j.column;
+    renderColumn(tab, j.column);
+  } catch(err) {
+    body.innerHTML = `
+      <div style="padding:24px;text-align:center;">
+        <div style="font-size:13px;color:#DC2626;margin-bottom:12px;">⚠️ ${err.message}</div>
+        <button onclick="columnCache['${tab}']=null;loadColumn('${tab}')"
+          style="background:#1A7A45;color:#fff;border:none;border-radius:8px;padding:8px 20px;font-size:12px;font-weight:700;font-family:'Noto Sans KR',sans-serif;cursor:pointer;">
+          🔄 다시 시도
+        </button>
+      </div>`;
+  }
+}
+
+function renderColumn(tab, text) {
+  const body = document.getElementById(`${tab}-column-body`);
+  if (!body) return;
+
+  // 마크다운 → HTML 변환
+  const html = text
+    .replace(/^###\s(.+)$/gm, '<h3 style="font-size:14px;font-weight:800;color:#1A7A45;margin:18px 0 8px;letter-spacing:-0.2px;">$1</h3>')
+    .replace(/^---$/gm, '<hr style="border:none;border-top:1px solid #E5EDE8;margin:16px 0;">')
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    .replace(/^(?!<)(.+)$/gm, '<p style="font-size:14px;color:#374151;line-height:1.85;margin:0 0 8px;">$1</p>');
+
+  body.innerHTML = `
+    <div style="background:#FAFFFD;border:1px solid #D4E8DA;border-top:none;border-radius:0 0 12px 12px;padding:20px 20px 24px;">
+      ${html}
+    </div>`;
 }
 
 function updateFrontPreview(tab, summary) {
