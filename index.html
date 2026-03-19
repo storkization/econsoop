@@ -954,7 +954,7 @@ const FX_LIST = [
 const TAB_LABEL = { economy:'경제', industry:'산업', global:'국제' };
 
 /* ═══════════ CACHE VERSION ═══════════ */
-const CACHE_VERSION = 'v45';
+const CACHE_VERSION = 'v46';
 (function clearOldCache() {
   const savedVersion = localStorage.getItem('eco_cache_version');
   if (savedVersion !== CACHE_VERSION) {
@@ -1355,9 +1355,9 @@ function renderTabSummary(tab, result) {
         .slice(0, 3);
     }
     const labels = [
-      { ko: '배경(상황)', en: 'Why' },
-      { ko: '시장 영향',  en: 'So What' },
-      { ko: '주목할 점', en: 'Focus' },
+      { ko: '배경(상황) 🌍', en: 'Why' },
+      { ko: '시장 영향 📉',  en: 'So What' },
+      { ko: '주목할 점 🔍', en: 'Focus' },
     ];
     const colors = ['#1A7A45', '#8B4513', '#1A5CAD'];
 
@@ -1409,16 +1409,16 @@ function renderTabSummary(tab, result) {
       <div style="margin:0 0 14px;">
         <button onclick="loadColumn('${tab}')"
           id="${tab}-column-btn"
-          style="width:100%;background:#FFFFFF;border:1.5px solid #1A7A45;border-radius:12px;padding:14px 20px;
+          style="width:100%;background:#EFF6FF;border:1.5px solid #3B82F6;border-radius:12px;padding:14px 20px;
                  display:flex;align-items:center;justify-content:space-between;cursor:pointer;">
           <div style="display:flex;align-items:center;gap:10px;">
             <span style="font-size:20px;">📰</span>
             <div style="text-align:left;">
-              <div style="font-size:13px;font-weight:800;color:#111827;">오늘의 ${TAB_LABEL[tab]} 칼럼</div>
+              <div style="font-size:13px;font-weight:800;color:#1D4ED8;">오늘의 ${TAB_LABEL[tab]} 칼럼</div>
               <div style="font-size:11px;color:#6B7280;margin-top:2px;">by Shawn Kim · 탭해서 펼치기</div>
             </div>
           </div>
-          <span style="font-size:18px;color:#1A7A45;">▼</span>
+          <span style="font-size:18px;color:#3B82F6;">▼</span>
         </button>
         <div id="${tab}-column-body" style="display:none;"></div>
       </div>`;
