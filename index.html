@@ -1373,7 +1373,7 @@ function renderTabSummary(tab, result) {
         const lineContent = isBullet
           ? '<ul style="list-style:none;padding:0;margin:0;">' +
             line.split(/•/).map(l => l.trim()).filter(l => l.length > 0).map(l =>
-              `<li style="display:flex;gap:8px;margin-bottom:6px;"><span style="color:#1A7A45;font-weight:700;flex-shrink:0;">•</span><span>${l}</span></li>`
+              `<li style="display:flex;gap:8px;margin-bottom:6px;"><span style="color:#111827;font-weight:700;flex-shrink:0;">•</span><span>${l}</span></li>`
             ).join('') + '</ul>'
           : line;
         return `
