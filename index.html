@@ -948,7 +948,7 @@ const FX_LIST = [
 const TAB_LABEL = { economy:'경제', industry:'산업', global:'국제' };
 
 /* ═══════════ CACHE VERSION ═══════════ */
-const CACHE_VERSION = 'v31';
+const CACHE_VERSION = 'v36';
 (function clearOldCache() {
   const savedVersion = localStorage.getItem('eco_cache_version');
   if (savedVersion !== CACHE_VERSION) {
@@ -969,9 +969,10 @@ let fxRates = null;
 /* ═══════════ INIT ═══════════ */
 document.addEventListener('DOMContentLoaded', () => {
   const d = new Date();
-  const days = ['일','월','화','수','목','금','토'];
-  document.getElementById('headerDate').textContent =
-    `${d.getFullYear()}. ${String(d.getMonth()+1).padStart(2,'0')}. ${String(d.getDate()).padStart(2,'0')} ${days[d.getDay()]}요일`;
+  const days = ['SUN','MON','TUE','WED','THU','FRI','SAT'];
+  const months = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
+  document.getElementById('headerDate').innerHTML =
+    `<span style="color:#1A7A45;font-weight:700;">${days[d.getDay()]}</span> · ${months[d.getMonth()]} ${String(d.getDate()).padStart(2,'0')}, ${d.getFullYear()}`;
 
   document.querySelectorAll('.tab-btn').forEach(btn => {
     btn.addEventListener('click', () => switchTab(btn.dataset.tab));
@@ -1118,13 +1119,41 @@ async function genTabSummary(tab) {
   const cached = localStorage.getItem(cacheKey);
   const cachedTime = localStorage.getItem(cacheTimeKey);
 
-  if (cached && cachedTime && Date.now() - cachedTime < 60*60*1000) {
-    const parsed = JSON.parse(cached);
-    if (parsed.summary) {
-      summaryCache[tab] = parsed;
-      renderTabSummary(tab, summaryCache[tab]);
-      updateFrontPreview(tab, parsed.summary);
-      return;
+  // 스케줄 기반 캐시 체크 (08:30 / 11:30 / 16:00 / 22:30 KST)
+  function getLastScheduleTime() {
+    const now = new Date();
+    const kst = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Seoul' }));
+    const hm = kst.getHours() * 100 + kst.getMinutes();
+    const schedules = [730, 1130, 1400, 1630, 2000, 2230];
+    // 오늘 기준 마지막 스케줄 찾기
+    let lastHm = null;
+    for (const s of schedules) {
+      if (hm >= s) lastHm = s;
+    }
+    if (lastHm === null) {
+      // 자정~08:30 사이 → 전날 22:30
+      const prev = new Date(kst);
+      prev.setDate(prev.getDate() - 1);
+      prev.setHours(22, 30, 0, 0);
+      return prev.getTime() - (now - kst);
+    }
+    const last = new Date(kst);
+    last.setHours(Math.floor(lastHm / 100), lastHm % 100, 0, 0);
+    // KST→UTC 보정
+    const offset = kst.getTime() - now.getTime();
+    return last.getTime() - offset;
+  }
+
+  if (cached && cachedTime) {
+    const lastSchedule = getLastScheduleTime();
+    if (Number(cachedTime) >= lastSchedule) {
+      const parsed = JSON.parse(cached);
+      if (parsed.summary) {
+        summaryCache[tab] = parsed;
+        renderTabSummary(tab, summaryCache[tab]);
+        updateFrontPreview(tab, parsed.summary);
+        return;
+      }
     }
   }
 
@@ -1194,7 +1223,16 @@ async function genTabSummary(tab) {
     console.error('[BRIEFING ERROR]', err.message, err);
     stopLoadingMsg();
     const card = document.getElementById(`${tab}-summary-card`);
-    if (card) card.innerHTML = `<div style="padding:20px;text-align:center;color:#DC2626;font-size:13px;">오류: ${err.message}</div>`;
+    if (card) card.innerHTML = `
+      <div style="padding:32px 24px;text-align:center;">
+        <div style="font-size:36px;margin-bottom:14px;">⚠️</div>
+        <div style="font-family:'Playfair Display',serif;font-size:15px;font-weight:700;color:#111827;margin-bottom:8px;">브리핑 생성 실패</div>
+        <div style="font-size:12px;color:#6B7280;line-height:1.6;margin-bottom:20px;">${err.message}</div>
+        <button onclick="summaryCache['${tab}']=null;genTabSummary('${tab}')"
+          style="background:#1A7A45;color:#fff;border:none;border-radius:8px;padding:10px 24px;font-size:13px;font-weight:700;font-family:'Noto Sans KR',sans-serif;cursor:pointer;">
+          🔄 다시 시도
+        </button>
+      </div>`;
   }
 }
 
@@ -1225,10 +1263,20 @@ function renderTabSummary(tab, result) {
       { cls:'tag-invest', wrap:'wrap-invest',  label:'💡 투자 포인트' },
     ];
 
-    // 날짜/시간
+    // 날짜/시간 + 스케줄 기준 표시
     const t = localStorage.getItem(`eco_summary_time_${tab}`);
     const d = t ? new Date(Number(t)) : new Date();
+    const schedules = [730, 1130, 1400, 1630, 2000, 2230];
+    const scheduleLabels = { 730:'07:30', 1130:'11:30', 1400:'14:00', 1630:'16:30', 2000:'20:00', 2230:'22:30' };
+    const kst = new Date(d.toLocaleString('en-US', { timeZone: 'Asia/Seoul' }));
+    const hm = kst.getHours() * 100 + kst.getMinutes();
+    let slotHm = null;
+    for (const s of schedules) { if (hm >= s) slotHm = s; }
+    const slotLabel = slotHm ? scheduleLabels[slotHm] : null;
     const dateStr = `${d.getMonth()+1}월 ${d.getDate()}일 · ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')} 기준`;
+    const slotBadge = slotLabel
+      ? `<span style="margin-left:8px;font-family:'IBM Plex Mono',monospace;font-size:9px;font-weight:700;color:#fff;background:#1A7A45;padding:2px 7px;border-radius:10px;letter-spacing:0.5px;">${slotLabel} 브리핑</span>`
+      : '';
     const tabLabel = TAB_LABEL[tab];
 
     // footnotes 줄별 파싱 (줄1:/줄2:/줄3:)
@@ -1243,7 +1291,7 @@ function renderTabSummary(tab, result) {
       <div class="summary-report-header">
         <div class="summary-report-eyebrow">Shawn Kim's Daily Briefing</div>
         <div class="summary-report-title">오늘의 <em>${tabLabel}</em></div>
-        <div class="summary-report-date">${dateStr}</div>
+        <div class="summary-report-date">${dateStr}${slotBadge}</div>
       </div>
       ${finalLines.map((line, i) => {
         const isBullet = line.includes('•');
@@ -1322,12 +1370,12 @@ function renderTabSummary(tab, result) {
               }).join('')
             : '';
           return `
-          <div class="insight-line" style="flex-direction:column;gap:6px;margin-bottom:${i < sentences.length - 1 ? '18px' : '0'};">
-            <span style="background:${colors[i]};display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:6px;align-self:flex-start;">
-              <span style="font-size:10px;font-weight:800;letter-spacing:-0.2px;color:#fff;">${labels[i].ko}</span>
-              <span style="font-size:8px;opacity:0.7;font-weight:500;letter-spacing:0.5px;color:#fff;">${labels[i].en}</span>
+          <div class="insight-line" style="flex-direction:column;gap:8px;margin-bottom:${i < sentences.length - 1 ? '26px' : '0'};">
+            <span style="background:${colors[i]};display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border-radius:6px;align-self:flex-start;">
+              <span style="font-size:13px;font-weight:800;letter-spacing:-0.2px;color:#fff;">${labels[i].ko}</span>
+              <span style="font-size:11px;opacity:0.85;font-weight:600;letter-spacing:0.3px;color:#fff;">${labels[i].en}</span>
             </span>
-            <span class="insight-text">${s}</span>
+            <span class="insight-text" style="font-size:15px;line-height:1.8;">${s}</span>
             ${fnHtml}
           </div>`;
         }).join('')}
