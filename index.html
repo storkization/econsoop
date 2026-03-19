@@ -731,7 +731,7 @@ const FX_LIST = [
 const TAB_LABEL = { economy:'경제', industry:'산업', global:'국제' };
 
 /* ═══════════ CACHE VERSION ═══════════ */
-const CACHE_VERSION = 'v60';
+const CACHE_VERSION = 'v61';
 (function clearOldCache() {
   const savedVersion = localStorage.getItem('eco_cache_version');
   if (savedVersion !== CACHE_VERSION) {
@@ -907,16 +907,18 @@ function stopLoadingMsg() {
 /* ═══════════ DEV MODE ═══════════ */
 const DEV_MODE = new URLSearchParams(window.location.search).get('dev') === 'true';
 const DEV_DUMMY = {
-  summary: `줄1: 미국 연준이 기준금리를 동결하면서 글로벌 금융시장의 불확실성이 지속되고 있다.\n줄2: 국내 코스피는 외국인 순매도 영향으로 2,500선 아래로 하락했다.\n줄3: 원달러 환율은 1,350원대에서 등락을 반복하며 투자자들의 관심이 집중되고 있다.`,
-  oneliner: `배경(상황)Why: 이번 금리 동결은 인플레이션 둔화 속도가 예상보다 느려지면서 연준이 조기 인하 기대를 차단하기 위한 선제적 신호입니다. 시장 영향So What: 고금리 장기화는 국내 수출기업의 자금조달 비용을 높이며, 특히 반도체·자동차 섹터의 영업이익 훼손이 불가피합니다. 주목할 점Next Move: 향후 CPI 발표 수치와 연준 의사록에서 금리 인하 시그널 여부를 집중 모니터링해야 합니다.`,
-  footnotes: `줄1: ※ 기준금리(Base Rate) │ 중앙은행이 시중은행에 돈을 빌려줄 때 적용하는 기본 이자율로, 경제 전반의 금리 수준을 결정하는 핵심 지표\n줄3: ※ 원달러 환율 │ 미국 달러 1달러를 사기 위해 필요한 원화 금액`,
-  insightFootnotes: `배경(상황)Why: ※ 인플레이션(Inflation) │ 물가가 지속적으로 오르는 현상으로, 돈의 가치가 떨어지는 것을 의미`,
+  summary: `줄1: 중동 전쟁 여파로 국제유가가 110달러를 돌파하고 원달러 환율이 17년 만에 1,500원을 넘어섰다.\n줄2: 코스피는 2.73% 급락하며 2,400선 아래로 내려앉았고, ECB·미 연준·한국은행이 일제히 금리를 동결했다.\n줄3: 한국은행의 다음달 기준금리(현 2.50%) 동결 가능성이 크며, 유가 110달러·환율 1,500원 지속 시 7월 금리 인상 카드가 테이블 위에 올라올 전망이다.`,
+  oneliner: `배경(상황)Why: 중동 분쟁에서 비롯된 에너지 공급 불안이 국제유가 급등으로 이어지고, 이것이 안전자산 선호 현상으로 달러 강세를 심화시켜 환율 급등을 초래하는 메커니즘입니다.
+※각주: ※ 안전자산 선호 현상 │ 불확실성이 커질 때 투자자들이 위험도가 낮은 달러·미국채 등으로 자산을 이동시키는 현상
+시장 영향So What: 고유가와 고환율의 동시 진행으로 한국 기업의 원가 상승과 수출 경쟁력 약화가 불가피하며, 중앙은행들의 금리 인상 곤란으로 통화정책 효과가 제한되고 있습니다.
+주목할 점Next Move: 향후 유가 110달러 수준의 지속성과 환율 1,500원대 안정성을 기준으로 한국은행의 7월 금리 인상 시그널을 포착해야 합니다.`,
+  footnotes: `줄1: ※ 원달러 환율 │ 미국 달러 1달러를 사기 위해 필요한 원화 금액\n줄2: ※ ECB(유럽중앙은행) │ 유로존 19개국의 통화정책을 담당하는 중앙은행\n줄3: ※ 기준금리(Base Rate) │ 중앙은행이 시중은행에 돈을 빌려줄 때 적용하는 기본 이자율`,
   topNews: [
-    { title: '[DEV] 연준 기준금리 동결 결정…시장 반응은?', source: '한국경제', date: new Date(), link: '#' },
-    { title: '[DEV] 코스피 2,480선 하락…외국인 순매도 지속', source: '매일경제', date: new Date(), link: '#' },
-    { title: '[DEV] 원달러 환율 1,355원 마감…달러 강세', source: '연합뉴스', date: new Date(), link: '#' },
-    { title: '[DEV] 삼성전자 실적 발표 앞두고 주가 소폭 반등', source: '서울경제', date: new Date(), link: '#' },
-    { title: '[DEV] 국제유가 배럴당 80달러 돌파…에너지주 강세', source: '조선일보', date: new Date(), link: '#' },
+    { title: '[DEV] 국제유가 110달러 돌파…중동 분쟁 격화', source: '한국경제', date: new Date(), link: '#' },
+    { title: '[DEV] 원달러 환율 1,500원 돌파…17년 만의 최고치', source: '매일경제', date: new Date(), link: '#' },
+    { title: '[DEV] 코스피 2.73% 급락…외국인 순매도 폭탄', source: '연합뉴스', date: new Date(), link: '#' },
+    { title: '[DEV] 한국은행 기준금리 2.50% 동결…7연속', source: '서울경제', date: new Date(), link: '#' },
+    { title: '[DEV] ECB·Fed 금리 동결…글로벌 통화정책 딜레마', source: '조선일보', date: new Date(), link: '#' },
   ]
 };
 
