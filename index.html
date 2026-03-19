@@ -12,8 +12,7 @@
   <meta name="apple-mobile-web-app-title" content="EcoBrief">
   <meta name="theme-color" content="#1B2A4A">
   <link rel="manifest" href="manifest.json">
-  <link rel="icon" href="img/econ_soop192.png" type="image/png">
-  <link rel="apple-touch-icon" href="img/econ_soop192.png">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📰</text></svg>">
 
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1288,11 +1287,17 @@ async function genTabSummary(tab) {
   try {
     setLoadingMsg(tab, 'ai');
     const headlines = unique.slice(0, 25).map(n => n.title);
+    console.log('[BRIEFING] 호출 시작, headlines:', headlines.length);
+    const briefingController = new AbortController();
+    const briefingTimer = setTimeout(() => briefingController.abort(), 55000);
     const res = await fetch('/api/briefing', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ headlines, tab, label })
+      body: JSON.stringify({ headlines, tab, label }),
+      signal: briefingController.signal,
     });
+    clearTimeout(briefingTimer);
+    console.log('[BRIEFING] 응답 상태:', res.status);
     const j = await res.json();
     if (!res.ok) {
       throw new Error(j.error || `API 오류 ${res.status}`);
