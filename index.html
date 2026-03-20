@@ -263,10 +263,10 @@
     .summary-line-wrap:last-child { border-bottom:none; }
     .summary-line-tag {
       display:inline-block;
-      font-family:var(--font-mono);
-      font-size:8px; font-weight:var(--fw-bold);
-      padding:3px 8px; border-radius:4px;
-      margin-bottom:8px; letter-spacing:1.2px; text-transform:uppercase;
+      font-family:var(--font-sans);
+      font-size:12px; font-weight:var(--fw-bold);
+      padding:4px 10px; border-radius:6px;
+      margin-bottom:10px; letter-spacing:-0.1px;
     }
     .tag-issue  { background:#E8F5EE; color:#1A7A45; border:1px solid rgba(26,122,69,0.3); }
     .tag-market { background:#EEF2FF; color:#3730A3; border:1px solid rgba(55,48,163,0.2); }
@@ -695,7 +695,7 @@ const FX_LIST = [
 const TAB_LABEL = { economy:'경제', industry:'산업', global:'국제' };
 
 /* ═══════════ CACHE VERSION ═══════════ */
-const CACHE_VERSION = 'v77';
+const CACHE_VERSION = 'v78';
 (function clearOldCache() {
   const savedVersion = localStorage.getItem('eco_cache_version');
   if (savedVersion !== CACHE_VERSION) {
@@ -1131,6 +1131,28 @@ const DEV_DUMMY = {
 by. Shawn Kim`
 };
 
+/* ═══════════ 스케줄 캐시 헬퍼 ═══════════ */
+function getLastScheduleTime() {
+  const now = new Date();
+  const kst = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Seoul' }));
+  const hm = kst.getHours() * 100 + kst.getMinutes();
+  const schedules = [730, 1130, 1400, 1630, 2000, 2230];
+  let lastHm = null;
+  for (const s of schedules) {
+    if (hm >= s) lastHm = s;
+  }
+  if (lastHm === null) {
+    const prev = new Date(kst);
+    prev.setDate(prev.getDate() - 1);
+    prev.setHours(22, 30, 0, 0);
+    return prev.getTime() - (now - kst);
+  }
+  const last = new Date(kst);
+  last.setHours(Math.floor(lastHm / 100), lastHm % 100, 0, 0);
+  const offset = kst.getTime() - now.getTime();
+  return last.getTime() - offset;
+}
+
 async function genTabSummary(tab) {
   // 개발모드: AI 호출 없이 더미 데이터로 렌더링
   if (DEV_MODE) {
@@ -1146,30 +1168,6 @@ async function genTabSummary(tab) {
   const cachedTime = localStorage.getItem(cacheTimeKey);
 
   // 스케줄 기반 캐시 체크 (08:30 / 11:30 / 16:00 / 22:30 KST)
-  function getLastScheduleTime() {
-    const now = new Date();
-    const kst = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Seoul' }));
-    const hm = kst.getHours() * 100 + kst.getMinutes();
-    const schedules = [730, 1130, 1400, 1630, 2000, 2230];
-    // 오늘 기준 마지막 스케줄 찾기
-    let lastHm = null;
-    for (const s of schedules) {
-      if (hm >= s) lastHm = s;
-    }
-    if (lastHm === null) {
-      // 자정~08:30 사이 → 전날 22:30
-      const prev = new Date(kst);
-      prev.setDate(prev.getDate() - 1);
-      prev.setHours(22, 30, 0, 0);
-      return prev.getTime() - (now - kst);
-    }
-    const last = new Date(kst);
-    last.setHours(Math.floor(lastHm / 100), lastHm % 100, 0, 0);
-    // KST→UTC 보정
-    const offset = kst.getTime() - now.getTime();
-    return last.getTime() - offset;
-  }
-
   if (cached && cachedTime) {
     const lastSchedule = getLastScheduleTime();
     if (Number(cachedTime) >= lastSchedule) {
@@ -1528,12 +1526,10 @@ function renderTabSummary(tab, result) {
         <div style="border-radius:var(--radius);overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,0.07);border:1px solid rgba(26,122,69,0.1);">`;
       result.topNews.forEach((it, i) => {
         const isLast = i === result.topNews.length - 1;
-        const isFirst = i === 0;
-        const firstStyle = isFirst ? 'background:#FAFFFD;border-left:3px solid #1A7A45;' : '';
-        h += `<div class="news-item" style="${firstStyle}${!isLast ? 'border-bottom:1px solid rgba(0,0,0,0.05);' : ''}">
+        h += `<div class="news-item" style="${!isLast ? 'border-bottom:1px solid rgba(0,0,0,0.05);' : ''}">
           <div class="news-num" style="color:#1A7A45;font-weight:800;">${pad(i+1)}</div>
           <div class="news-body" onclick="openLink('${esc(it.link)}')">
-            <div class="news-title"${isFirst ? ' style="font-weight:700;"' : ''}>${it.title}</div>
+            <div class="news-title">${it.title}</div>
             <div class="news-meta">
               <span style="background:#E8F5EE;color:#1A7A45;padding:1px 6px;border-radius:4px;font-weight:600;">${it.source}</span>
               <span>${ago(it.date)}</span>
@@ -1571,10 +1567,22 @@ async function loadColumn(tab) {
     return;
   }
 
-  // 캐시 확인 (스케줄 기반)
+  // 캐시 확인 (메모리 → localStorage, 스케줄 기반)
   if (columnCache[tab]) {
     renderColumn(tab, columnCache[tab]);
     return;
+  }
+  const colCacheKey = `eco_column_${tab}`;
+  const colCacheTimeKey = `eco_column_time_${tab}`;
+  const savedCol = localStorage.getItem(colCacheKey);
+  const savedColTime = localStorage.getItem(colCacheTimeKey);
+  if (savedCol && savedColTime) {
+    const lastSchedule = getLastScheduleTime();
+    if (Number(savedColTime) >= lastSchedule) {
+      columnCache[tab] = savedCol;
+      renderColumn(tab, savedCol);
+      return;
+    }
   }
 
   // 로딩
@@ -1600,6 +1608,8 @@ async function loadColumn(tab) {
     const j = await res.json();
     if (!res.ok) throw new Error(j.error || `오류 ${res.status}`);
     columnCache[tab] = j.column;
+    localStorage.setItem(colCacheKey, j.column);
+    localStorage.setItem(colCacheTimeKey, Date.now());
     renderColumn(tab, j.column);
   } catch(err) {
     body.innerHTML = `
