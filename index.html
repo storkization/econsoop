@@ -687,7 +687,7 @@ const FX_LIST = [
 const TAB_LABEL = { economy:'경제', industry:'산업', global:'국제' };
 
 /* ═══════════ CACHE VERSION ═══════════ */
-const CACHE_VERSION = 'v76';
+const CACHE_VERSION = 'v77';
 (function clearOldCache() {
   const savedVersion = localStorage.getItem('eco_cache_version');
   if (savedVersion !== CACHE_VERSION) {
@@ -1187,7 +1187,7 @@ async function genTabSummary(tab) {
     );
     console.log('[BRIEFING] 호출 시작, headlines:', headlines.length);
     _briefingController = new AbortController();
-    const briefingTimer = setTimeout(() => _briefingController.abort(), 55000);
+    const briefingTimer = setTimeout(() => { if (_briefingController) _briefingController.abort(); }, 55000);
     const res = await fetch('/api/briefing', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
