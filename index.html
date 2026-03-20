@@ -41,12 +41,11 @@
       --shadow-md:  0 4px 16px rgba(0,0,0,0.08);
 
       /* ── Typography Scale ── */
-      --font-serif:   'Playfair Display', serif;
-      --font-sans:    'Noto Sans KR', -apple-system, sans-serif;
-      --font-mono:    'IBM Plex Mono', monospace;
+      --font-serif:   'Playfair Display', Georgia, 'Times New Roman', serif;
+      --font-sans:    'Noto Sans KR', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', sans-serif;
+      --font-mono:    'IBM Plex Mono', 'SF Mono', Menlo, Consolas, monospace;
 
       /* Size */
-      --fs-app-title:   25px;   /* Econ.SOOP 로고 */
       --fs-section:     18px;   /* 오늘의 경제, 카드 대제목 */
       --fs-h1:          15px;   /* 섹션 헤딩, 쓰리포인트 제목 */
       --fs-h2:          13px;   /* 서브헤딩, 배지 레이블 */
@@ -76,7 +75,7 @@
       height:100%;
       background: var(--bg);
       color:var(--text);
-      font-family:'Noto Sans KR', -apple-system, sans-serif;
+      font-family:var(--font-sans);
       overflow:hidden;
       position:relative;
     }
@@ -283,7 +282,7 @@
     }
     .summary-footnote {
       margin-top:10px; padding:10px 14px;
-      background:#F5F7F5; border-left:2px solid var(--accent);
+      background:#F7F8F7; border-left:2px solid #D1D5DB;
       border-radius:0 8px 8px 0;
       font-family:var(--font-sans);
       font-size:12px; color:#4B5563; line-height:1.7;
@@ -321,22 +320,32 @@
     .status-card-desc {
       font-size:12px; color:var(--text-muted); line-height:1.6; margin-bottom:20px;
     }
+    .init-card {
+      text-align:center; padding:32px 20px;
+    }
+    .init-card-eyebrow {
+      font-family:var(--font-mono);
+      font-size:9px; color:var(--accent);
+      letter-spacing:3px; text-transform:uppercase; margin-bottom:16px;
+    }
+    .init-card-icon { font-size:28px; margin-bottom:14px; }
+    .init-card-msg { font-size:13px; color:var(--text-muted); }
     .column-headline {
       font-size:17px; font-weight:900; color:var(--text);
       line-height:1.45; letter-spacing:-0.3px; margin-bottom:12px;
     }
     .column-h3 {
-      font-size:15px; font-weight:800; color:var(--accent);
+      font-size:15px; font-weight:800; color:#1D4ED8;
       margin:20px 0 8px; letter-spacing:-0.2px;
     }
     .column-body {
       font-size:14px; color:var(--text); line-height:1.85; margin:0 0 8px;
     }
     .column-divider {
-      border:none; border-top:1px solid #E5EDE8; margin:16px 0;
+      border:none; border-top:1px solid #DBEAFE; margin:16px 0;
     }
     .column-wrap {
-      background:#FAFFFD; border:1px solid #D4E8DA;
+      background:#FAFCFF; border:1px solid #DBEAFE;
       border-top:none; border-radius:0 0 12px 12px; padding:20px 20px 24px;
     }
 
@@ -448,9 +457,9 @@
       border-radius:2px; margin:0 auto 20px;
     }
     .modal-title {
-      font-family:'Playfair Display', serif;
+      font-family:var(--font-serif);
       font-size:17px; font-weight:700;
-      color:#111827; margin-bottom:16px;
+      color:var(--text); margin-bottom:16px;
       line-height:1.35;
     }
     .modal-body {
@@ -534,10 +543,10 @@
       <!-- 종합 뷰 (summary 칩) -->
       <div id="economy-summary-view">
         <div class="summary-card" id="economy-summary-card">
-          <div style="text-align:center; padding:32px 20px;">
-            <div style="font-family:'IBM Plex Mono',monospace; font-size:9px; color:#1A7A45; letter-spacing:3px; text-transform:uppercase; margin-bottom:16px;">Shawn Kim's Daily Briefing</div>
-            <div style="font-size:28px; margin-bottom:14px;">⏳</div>
-            <div style="color:#111827; font-size:13px; font-weight:600;">뉴스 분석 중...</div>
+          <div class="init-card">
+            <div class="init-card-eyebrow">Shawn Kim's Daily Briefing</div>
+            <div class="init-card-icon">⏳</div>
+            <div class="init-card-msg" style="color:var(--text);font-weight:600;">뉴스 분석 중...</div>
           </div>
         </div>
         <div id="economy-insight"></div>
@@ -555,10 +564,10 @@
     <div class="tab-panel" id="tab-industry">
       <div id="industry-summary-view">
         <div class="summary-card" id="industry-summary-card">
-          <div style="text-align:center; padding:32px 20px;">
-            <div style="font-family:'IBM Plex Mono',monospace; font-size:9px; color:#1A7A45; letter-spacing:3px; text-transform:uppercase; margin-bottom:16px;">Shawn Kim's Daily Briefing</div>
-            <div style="font-size:28px; margin-bottom:14px;">🏭</div>
-            <div style="color:#6B7280; font-size:13px;">산업 탭을 누르면 브리핑이 시작됩니다</div>
+          <div class="init-card">
+            <div class="init-card-eyebrow">Shawn Kim's Daily Briefing</div>
+            <div class="init-card-icon">🏭</div>
+            <div class="init-card-msg">산업 탭을 누르면 브리핑이 시작됩니다</div>
           </div>
         </div>
         <div id="industry-insight"></div>
@@ -574,10 +583,10 @@
     <div class="tab-panel" id="tab-global">
       <div id="global-summary-view">
         <div class="summary-card" id="global-summary-card">
-          <div style="text-align:center; padding:32px 20px;">
-            <div style="font-family:'IBM Plex Mono',monospace; font-size:9px; color:#1A7A45; letter-spacing:3px; text-transform:uppercase; margin-bottom:16px;">Shawn Kim's Daily Briefing</div>
-            <div style="font-size:28px; margin-bottom:14px;">🌐</div>
-            <div style="color:#6B7280; font-size:13px;">국제 탭을 누르면 브리핑이 시작됩니다</div>
+          <div class="init-card">
+            <div class="init-card-eyebrow">Shawn Kim's Daily Briefing</div>
+            <div class="init-card-icon">🌐</div>
+            <div class="init-card-msg">국제 탭을 누르면 브리핑이 시작됩니다</div>
           </div>
         </div>
         <div id="global-insight"></div>
@@ -1321,7 +1330,7 @@ function renderTabSummary(tab, result) {
     const slotLabel = slotHm ? scheduleLabels[slotHm] : null;
     const dateStr = `${d.getMonth()+1}월 ${d.getDate()}일 · ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')} 기준`;
     const slotBadge = slotLabel
-      ? `<span style="margin-left:8px;font-family:'IBM Plex Mono',monospace;font-size:9px;font-weight:700;color:#fff;background:#1A7A45;padding:2px 7px;border-radius:10px;letter-spacing:0.5px;">${slotLabel} 브리핑</span>`
+      ? `<span style="margin-left:8px;font-family:var(--font-mono);font-size:9px;font-weight:700;color:#fff;background:#1A7A45;padding:2px 7px;border-radius:10px;letter-spacing:0.5px;">${slotLabel} 브리핑</span>`
       : '';
     const tabLabel = TAB_LABEL[tab];
 
@@ -1487,16 +1496,16 @@ function renderTabSummary(tab, result) {
       <div style="margin:0 0 14px;">
         <button onclick="loadColumn('${tab}')"
           id="${tab}-column-btn"
-          style="width:100%;background:#F0FDF4;border:1.5px solid rgba(26,122,69,0.3);border-radius:12px;padding:14px 20px;
+          style="width:100%;background:#EFF6FF;border:1.5px solid rgba(59,130,246,0.25);border-radius:12px;padding:14px 20px;
                  display:flex;align-items:center;justify-content:space-between;cursor:pointer;transition:all 0.2s;">
           <div style="display:flex;align-items:center;gap:10px;">
             <span style="font-size:20px;">📰</span>
             <div style="text-align:left;">
-              <div style="font-size:13px;font-weight:800;color:var(--accent);">오늘의 ${TAB_LABEL[tab]} 칼럼</div>
+              <div style="font-size:13px;font-weight:800;color:#1D4ED8;">오늘의 ${TAB_LABEL[tab]} 칼럼</div>
               <div style="font-size:11px;color:var(--text-muted);margin-top:2px;">by Shawn Kim · 탭해서 펼치기</div>
             </div>
           </div>
-          <span style="font-size:16px;color:var(--accent);transition:transform 0.3s;">▼</span>
+          <span style="font-size:16px;color:#3B82F6;transition:transform 0.3s;">▼</span>
         </button>
         <div id="${tab}-column-body" style="display:none;"></div>
       </div>`;
@@ -1511,10 +1520,10 @@ function renderTabSummary(tab, result) {
       let h = `
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
           <div style="display:flex;align-items:center;gap:8px;">
-            <span style="font-size:11px;font-weight:800;letter-spacing:0.8px;color:#1A7A45;font-family:'IBM Plex Mono',monospace;">AI PICK</span>
-            <span style="font-size:11px;color:#6B7280;font-family:'Noto Sans KR',sans-serif;">오늘의 핵심 뉴스</span>
+            <span style="font-size:11px;font-weight:800;letter-spacing:0.8px;color:#1A7A45;font-family:var(--font-mono);">AI PICK</span>
+            <span style="font-size:11px;color:#6B7280;font-family:var(--font-sans);">오늘의 핵심 뉴스</span>
           </div>
-          <span style="font-size:10px;color:#9CA3AF;font-family:'IBM Plex Mono',monospace;">${timeStr} 기준 · ${result.topNews.length}건</span>
+          <span style="font-size:10px;color:#9CA3AF;font-family:var(--font-mono);">${timeStr} 기준 · ${result.topNews.length}건</span>
         </div>
         <div style="border-radius:var(--radius);overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,0.07);border:1px solid rgba(26,122,69,0.1);">`;
       result.topNews.forEach((it, i) => {
