@@ -380,6 +380,8 @@
     .dots span:nth-child(2){animation-delay:.15s}
     .dots span:nth-child(3){animation-delay:.3s}
     @keyframes bounce{0%,100%{transform:translateY(0);opacity:.4}50%{transform:translateY(-5px);opacity:1}}
+    @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.5;transform:scale(0.8)}}
+    @keyframes slideDown{from{opacity:0;transform:translateX(-50%) translateY(-10px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
 
     /* ════════════ NEWS ════════════ */
     .filter-btn {
@@ -760,7 +762,7 @@ const FX_LIST = [
 const TAB_LABEL = { economy:'경제', industry:'산업', global:'국제' };
 
 /* ═══════════ CACHE VERSION ═══════════ */
-const CACHE_VERSION = 'v70';
+const CACHE_VERSION = 'v72';
 (function clearOldCache() {
   const savedVersion = localStorage.getItem('eco_cache_version');
   if (savedVersion !== CACHE_VERSION) {
@@ -932,59 +934,133 @@ function selectChip(tab, chipId) {
 const LOADING_MSGS = [
   '오늘의 핵심 이슈를 짚어보고 있어요...',
   '시장 흐름을 분석하고 있습니다...',
-  '당신만을 위한 투자 포인트를 찾는 중...',
   '글로벌 경제 신호를 읽고 있어요...',
-  '중요한 숫자와 데이터를 확인 중입니다...',
-  '오늘의 경제 맥락을 정리하고 있어요...',
   '전문가 관점으로 뉴스를 해석 중입니다...',
-  '브리핑 초안을 작성하고 있습니다...',
-  '오늘 시장에서 놓치면 안 될 뉴스를 고르는 중...',
-  '투자자 관점으로 뉴스를 필터링하고 있어요...',
-  '핵심 데이터와 수치를 검토하고 있습니다...',
-  '오늘의 경제 온도를 측정하는 중...',
-  '뉴스 속 숨겨진 신호를 찾고 있어요...',
   '오늘 꼭 알아야 할 이슈를 추리는 중입니다...',
-  '시장의 방향을 가늠하고 있어요...',
-  '경제 뉴스를 쉬운 언어로 번역 중입니다...',
-  '오늘의 리스크와 기회를 점검하고 있어요...',
   '뉴스의 행간을 읽고 있습니다...',
-  '오늘 시장의 온도를 체크하는 중이에요...',
-  '복잡한 경제 뉴스를 한눈에 정리 중입니다...',
-  'Shawn의 알고리즘이 돌아가고 있어요...',
-  'Shawn이 밑줄 친 뉴스를 정리하는 중이에요...',
-  "Shawn's AI가 판단을 내리고 있습니다...",
-  'Shawn이 오늘의 헤드라인을 검토하고 있어요...',
-  'Shawn이 중요한 숫자를 체크하는 중입니다...',
   'Shawn의 눈으로 시장을 훑고 있어요...',
   'Shawn이 오늘의 한 줄을 고르고 있습니다...',
+  "Shawn's AI가 판단을 내리고 있습니다...",
   'Shawn이 경제 숲을 걷고 있는 중이에요...',
-  "Shawn의 브리핑, 거의 다 왔습니다...",
-  'Shawn이 당신을 위해 뉴스를 읽고 있어요...',
+];
+
+// 경제 퀴즈
+const QUIZ_LIST = [
+  { q:'금리를 올리면 환율은?', a:'원화 강세 (달러 약세)', hint:'외국인이 한국에 돈을 더 넣으니까요 💰' },
+  { q:'인플레이션이 심해지면 중앙은행은?', a:'금리 인상', hint:'물가를 잡으려면 소비를 줄여야 해요 🔧' },
+  { q:'코스피가 오르면 원화는?', a:'원화 강세', hint:'외국인 자금이 한국으로 들어와요 📈' },
+  { q:'미국 연준(Fed)의 역할은?', a:'미국의 중앙은행 — 기준금리 결정', hint:'한국의 한국은행과 같은 역할이에요 🏦' },
+  { q:'경상수지 흑자란?', a:'수출 > 수입 (돈이 더 들어옴)', hint:'무역에서 번 돈이 쓴 돈보다 많은 것 📦' },
+  { q:'환율 1,400원이 1,500원 됐다면?', a:'원화 가치 하락 (약세)', hint:'달러를 사려면 원화가 더 많이 필요해요 💱' },
+  { q:'채권 금리가 오르면 채권 가격은?', a:'하락', hint:'반비례 관계예요. 경제의 시소! ⚖️' },
+  { q:'GDP란 무엇의 약자?', a:'국내총생산 (Gross Domestic Product)', hint:'한 나라 경제 규모의 대표 지표예요 🌍' },
+  { q:'BOK는 어떤 기관?', a:'Bank of Korea (한국은행)', hint:'우리나라 중앙은행의 영문 약칭이에요 🇰🇷' },
+  { q:'주가와 금리의 일반적 관계는?', a:'반비례 (금리↑ → 주가↓)', hint:'금리가 오르면 돈이 예금·채권으로 이동해요 📉' },
+];
+
+// 오늘의 경제 용어
+const TERM_CARDS = [
+  { term:'기준금리', en:'Base Rate', desc:'중앙은행이 시중은행에 돈을 빌려줄 때 적용하는 이자율. 모든 금리의 기준이 돼요.' },
+  { term:'양적완화', en:'QE', desc:'중앙은행이 채권을 사들여 시중에 돈을 푸는 정책. 경기 부양 시 사용해요.' },
+  { term:'스태그플레이션', en:'Stagflation', desc:'경기 침체 + 물가 상승이 동시에 오는 최악의 경제 상황이에요.' },
+  { term:'매파', en:'Hawkish', desc:'물가 안정을 위해 금리 인상을 선호하는 강경한 통화정책 입장.' },
+  { term:'비둘기파', en:'Dovish', desc:'경기 부양을 위해 금리 인하를 선호하는 온건한 통화정책 입장.' },
+  { term:'경상수지', en:'Current Account', desc:'무역·서비스·투자 등 대외 거래를 통한 돈의 흐름. 흑자면 외화가 들어온 것.' },
+  { term:'CPI', en:'소비자물가지수', desc:'소비자가 구매하는 상품·서비스 가격 변동을 나타내는 물가 지표.' },
+  { term:'선물시장', en:'Futures Market', desc:'미래 특정 시점에 정해진 가격으로 사고파는 계약을 거래하는 시장.' },
+  { term:'공매도', en:'Short Selling', desc:'주식을 빌려서 팔고, 나중에 싸게 사서 갚아 차익을 노리는 투자 전략.' },
+  { term:'유동성', en:'Liquidity', desc:'자산을 얼마나 빠르고 쉽게 현금화할 수 있는지를 나타내는 개념.' },
+  { term:'리세션', en:'Recession', desc:'GDP가 2분기 연속 감소하는 경기 침체 상태를 말해요.' },
+  { term:'환율', en:'Exchange Rate', desc:'두 나라 통화의 교환 비율. 원달러 1,400원은 달러 하나에 원화 1,400원.' },
 ];
 
 let _loadingInterval = null;
+let _briefingController = null;
+let _currentQuiz = null; // 현재 로딩 중 표시 중인 퀴즈
 
 function shuffled(arr) {
   return [...arr].sort(() => Math.random() - 0.5);
 }
 
-function setLoadingMsg(tab, phase) {
+function setLoadingMsg(tab, phase, count = null) {
   const card = document.getElementById(`${tab}-summary-card`);
   if (!card) return;
-
   if (_loadingInterval) { clearInterval(_loadingInterval); _loadingInterval = null; }
+
+  // 퀴즈는 phase 시작 시 고정 (바뀌지 않게)
+  if (phase === 'ai' && !_currentQuiz) {
+    _currentQuiz = QUIZ_LIST[Math.floor(Math.random() * QUIZ_LIST.length)];
+  }
+
+  // 오늘 날짜 기반 용어 카드 (매일 다른 단어)
+  const dayIdx = new Date().getDate() % TERM_CARDS.length;
+  const todayTerm = TERM_CARDS[dayIdx];
 
   const msgs = shuffled(LOADING_MSGS);
   let msgIdx = 0;
 
   function render() {
-    const msg = msgs[msgIdx % msgs.length];
+    const isNews = phase === 'news';
+    const countText = count !== null ? `${count}건 수집됨` : '수집 중...';
+
+    const stepBar = `
+      <div style="display:flex;align-items:center;gap:0;margin:20px 0 24px;padding:0 4px;">
+        ${['뉴스 수집', 'AI 분석', '완성'].map((label, i) => {
+          const done  = (isNews && i < 1) || (!isNews && i < 2);
+          const active= (isNews && i === 0) || (!isNews && i === 1);
+          const color = done ? '#1A7A45' : active ? '#1A7A45' : '#D1D5DB';
+          const textColor = (done || active) ? '#1A7A45' : '#9CA3AF';
+          const dotBg = done ? '#1A7A45' : active ? '#fff' : '#E5E7EB';
+          const dotBorder = (done || active) ? '#1A7A45' : '#D1D5DB';
+          const icon = done ? '✓' : active ? (i===0 ? '📡' : '🤖') : '';
+          return `
+            <div style="flex:1;display:flex;flex-direction:column;align-items:center;position:relative;">
+              ${i > 0 ? `<div style="position:absolute;top:12px;left:0;right:50%;height:2px;background:${done||active?'#1A7A45':'#E5E7EB'};transform:translateY(-50%);"></div>` : ''}
+              ${i < 2 ? `<div style="position:absolute;top:12px;left:50%;right:0;height:2px;background:${done?'#1A7A45':'#E5E7EB'};transform:translateY(-50%);"></div>` : ''}
+              <div style="width:24px;height:24px;border-radius:50%;background:${dotBg};border:2px solid ${dotBorder};display:flex;align-items:center;justify-content:center;font-size:10px;z-index:1;position:relative;">
+                ${done ? `<span style="color:#fff;font-weight:700;">✓</span>` : active ? `<div style="width:8px;height:8px;border-radius:50%;background:#1A7A45;animation:pulse 1s infinite;"></div>` : ''}
+              </div>
+              <div style="margin-top:6px;font-size:10px;font-weight:${active?'700':'500'};color:${textColor};font-family:'Noto Sans KR',sans-serif;white-space:nowrap;">${label}</div>
+              ${active && isNews ? `<div style="font-size:9px;color:#6B7280;margin-top:2px;">${countText}</div>` : ''}
+            </div>`;
+        }).join('')}
+      </div>`;
+
+    const quizCard = !isNews && _currentQuiz ? `
+      <div style="background:#F0FDF4;border:1.5px solid #86EFAC;border-radius:12px;padding:14px 16px;margin:0 0 16px;text-align:left;">
+        <div style="font-size:10px;font-weight:700;color:#16A34A;letter-spacing:0.5px;margin-bottom:6px;">🧠 오늘의 퀴즈 — 브리핑 완성 시 정답 공개!</div>
+        <div style="font-size:13px;font-weight:700;color:#111827;line-height:1.5;">${_currentQuiz.q}</div>
+      </div>` : '';
+
+    const termCard = isNews ? `
+      <div style="background:#F8FAFF;border:1.5px solid #BFDBFE;border-radius:12px;padding:14px 16px;margin:0 0 16px;text-align:left;">
+        <div style="font-size:10px;font-weight:700;color:#3B82F6;letter-spacing:0.5px;margin-bottom:6px;">📖 오늘의 경제 용어</div>
+        <div style="display:flex;align-items:baseline;gap:6px;margin-bottom:4px;">
+          <span style="font-size:14px;font-weight:800;color:#111827;">${todayTerm.term}</span>
+          <span style="font-size:10px;color:#6B7280;font-family:'IBM Plex Mono',monospace;">${todayTerm.en}</span>
+        </div>
+        <div style="font-size:12px;color:#374151;line-height:1.6;">${todayTerm.desc}</div>
+      </div>` : '';
+
     card.innerHTML = `
-      <div style="text-align:center; padding:32px 20px;">
-        <div style="font-family:'Playfair Display',serif; font-size:16px; font-weight:900; color:#111827; letter-spacing:-0.3px; margin-bottom:20px;">Shawn Kim's Daily Briefing</div>
-        <div class="dots" style="margin-bottom:16px;"><span></span><span></span><span></span></div>
-        <div style="color:#111827; font-size:13px; font-weight:600; line-height:1.6;">${msg}</div>
-        <div style="margin-top:16px; font-size:11px; color:#9CA3AF; line-height:1.6;">AI 분석 중 · 10~30초 소요 · 뉴스가 많을수록 더 걸릴 수 있어요</div>
+      <div style="padding:24px 20px;">
+        <div style="font-family:'Playfair Display',serif;font-size:15px;font-weight:900;color:#111827;letter-spacing:-0.3px;margin-bottom:4px;text-align:center;">Shawn Kim's Daily Briefing</div>
+        <div style="font-size:11px;color:#9CA3AF;text-align:center;margin-bottom:4px;">${isNews ? '뉴스를 수집하고 있어요' : 'AI가 분석하고 있어요'}</div>
+        ${stepBar}
+        ${termCard}
+        ${quizCard}
+        <div style="text-align:center;">
+          <div class="dots" style="margin-bottom:10px;"><span></span><span></span><span></span></div>
+          <div style="color:#6B7280;font-size:12px;font-weight:500;">${msgs[msgIdx % msgs.length]}</div>
+        </div>
+        <div style="text-align:center;margin-top:20px;">
+          <button onclick="cancelBriefing('${tab}')"
+            style="background:transparent;border:1.5px solid #E5E7EB;border-radius:8px;
+                   padding:7px 18px;font-size:11px;font-weight:600;color:#9CA3AF;
+                   font-family:'Noto Sans KR',sans-serif;cursor:pointer;">
+            ✕ 브리핑 건너뛰기
+          </button>
+        </div>
       </div>`;
     msgIdx++;
   }
@@ -993,8 +1069,54 @@ function setLoadingMsg(tab, phase) {
   _loadingInterval = setInterval(render, 4000);
 }
 
+function showQuizAnswer() {
+  if (!_currentQuiz) return;
+  const quiz = _currentQuiz;
+  _currentQuiz = null;
+
+  const toast = document.createElement('div');
+  toast.style.cssText = `
+    position:fixed;top:70px;left:50%;transform:translateX(-50%);z-index:9995;
+    background:#111827;color:#fff;border-radius:14px;
+    padding:14px 20px;max-width:320px;width:90%;
+    box-shadow:0 8px 24px rgba(0,0,0,0.25);
+    animation:slideDown 0.3s ease;
+    font-family:'Noto Sans KR',sans-serif;
+  `;
+  toast.innerHTML = `
+    <div style="font-size:10px;font-weight:700;color:#86EFAC;letter-spacing:0.5px;margin-bottom:6px;">🧠 퀴즈 정답!</div>
+    <div style="font-size:12px;color:#D1D5DB;margin-bottom:4px;">${quiz.q}</div>
+    <div style="font-size:14px;font-weight:800;color:#4ADE80;">→ ${quiz.a}</div>
+    <div style="font-size:11px;color:#9CA3AF;margin-top:4px;">${quiz.hint}</div>
+  `;
+  document.body.appendChild(toast);
+  setTimeout(() => {
+    toast.style.transition = 'opacity 0.4s';
+    toast.style.opacity = '0';
+    setTimeout(() => toast.remove(), 400);
+  }, 4000);
+}
+
 function stopLoadingMsg() {
   if (_loadingInterval) { clearInterval(_loadingInterval); _loadingInterval = null; }
+}
+
+function cancelBriefing(tab) {
+  stopLoadingMsg();
+  if (_briefingController) { _briefingController.abort(); _briefingController = null; }
+  _currentQuiz = null;
+  summaryCache[tab] = null;
+  const card = document.getElementById(`${tab}-summary-card`);
+  if (card) card.innerHTML = `
+    <div style="padding:32px 24px;text-align:center;">
+      <div style="font-size:32px;margin-bottom:12px;">⏭</div>
+      <div style="font-family:'Playfair Display',serif;font-size:15px;font-weight:700;color:#111827;margin-bottom:8px;">브리핑 건너뜀</div>
+      <div style="font-size:12px;color:#6B7280;line-height:1.6;margin-bottom:20px;">서브칩에서 뉴스를 직접 볼 수 있어요.</div>
+      <button onclick="genTabSummary('${tab}')"
+        style="background:#1A7A45;color:#fff;border:none;border-radius:8px;padding:10px 24px;font-size:13px;font-weight:700;font-family:'Noto Sans KR',sans-serif;cursor:pointer;">
+        🔄 다시 생성
+      </button>
+    </div>`;
 }
 
 /* ═══════════ DEV MODE ═══════════ */
@@ -1137,19 +1259,27 @@ async function genTabSummary(tab) {
 
   try {
     setLoadingMsg(tab, 'ai');
+    // 뉴스 섹션 로딩 대기화면
+    const newsElLoading = document.getElementById(`${tab}-summary-news`);
+    if (newsElLoading) newsElLoading.innerHTML = `
+      <div style="display:flex;align-items:center;gap:10px;padding:16px 4px;">
+        <div class="dots" style="transform:scale(0.7);transform-origin:left;"><span></span><span></span><span></span></div>
+        <span style="font-size:12px;color:#6B7280;">AI가 핵심 뉴스를 선별하는 중...</span>
+      </div>`;
     const headlines = unique.slice(0, 25).map(n =>
       n.description ? `${n.title}\n   → ${n.description.slice(0, 100)}` : n.title
     );
     console.log('[BRIEFING] 호출 시작, headlines:', headlines.length);
-    const briefingController = new AbortController();
-    const briefingTimer = setTimeout(() => briefingController.abort(), 55000);
+    _briefingController = new AbortController();
+    const briefingTimer = setTimeout(() => _briefingController.abort(), 55000);
     const res = await fetch('/api/briefing', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ headlines, tab, label }),
-      signal: briefingController.signal,
+      signal: _briefingController.signal,
     });
     clearTimeout(briefingTimer);
+    _briefingController = null;
     console.log('[BRIEFING] 응답 상태:', res.status);
     const j = await res.json();
     if (!res.ok) {
@@ -1167,6 +1297,7 @@ async function genTabSummary(tab) {
     localStorage.setItem(cacheKey, JSON.stringify(result));
     localStorage.setItem(cacheTimeKey, Date.now());
     stopLoadingMsg();
+    showQuizAnswer();
     renderTabSummary(tab, result);
     updateFrontPreview(tab, result.summary);
   } catch(err) {
@@ -1367,7 +1498,7 @@ function renderTabSummary(tab, result) {
                 if (parts.length >= 2) {
                   const term = parts[0].replace(/^※\s*/, '').trim();
                   const desc = parts.slice(1).join('│').trim();
-                  return `<div style="margin-top:8px;padding:8px 10px;background:rgba(255,255,255,0.1);border-left:2px solid rgba(255,255,255,0.3);border-radius:0 6px 6px 0;font-size:11px;color:rgba(255,255,255,0.85);line-height:1.6;">※ <span style="font-weight:700;">${term}</span> │ ${desc}</div>`;
+                  return `<div style="margin-top:8px;padding:8px 10px;background:rgba(255,255,255,0.1);border-left:2px solid rgba(255,255,255,0.3);border-radius:0 6px 6px 0;font-size:11px;color:rgba(255,255,255,0.85);line-height:1.6;">※ <span style="font-weight:700;text-decoration:underline;text-decoration-color:rgba(255,255,255,0.6);text-underline-offset:3px;">${term}</span> │ ${desc}</div>`;
                 }
                 return `<div style="margin-top:8px;padding:8px 10px;background:rgba(255,255,255,0.1);border-left:2px solid rgba(255,255,255,0.3);border-radius:0 6px 6px 0;font-size:11px;color:rgba(255,255,255,0.85);line-height:1.6;">${fn}</div>`;
               }).join('')
@@ -1407,19 +1538,37 @@ function renderTabSummary(tab, result) {
       </div>`;
   }
   const newsEl = document.getElementById(`${tab}-summary-news`);
-  if (newsEl && result.topNews) {
-    let h = `<div class="section-label">AI 추천 주요뉴스</div><div style="border-radius:var(--radius); overflow:hidden; box-shadow:0 2px 8px rgba(0,0,0,0.06);">`;
-    result.topNews.forEach((it, i) => {
-      h += `<div class="news-item">
-        <div class="news-num">${pad(i+1)}</div>
-        <div class="news-body" onclick="openLink('${esc(it.link)}')">
-          <div class="news-title">${it.title}</div>
-          <div class="news-meta"><span>${it.source}</span><span>${ago(it.date)}</span></div>
+  if (newsEl) {
+    if (!result.topNews || !result.topNews.length) {
+      newsEl.innerHTML = '';
+    } else {
+      const now = new Date();
+      const timeStr = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+      let h = `
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span style="font-size:11px;font-weight:800;letter-spacing:0.8px;color:#1A7A45;font-family:'IBM Plex Mono',monospace;">AI PICK</span>
+            <span style="font-size:11px;color:#6B7280;font-family:'Noto Sans KR',sans-serif;">오늘의 핵심 뉴스</span>
+          </div>
+          <span style="font-size:10px;color:#9CA3AF;font-family:'IBM Plex Mono',monospace;">${timeStr} 기준 · ${result.topNews.length}건</span>
         </div>
-      </div>`;
-    });
-    h += `</div>`;
-    newsEl.innerHTML = h;
+        <div style="border-radius:var(--radius);overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,0.07);border:1px solid rgba(26,122,69,0.1);">`;
+      result.topNews.forEach((it, i) => {
+        const isLast = i === result.topNews.length - 1;
+        h += `<div class="news-item" style="${!isLast ? 'border-bottom:1px solid rgba(0,0,0,0.05);' : ''}">
+          <div class="news-num" style="color:#1A7A45;font-weight:800;">${pad(i+1)}</div>
+          <div class="news-body" onclick="openLink('${esc(it.link)}')">
+            <div class="news-title">${it.title}</div>
+            <div class="news-meta">
+              <span style="background:#E8F5EE;color:#1A7A45;padding:1px 6px;border-radius:4px;font-weight:600;">${it.source}</span>
+              <span>${ago(it.date)}</span>
+            </div>
+          </div>
+        </div>`;
+      });
+      h += `</div>`;
+      newsEl.innerHTML = h;
+    }
   }
 }
 
