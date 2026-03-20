@@ -112,14 +112,31 @@
     .header-top { display:flex; justify-content:space-between; align-items:flex-end; }
     .app-logo {
       font-family:var(--font-serif);
-      font-size:28px; font-weight:var(--fw-black);
+      font-size:32px; font-weight:var(--fw-black);
       letter-spacing:-0.5px; color:var(--text);
+      transition: font-size 0.3s ease;
+    }
+    .header.shrunk .app-logo {
+      font-size:24px;
     }
     .app-logo em { color:var(--accent); font-style:normal; }
     .app-logo span {
-      color:var(--text-muted); font-size:13px;
+      color:var(--text-muted); font-size:14px;
       font-family:var(--font-sans); font-weight:var(--fw-semi);
       letter-spacing:-0.2px; margin-left:6px; vertical-align:middle;
+      transition: font-size 0.3s ease;
+    }
+    .header.shrunk .app-logo span {
+      font-size:12px;
+    }
+    .header-channel {
+      font-family:var(--font-sans);
+      font-size:15px; font-weight:700;
+      color:var(--accent); letter-spacing:-0.2px;
+      transition: font-size 0.3s ease, opacity 0.3s ease;
+    }
+    .header.shrunk .header-channel {
+      font-size:13px;
     }
     .header-right { text-align:right; }
     .header-date {
@@ -127,9 +144,21 @@
       font-size:12px; color:var(--text-muted);
       line-height:1.6;
     }
+    .header {
+      transition: padding 0.3s ease;
+    }
+    .header.shrunk {
+      padding-bottom: 10px;
+    }
     .header-sub {
       display:flex; align-items:center; gap:5px;
       margin-top:5px;
+      max-height:80px; opacity:1;
+      overflow:hidden;
+      transition: max-height 0.3s ease, opacity 0.25s ease, margin-top 0.3s ease;
+    }
+    .header.shrunk .header-sub {
+      max-height:0; opacity:0; margin-top:0;
     }
     .header-sub-main {
       font-family:var(--font-sans);
@@ -516,7 +545,7 @@
       </div>
     </div>
     <div class="header-sub" style="flex-direction:column;align-items:flex-start;gap:3px;margin-top:8px;">
-      <span style="font-family:var(--font-sans);font-size:13px;font-weight:700;color:var(--accent);letter-spacing:-0.2px;">숲을 보는 숀킴의 경제 채널</span>
+      <span class="header-channel">숲을 보는 숀킴의 경제 채널</span>
       <span style="font-family:var(--font-mono);font-size:11px;color:var(--text-muted);">Created by <em style="font-style:normal;font-weight:700;color:var(--text);">김도훈</em></span>
       <span style="font-family:var(--font-mono);font-size:11px;color:var(--text-muted);">Written by <em style="font-style:normal;font-weight:700;color:var(--text);">Shawn's AI</em></span>
       <span style="font-family:var(--font-mono);font-size:11px;color:var(--text-dim);">Made Possible with <em style="font-style:normal;font-weight:700;color:var(--accent);">claude-sonnet-4</em></span>
@@ -731,7 +760,7 @@ const FX_LIST = [
 const TAB_LABEL = { economy:'경제', industry:'산업', global:'국제' };
 
 /* ═══════════ CACHE VERSION ═══════════ */
-const CACHE_VERSION = 'v64';
+const CACHE_VERSION = 'v67';
 (function clearOldCache() {
   const savedVersion = localStorage.getItem('eco_cache_version');
   if (savedVersion !== CACHE_VERSION) {
@@ -770,6 +799,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // 앱 시작 = 경제 탭 바로 로드
   switchTab('economy');
+
+  // 헤더 축소 — 스크롤 내리면 header-sub 숨김
+  const contentEl = document.querySelector('.content');
+  const headerEl  = document.querySelector('.header');
+  if (contentEl && headerEl) {
+    contentEl.addEventListener('scroll', () => {
+      headerEl.classList.toggle('shrunk', contentEl.scrollTop > 30);
+    }, { passive: true });
+  }
 });
 
 function pad(n) { return String(n).padStart(2,'0'); }
@@ -907,19 +945,38 @@ function stopLoadingMsg() {
 /* ═══════════ DEV MODE ═══════════ */
 const DEV_MODE = new URLSearchParams(window.location.search).get('dev') === 'true';
 const DEV_DUMMY = {
-  summary: `줄1: 중동 전쟁 여파로 국제유가가 110달러를 돌파하고 원달러 환율이 17년 만에 1,500원을 넘어섰다.\n줄2: 코스피는 2.73% 급락하며 2,400선 아래로 내려앉았고, ECB·미 연준·한국은행이 일제히 금리를 동결했다.\n줄3: 한국은행의 다음달 기준금리(현 2.50%) 동결 가능성이 크며, 유가 110달러·환율 1,500원 지속 시 7월 금리 인상 카드가 테이블 위에 올라올 전망이다.`,
+  summary: `줄1: 원달러 환율이 1,500원을 돌파하며 17년 만에 최고치를 기록했으며, 이는 중동 분쟁으로 인한 국제유가 급등과 달러 강세가 맞물린 결과다.
+줄2: • ECB는 6회 연속 기준금리를 동결하고 인플레이션 전망을 상향했으며, 미 연준·한국은행도 동결 기조를 유지하고 있다.
+• 코스피는 2.73% 급락하며 2,400선 아래로 내려앉았고, 외국인 순매도가 지속되고 있다.
+줄3: 한국은행의 다음 달 기준금리 동결 가능성이 높으며, 환율 1,500원·유가 110달러 지속 시 7월 금리 인상 카드가 현실화될 수 있다.`,
   oneliner: `배경(상황)Why: 중동 분쟁에서 비롯된 에너지 공급 불안이 국제유가 급등으로 이어지고, 이것이 안전자산 선호 현상으로 달러 강세를 심화시켜 환율 급등을 초래하는 메커니즘입니다.
 ※각주: ※ 안전자산 선호 현상 │ 불확실성이 커질 때 투자자들이 위험도가 낮은 달러·미국채 등으로 자산을 이동시키는 현상
-시장 영향So What: 고유가와 고환율의 동시 진행으로 한국 기업의 원가 상승과 수출 경쟁력 약화가 불가피하며, 중앙은행들의 금리 인상 곤란으로 통화정책 효과가 제한되고 있습니다.
-주목할 점Next Move: 향후 유가 110달러 수준의 지속성과 환율 1,500원대 안정성을 기준으로 한국은행의 7월 금리 인상 시그널을 포착해야 합니다.`,
-  footnotes: `줄1: ※ 원달러 환율 │ 미국 달러 1달러를 사기 위해 필요한 원화 금액\n줄2: ※ ECB(유럽중앙은행) │ 유로존 19개국의 통화정책을 담당하는 중앙은행\n줄3: ※ 기준금리(Base Rate) │ 중앙은행이 시중은행에 돈을 빌려줄 때 적용하는 기본 이자율`,
+시장 영향So What: 고유가와 고환율의 동시 진행으로 한국 기업의 원가 상승과 수출 경쟁력 약화가 불가피하며, 중앙은행들의 통화정책 효과가 제한되고 있습니다.
+주목할 점Next Move: 향후 환율 1,500원대 안정성과 한국은행 금통위 발언에서 금리 인상 시그널을 포착해야 합니다.
+※각주: ※ 금통위 │ 한국은행 금융통화위원회. 기준금리를 결정하는 최고 의사결정 기구`,
+  footnotes: `줄1: ※ 원달러 환율 │ 미국 달러 1달러를 사기 위해 필요한 원화 금액
+※ 달러 강세 │ 글로벌 시장에서 달러 수요가 높아져 달러 가치가 오르는 현상. 원화 가치는 반대로 하락
+줄2: ※ ECB(유럽중앙은행) │ 유로존 20개국의 통화정책을 담당하는 중앙은행
+※ 인플레이션 │ 물가가 지속적으로 오르는 현상. 화폐 가치가 떨어지는 것과 같은 의미
+줄3: ※ 기준금리(Base Rate) │ 중앙은행이 시중은행에 돈을 빌려줄 때 적용하는 기본 이자율`,
   topNews: [
-    { title: '[DEV] 국제유가 110달러 돌파…중동 분쟁 격화', source: '한국경제', date: new Date(), link: '#' },
-    { title: '[DEV] 원달러 환율 1,500원 돌파…17년 만의 최고치', source: '매일경제', date: new Date(), link: '#' },
-    { title: '[DEV] 코스피 2.73% 급락…외국인 순매도 폭탄', source: '연합뉴스', date: new Date(), link: '#' },
-    { title: '[DEV] 한국은행 기준금리 2.50% 동결…7연속', source: '서울경제', date: new Date(), link: '#' },
-    { title: '[DEV] ECB·Fed 금리 동결…글로벌 통화정책 딜레마', source: '조선일보', date: new Date(), link: '#' },
-  ]
+    { title: '[DEV] 원달러 환율 1,500원 돌파…17년 만의 최고치', source: '한국경제', date: new Date(), link: '#' },
+    { title: '[DEV] 국제유가 110달러 돌파…중동 분쟁 격화', source: '매일경제', date: new Date(), link: '#' },
+    { title: '[DEV] ECB 6회 연속 금리 동결…인플레이션 전망 상향', source: '연합뉴스', date: new Date(), link: '#' },
+    { title: '[DEV] 코스피 2.73% 급락…외국인 순매도 폭탄', source: '서울경제', date: new Date(), link: '#' },
+    { title: '[DEV] 한국은행 기준금리 2.50% 동결…7연속', source: '조선일보', date: new Date(), link: '#' },
+  ],
+  column: `환율 1,500원 돌파, 유가 급등까지… 한국 경제 이중 충격 시작됐어요 🚨
+이란 전쟁 여파로 원달러 환율이 금융위기 이후 처음으로 1,500원을 넘어섰어요. 여기에 국제유가 급등까지 겹치면서 "고유가·고환율 이중 충격"이라는 말이 시장 곳곳에서 들려오고 있죠.
+---
+### 환율이 왜 갑자기 1,500원을 넘어선 거예요?
+이번 환율 급등의 핵심은 에너지 수급 불안과 달러 수요 폭발이 동시에 터진 것이에요. 이란 전쟁이 장기화 국면으로 접어들면서 원유 공급이 흔들릴 수 있다는 불안감이 커졌고, 이게 국제유가를 끌어올렸죠. 유가가 오르면 에너지를 수입하는 데 달러가 더 많이 필요해지고, 자연스럽게 원화 가치는 뚝 떨어지는 거예요. 📉
+### ECB가 금리를 동결하면 한국은행은 왜 발이 묶이는 거예요?
+미국 연준·ECB·한국은행이 일제히 금리를 동결했어요. 한국은행이 금리를 내리고 싶어도, 주요국이 높은 금리를 유지하는 상황에서 한국만 먼저 내리면 투자자들이 달러 자산으로 이동하게 되고, 환율은 더 오르게 되죠. 💡
+### 지금 투자자가 주목해야 할 지표는 딱 하나예요
+다음 달 한국은행 금통위 결정이 핵심이에요. 환율 1,500원·유가 110달러가 지속된다면 7월 금리 인상 카드가 현실화될 수 있고, 이 경우 채권·부동산 시장에 큰 파장이 예상돼요. 🔍
+---
+by. Shawn Kim`
 };
 
 async function genTabSummary(tab) {
@@ -1289,22 +1346,7 @@ async function loadColumn(tab) {
 
   // 개발모드: 더미 칼럼
   if (DEV_MODE) {
-    renderColumn(tab, `오늘의 ${TAB_LABEL[tab]} 핵심 이슈 📊
-
-개발 모드 더미 칼럼입니다. 실제 배포 후 AI가 생성한 칼럼이 표시됩니다.
-
----
-### 연준 금리 동결, 우리 지갑엔 어떤 영향이?
-미국 연준이 기준금리를 동결했다는 소식이 들려왔어요. 시장에서는 이미 예상했던 결과라고 하지만, 그 이면에는 복잡한 셈법이 숨어있답니다.
-
-### 고환율 시대, 수출기업은 웃고 있을까?
-원달러 환율이 1,350원대를 유지하면서 수출기업들의 희비가 엇갈리고 있어요. 특히 반도체와 자동차 업계의 반응이 주목됩니다.
-
-### 지금 투자자가 봐야 할 딱 하나의 지표는?
-전문가들은 이번 주 발표될 CPI 수치를 가장 중요한 지표로 꼽고 있어요. 이 숫자 하나가 시장의 방향을 바꿀 수 있기 때문이랍니다.
-
----
-by. Shawn Kim`);
+    renderColumn(tab, DEV_DUMMY.column);
     return;
   }
 
