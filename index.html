@@ -9,8 +9,8 @@
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="EcoBrief">
-  <meta name="theme-color" content="#1B2A4A">
+  <meta name="apple-mobile-web-app-title" content="Econ.SOOP">
+  <meta name="theme-color" content="#1A7A45">
   <link rel="manifest" href="manifest.json">
   <link rel="icon" type="image/png" sizes="192x192" href="img/econ_soop192.png">
   <link rel="icon" type="image/png" sizes="512x512" href="img/econ_soop512.png">
@@ -90,17 +90,6 @@
       margin:0 auto;
     }
 
-    /* ── TYPOGRAPHY UTILITIES ── */
-    .t-app-title  { font-family:var(--font-serif); font-size:var(--fs-app-title); font-weight:var(--fw-black); letter-spacing:-0.5px; color:var(--text); }
-    .t-section    { font-family:var(--font-serif); font-size:var(--fs-section);   font-weight:var(--fw-bold);  letter-spacing:-0.3px; color:var(--text); line-height:var(--lh-tight); }
-    .t-h1         { font-family:var(--font-sans);  font-size:var(--fs-h1);        font-weight:800;             letter-spacing:-0.2px; color:var(--text); }
-    .t-h2         { font-family:var(--font-sans);  font-size:var(--fs-h2);        font-weight:var(--fw-bold);  letter-spacing:-0.1px; color:var(--text); }
-    .t-body       { font-family:var(--font-sans);  font-size:var(--fs-body);      font-weight:var(--fw-regular); line-height:var(--lh-base); color:var(--text); }
-    .t-body-strong{ font-family:var(--font-sans);  font-size:var(--fs-body);      font-weight:var(--fw-semi);  line-height:var(--lh-base); color:var(--text); }
-    .t-body-sm    { font-family:var(--font-sans);  font-size:var(--fs-body-sm);   font-weight:var(--fw-regular); line-height:var(--lh-base); color:var(--text-muted); }
-    .t-caption    { font-family:var(--font-mono);  font-size:var(--fs-caption);   font-weight:var(--fw-regular); color:var(--text-muted); }
-    .t-micro      { font-family:var(--font-mono);  font-size:var(--fs-micro);     font-weight:var(--fw-bold);  letter-spacing:0.5px; }
-    .t-mono       { font-family:var(--font-mono);  font-size:var(--fs-body);      font-weight:var(--fw-semi);  color:var(--text); }
 
     /* ── HEADER ── */
     .header {
@@ -153,29 +142,12 @@
     .header-sub {
       display:flex; align-items:center; gap:5px;
       margin-top:5px;
-      max-height:80px; opacity:1;
+      max-height:120px; opacity:1;
       overflow:hidden;
       transition: max-height 0.3s ease, opacity 0.25s ease, margin-top 0.3s ease;
     }
     .header.shrunk .header-sub {
       max-height:0; opacity:0; margin-top:0;
-    }
-    .header-sub-main {
-      font-family:var(--font-sans);
-      font-size:var(--fs-h2); font-weight:var(--fw-semi);
-      color:var(--accent); letter-spacing:-0.2px;
-    }
-    .header-sub-divider { font-size:var(--fs-micro); color:var(--text-dim); }
-    .header-sub-by {
-      font-family:var(--font-mono);
-      font-size:var(--fs-micro); color:var(--text-muted);
-    }
-    .header-sub-by em { font-style:normal; font-weight:var(--fw-semi); color:var(--text); }
-    .header-sub-model {
-      font-family:var(--font-mono);
-      font-size:var(--fs-micro); color:var(--text-dim);
-      background:var(--accent-dim); padding:1px 6px;
-      border-radius:20px; border:1px solid rgba(26,122,69,0.15);
     }
     .live-dot {
       display:inline-flex; align-items:center; gap:4px;
@@ -344,10 +316,48 @@
     }
     .front-coming-soon {
       text-align:center; padding:40px 20px;
-      color:rgba(255,255,255,0.4);
+      color:var(--text-muted);
     }
     .front-coming-soon .big-icon { font-size:48px; margin-bottom:16px; }
     .front-coming-soon p { font-size:14px; line-height:1.7; }
+
+    /* ── REUSABLE COMPONENTS ── */
+    .retry-btn {
+      background:var(--accent); color:#fff; border:none; border-radius:8px;
+      padding:10px 24px; font-size:13px; font-weight:700;
+      font-family:var(--font-sans); cursor:pointer; transition:opacity 0.2s;
+    }
+    .retry-btn:active { opacity:0.7; }
+    .status-card {
+      padding:32px 24px; text-align:center;
+    }
+    .status-card-icon { font-size:36px; margin-bottom:14px; }
+    .status-card-title {
+      font-family:var(--font-serif); font-size:15px; font-weight:700;
+      color:var(--text); margin-bottom:8px;
+    }
+    .status-card-desc {
+      font-size:12px; color:var(--text-muted); line-height:1.6; margin-bottom:20px;
+    }
+    .column-headline {
+      font-size:17px; font-weight:900; color:var(--text);
+      line-height:1.45; letter-spacing:-0.3px; margin-bottom:12px;
+    }
+    .column-h3 {
+      font-size:15px; font-weight:800; color:var(--accent);
+      margin:20px 0 8px; letter-spacing:-0.2px;
+    }
+    .column-body {
+      font-size:14px; color:var(--text); line-height:1.85; margin:0 0 8px;
+    }
+    .column-divider {
+      border:none; border-top:1px solid #E5EDE8; margin:16px 0;
+    }
+    .column-wrap {
+      background:#FAFFFD; border:1px solid #D4E8DA;
+      border-top:none; border-radius:0 0 12px 12px; padding:20px 20px 24px;
+    }
+    .news-item:active { background:#F7FBF8; }
 
     /* ── CONTENT ── */
     .content {
@@ -556,8 +566,8 @@
 
   <!-- TABS -->
   <div class="tabs">
-    <button class="tab-btn active" data-tab="front">🗞 1면</button>
-    <button class="tab-btn" data-tab="economy">🏦 경제</button>
+    <button class="tab-btn" data-tab="front">🗞 1면</button>
+    <button class="tab-btn active" data-tab="economy">🏦 경제</button>
     <button class="tab-btn" data-tab="industry">🏭 산업</button>
     <button class="tab-btn" data-tab="global">🌐 국제</button>
     <button class="tab-btn" data-tab="stocks">📈 주식</button>
@@ -577,7 +587,7 @@
   <div class="content">
 
     <!-- ▸ 1면 -->
-    <div class="tab-panel active" id="tab-front">
+    <div class="tab-panel" id="tab-front">
       <div class="front-coming-soon">
         <div class="big-icon">🗞</div>
         <p style="color:#1A7A45; font-weight:700; font-size:16px; margin-bottom:8px;">1면 종합</p>
@@ -609,7 +619,7 @@
     </div>
 
     <!-- ▸ 경제 탭 -->
-    <div class="tab-panel" id="tab-economy">
+    <div class="tab-panel active" id="tab-economy">
       <!-- 종합 뷰 (summary 칩) -->
       <div id="economy-summary-view">
         <div class="summary-card" id="economy-summary-card">
@@ -704,6 +714,9 @@
 </div>
 
 <script>
+/* ═══════════ DEV MODE ═══════════ */
+const DEV_MODE = new URLSearchParams(window.location.search).get('dev') === 'true';
+
 /* ═══════════ CATEGORY CONFIG ═══════════ */
 const CATEGORY_CHIPS = {
   economy: [
@@ -762,7 +775,7 @@ const FX_LIST = [
 const TAB_LABEL = { economy:'경제', industry:'산업', global:'국제' };
 
 /* ═══════════ CACHE VERSION ═══════════ */
-const CACHE_VERSION = 'v73';
+const CACHE_VERSION = 'v74';
 (function clearOldCache() {
   const savedVersion = localStorage.getItem('eco_cache_version');
   if (savedVersion !== CACHE_VERSION) {
@@ -868,7 +881,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function pad(n) { return String(n).padStart(2,'0'); }
-function esc(s){ return (s||'').replace(/'/g,"\\'"); }
+function esc(s){ return (s||'').replace(/&/g,'&amp;').replace(/'/g,"\\'").replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 function openLink(u){ if(u) window.open(u,'_blank'); }
 function ago(d){
   const date = d instanceof Date ? d : new Date(d);
@@ -1122,19 +1135,14 @@ function cancelBriefing(tab) {
   summaryCache[tab] = null;
   const card = document.getElementById(`${tab}-summary-card`);
   if (card) card.innerHTML = `
-    <div style="padding:32px 24px;text-align:center;">
-      <div style="font-size:32px;margin-bottom:12px;">⏭</div>
-      <div style="font-family:'Playfair Display',serif;font-size:15px;font-weight:700;color:#111827;margin-bottom:8px;">브리핑 건너뜀</div>
-      <div style="font-size:12px;color:#6B7280;line-height:1.6;margin-bottom:20px;">서브칩에서 뉴스를 직접 볼 수 있어요.</div>
-      <button onclick="genTabSummary('${tab}')"
-        style="background:#1A7A45;color:#fff;border:none;border-radius:8px;padding:10px 24px;font-size:13px;font-weight:700;font-family:'Noto Sans KR',sans-serif;cursor:pointer;">
-        🔄 다시 생성
-      </button>
+    <div class="status-card">
+      <div class="status-card-icon">⏭</div>
+      <div class="status-card-title">브리핑 건너뜀</div>
+      <div class="status-card-desc">서브칩에서 뉴스를 직접 볼 수 있어요.</div>
+      <button class="retry-btn" onclick="genTabSummary('${tab}')">🔄 다시 생성</button>
     </div>`;
 }
 
-/* ═══════════ DEV MODE ═══════════ */
-const DEV_MODE = new URLSearchParams(window.location.search).get('dev') === 'true';
 const DEV_DUMMY = {
   summary: `줄1: 원달러 환율이 1,500원을 돌파하며 17년 만에 최고치를 기록했으며, 이는 중동 분쟁으로 인한 국제유가 급등과 달러 강세가 맞물린 결과다.
 줄2: • ECB는 6회 연속 기준금리를 동결하고 인플레이션 전망을 상향했으며, 미 연준·한국은행도 동결 기조를 유지하고 있다.
@@ -1259,14 +1267,11 @@ async function genTabSummary(tab) {
     stopLoadingMsg();
     const card = document.getElementById(`${tab}-summary-card`);
     if (card) card.innerHTML = `
-      <div style="padding:32px 24px;text-align:center;">
-        <div style="font-size:36px;margin-bottom:14px;">📡</div>
-        <div style="font-family:'Playfair Display',serif;font-size:15px;font-weight:700;color:#111827;margin-bottom:8px;">뉴스를 불러오지 못했어요</div>
-        <div style="font-size:12px;color:#6B7280;line-height:1.6;margin-bottom:20px;">네트워크 상태를 확인하고 다시 시도해주세요.</div>
-        <button onclick="summaryCache['${tab}']=null;genTabSummary('${tab}')"
-          style="background:#1A7A45;color:#fff;border:none;border-radius:8px;padding:10px 24px;font-size:13px;font-weight:700;font-family:'Noto Sans KR',sans-serif;cursor:pointer;">
-          🔄 다시 시도
-        </button>
+      <div class="status-card">
+        <div class="status-card-icon">📡</div>
+        <div class="status-card-title">뉴스를 불러오지 못했어요</div>
+        <div class="status-card-desc">네트워크 상태를 확인하고 다시 시도해주세요.</div>
+        <button class="retry-btn" onclick="summaryCache['${tab}']=null;genTabSummary('${tab}')">🔄 다시 시도</button>
       </div>`;
     return;
   }
@@ -1323,14 +1328,11 @@ async function genTabSummary(tab) {
     stopLoadingMsg();
     const card = document.getElementById(`${tab}-summary-card`);
     if (card) card.innerHTML = `
-      <div style="padding:32px 24px;text-align:center;">
-        <div style="font-size:36px;margin-bottom:14px;">⚠️</div>
-        <div style="font-family:'Playfair Display',serif;font-size:15px;font-weight:700;color:#111827;margin-bottom:8px;">브리핑 생성 실패</div>
-        <div style="font-size:12px;color:#6B7280;line-height:1.6;margin-bottom:20px;">${err.message}</div>
-        <button onclick="summaryCache['${tab}']=null;genTabSummary('${tab}')"
-          style="background:#1A7A45;color:#fff;border:none;border-radius:8px;padding:10px 24px;font-size:13px;font-weight:700;font-family:'Noto Sans KR',sans-serif;cursor:pointer;">
-          🔄 다시 시도
-        </button>
+      <div class="status-card">
+        <div class="status-card-icon">⚠️</div>
+        <div class="status-card-title">브리핑 생성 실패</div>
+        <div class="status-card-desc">${err.message}</div>
+        <button class="retry-btn" onclick="summaryCache['${tab}']=null;genTabSummary('${tab}')">🔄 다시 시도</button>
       </div>`;
   }
 }
@@ -1622,14 +1624,14 @@ async function loadColumn(tab) {
 
   // 로딩
   body.innerHTML = `
-    <div style="padding:24px;text-align:center;">
+    <div class="status-card">
       <div class="dots" style="margin-bottom:12px;"><span></span><span></span><span></span></div>
-      <div style="font-size:12px;color:#6B7280;">칼럼 작성 중...</div>
+      <div class="status-card-desc" style="margin-bottom:0;">칼럼 작성 중...</div>
     </div>`;
 
   const cached = summaryCache[tab];
   if (!cached?.summary) {
-    body.innerHTML = `<div style="padding:20px;text-align:center;font-size:12px;color:#DC2626;">브리핑을 먼저 생성해주세요.</div>`;
+    body.innerHTML = `<div class="status-card"><div class="status-card-desc" style="color:var(--red);margin-bottom:0;">브리핑을 먼저 생성해주세요.</div></div>`;
     return;
   }
 
@@ -1646,12 +1648,9 @@ async function loadColumn(tab) {
     renderColumn(tab, j.column);
   } catch(err) {
     body.innerHTML = `
-      <div style="padding:24px;text-align:center;">
-        <div style="font-size:13px;color:#DC2626;margin-bottom:12px;">⚠️ ${err.message}</div>
-        <button onclick="columnCache['${tab}']=null;loadColumn('${tab}')"
-          style="background:#1A7A45;color:#fff;border:none;border-radius:8px;padding:8px 20px;font-size:12px;font-weight:700;font-family:'Noto Sans KR',sans-serif;cursor:pointer;">
-          🔄 다시 시도
-        </button>
+      <div class="status-card">
+        <div style="font-size:13px;color:var(--red);margin-bottom:12px;">⚠️ ${err.message}</div>
+        <button class="retry-btn" onclick="columnCache['${tab}']=null;loadColumn('${tab}')">🔄 다시 시도</button>
       </div>`;
   }
 }
@@ -1668,26 +1667,23 @@ function renderColumn(tab, text) {
     if (isFirst && line.trim().length > 0) {
       isFirst = false;
       const headline = line.replace(/^#+\s*/, '').trim();
-      return `<div style="font-size:17px;font-weight:900;color:#111827;line-height:1.45;letter-spacing:-0.3px;margin-bottom:12px;">${headline}</div>`;
+      return `<div class="column-headline">${headline}</div>`;
     }
     if (/^###\s/.test(line)) {
-      return `<h3 style="font-size:15px;font-weight:800;color:#1A7A45;margin:20px 0 8px;letter-spacing:-0.2px;">${line.replace(/^###\s/, '')}</h3>`;
+      return `<h3 class="column-h3">${line.replace(/^###\s/, '')}</h3>`;
     }
     if (/^#{1,2}\s/.test(line)) {
-      return `<div style="font-size:15px;font-weight:800;color:#1A7A45;margin:20px 0 8px;letter-spacing:-0.2px;">${line.replace(/^#+\s/, '')}</div>`;
+      return `<div class="column-h3">${line.replace(/^#+\s/, '')}</div>`;
     }
     if (/^---$/.test(line.trim())) {
-      return `<hr style="border:none;border-top:1px solid #E5EDE8;margin:16px 0;">`;
+      return `<hr class="column-divider">`;
     }
     if (line.trim() === '') return '';
     const content = line.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
-    return `<p style="font-size:14px;color:#111827;line-height:1.85;margin:0 0 8px;">${content}</p>`;
+    return `<p class="column-body">${content}</p>`;
   }).join('');
 
-  body.innerHTML = `
-    <div style="background:#FAFFFD;border:1px solid #D4E8DA;border-top:none;border-radius:0 0 12px 12px;padding:20px 20px 24px;">
-      ${html}
-    </div>`;
+  body.innerHTML = `<div class="column-wrap">${html}</div>`;
 }
 
 function updateFrontPreview(tab, summary) {
