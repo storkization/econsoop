@@ -760,7 +760,7 @@ const FX_LIST = [
 const TAB_LABEL = { economy:'경제', industry:'산업', global:'국제' };
 
 /* ═══════════ CACHE VERSION ═══════════ */
-const CACHE_VERSION = 'v67';
+const CACHE_VERSION = 'v68';
 (function clearOldCache() {
   const savedVersion = localStorage.getItem('eco_cache_version');
   if (savedVersion !== CACHE_VERSION) {
@@ -1175,10 +1175,13 @@ function renderTabSummary(tab, result) {
       fns.forEach(fn => {
         const raw = fn.split('│')[0].replace(/^※\s*/, '').trim();
         if (!raw) return;
-        const escaped = raw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        // 괄호 앞 핵심어만 추출 (예: "ECB(유럽중앙은행)" → "ECB")
+        const core = raw.split(/[(\[（【]/)[0].trim();
+        if (!core) return;
+        const escaped = core.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
         result = result.replace(
           new RegExp(escaped, 'g'),
-          `<span style="text-decoration:underline;text-decoration-color:#1A7A45;text-underline-offset:3px;font-weight:600;">${raw}</span>`
+          `<span style="text-decoration:underline;text-decoration-color:#1A7A45;text-underline-offset:3px;font-weight:600;">${core}</span>`
         );
       });
       return result;
@@ -1253,6 +1256,24 @@ function renderTabSummary(tab, result) {
     const p3 = extractPoint(cleanOneliner, '주목할 점Next Move', null);
     const points = [p1, p2, p3].filter(p => p.text.length > 0);
 
+    // 쓰리포인트 밑줄 헬퍼 (흰색 텍스트 위 흰색 밑줄)
+    function underlineInsight(text, fns) {
+      if (!fns.length) return text;
+      let result = text;
+      fns.forEach(fn => {
+        const raw = fn.split('│')[0].replace(/^※\s*/, '').trim();
+        if (!raw) return;
+        const core = raw.split(/[(\[（【]/)[0].trim();
+        if (!core) return;
+        const escaped = core.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        result = result.replace(
+          new RegExp(escaped, 'g'),
+          `<span style="text-decoration:underline;text-decoration-color:rgba(255,255,255,0.7);text-underline-offset:3px;font-weight:700;">${core}</span>`
+        );
+      });
+      return result;
+    }
+
     const labels = [
       { ko: '배경(상황) 🌍', en: 'Why' },
       { ko: '시장 영향 📉',  en: 'So What' },
@@ -1281,7 +1302,7 @@ function renderTabSummary(tab, result) {
               <span style="font-size:13px;font-weight:800;letter-spacing:-0.2px;color:#fff;">${labels[i].ko}</span>
               <span style="font-size:11px;opacity:0.85;font-weight:600;letter-spacing:0.3px;color:#fff;">${labels[i].en}</span>
             </span>
-            <span class="insight-text" style="font-size:14px;line-height:1.85;">${p.text}</span>
+            <span class="insight-text" style="font-size:14px;line-height:1.85;">${underlineInsight(p.text, p.footnotes)}</span>
             ${fnHtml}
           </div>`;
         }).join('')}
