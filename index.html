@@ -760,7 +760,7 @@ const FX_LIST = [
 const TAB_LABEL = { economy:'경제', industry:'산업', global:'국제' };
 
 /* ═══════════ CACHE VERSION ═══════════ */
-const CACHE_VERSION = 'v69';
+const CACHE_VERSION = 'v70';
 (function clearOldCache() {
   const savedVersion = localStorage.getItem('eco_cache_version');
   if (savedVersion !== CACHE_VERSION) {
@@ -1088,19 +1088,24 @@ async function genTabSummary(tab) {
 
   const label = TAB_LABEL[tab];
 
-  // 뉴스 수집
+  // 뉴스 수집 — 병렬 fetch (순차 시 최대 56초 → 병렬로 5초 이내)
   setLoadingMsg(tab, 'news');
   const queries = SUMMARY_QUERIES[tab];
-  const allItems = [];
-  for (const q of queries) {
+
+  const fetchNews = async (q) => {
     try {
       const r = await fetch(`/api/news?query=${encodeURIComponent(q)}&display=10&type=general`,
-        { signal: (function(){ const c = new AbortController(); setTimeout(()=>c.abort(), 8000); return c.signal; })() });
+        { signal: (function(){ const c = new AbortController(); setTimeout(()=>c.abort(), 5000); return c.signal; })() });
       const j = await r.json();
-      if (j.items) allItems.push(...j.items);
-      await new Promise(res => setTimeout(res, 200));
-    } catch(e) { console.warn("[NEWS FETCH ERROR]", q, e.message); }
-  }
+      return j.items || [];
+    } catch(e) {
+      console.warn("[NEWS FETCH ERROR]", q, e.message);
+      return [];
+    }
+  };
+
+  const results = await Promise.all(queries.map(q => fetchNews(q)));
+  const allItems = results.flat();
 
   const skipKw = ['구직','채용','취업','자립준비','희망디딤돌','주요기사','1부','2부'];
   const seen = new Set();
@@ -1114,6 +1119,22 @@ async function genTabSummary(tab) {
   newsCache[`${tab}-summary`] = unique;
 
   // AI 호출
+  if (!unique.length) {
+    stopLoadingMsg();
+    const card = document.getElementById(`${tab}-summary-card`);
+    if (card) card.innerHTML = `
+      <div style="padding:32px 24px;text-align:center;">
+        <div style="font-size:36px;margin-bottom:14px;">📡</div>
+        <div style="font-family:'Playfair Display',serif;font-size:15px;font-weight:700;color:#111827;margin-bottom:8px;">뉴스를 불러오지 못했어요</div>
+        <div style="font-size:12px;color:#6B7280;line-height:1.6;margin-bottom:20px;">네트워크 상태를 확인하고 다시 시도해주세요.</div>
+        <button onclick="summaryCache['${tab}']=null;genTabSummary('${tab}')"
+          style="background:#1A7A45;color:#fff;border:none;border-radius:8px;padding:10px 24px;font-size:13px;font-weight:700;font-family:'Noto Sans KR',sans-serif;cursor:pointer;">
+          🔄 다시 시도
+        </button>
+      </div>`;
+    return;
+  }
+
   try {
     setLoadingMsg(tab, 'ai');
     const headlines = unique.slice(0, 25).map(n =>
@@ -1522,15 +1543,20 @@ async function loadSubNews(tab, chipId) {
   if (!chipConfig) return;
 
   const allItems = [];
-  for (const q of chipConfig.queries) {
-    try {
-      const r = await fetch(`/api/news?query=${encodeURIComponent(q)}&display=15&type=general`,
-        { signal: (function(){ const c = new AbortController(); setTimeout(()=>c.abort(), 8000); return c.signal; })() });
-      const j = await r.json();
-      if (j.items) allItems.push(...j.items);
-      await new Promise(res => setTimeout(res, 250));
-    } catch(e) { console.warn("[NEWS FETCH ERROR]", q, e.message); }
-  }
+  const subResults = await Promise.all(
+    chipConfig.queries.map(async q => {
+      try {
+        const r = await fetch(`/api/news?query=${encodeURIComponent(q)}&display=15&type=general`,
+          { signal: (function(){ const c = new AbortController(); setTimeout(()=>c.abort(), 5000); return c.signal; })() });
+        const j = await r.json();
+        return j.items || [];
+      } catch(e) {
+        console.warn("[NEWS FETCH ERROR]", q, e.message);
+        return [];
+      }
+    })
+  );
+  allItems.push(...subResults.flat());
 
   const skipKw = ['구직','채용','취업','자립준비','희망디딤돌','주요기사','1부','2부'];
   const seen = new Set();
