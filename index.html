@@ -1008,7 +1008,7 @@ const FX_LIST = [
 const TAB_LABEL = { economy:'경제', industry:'산업', global:'국제' };
 
 /* ═══════════ CACHE VERSION ═══════════ */
-const CACHE_VERSION = 'v94';
+const CACHE_VERSION = 'v95';
 (function clearOldCache() {
   const savedVersion = localStorage.getItem('eco_cache_version');
   if (savedVersion !== CACHE_VERSION) {
@@ -1564,7 +1564,7 @@ async function genTabSummary(tab) {
 
   const fetchNews = async (q) => {
     try {
-      const r = await fetch(`/api/news?query=${encodeURIComponent(q)}&display=10&type=general`,
+      const r = await fetch(`/api/news?query=${encodeURIComponent(q)}&display=7&type=general`,
         { signal: (function(){ const c = new AbortController(); setTimeout(()=>c.abort(), 5000); return c.signal; })() });
       const j = await r.json();
       return j.items || [];
@@ -1583,7 +1583,7 @@ async function genTabSummary(tab) {
     .filter(it => !skipKw.some(kw => it.title.includes(kw)))
     .filter(it => { const k=it.title.slice(0,15); if(seen.has(k)) return false; seen.add(k); return true; })
     .sort((a,b)=>new Date(b.date)-new Date(a.date))
-    .slice(0, 25);
+    .slice(0, 18);
 
   console.log("[DEBUG] allItems:", allItems.length, "/ unique:", unique.length);
   newsCache[`${tab}-summary`] = unique;
@@ -1611,7 +1611,7 @@ async function genTabSummary(tab) {
         <div class="dots" style="transform:scale(0.7);transform-origin:left;"><span></span><span></span><span></span></div>
         <span style="font-size:12px;color:#6B7280;">AI가 핵심 뉴스를 선별하는 중...</span>
       </div>`;
-    const headlines = unique.slice(0, 25).map(n =>
+    const headlines = unique.slice(0, 18).map(n =>
       n.description ? `${n.title}\n   → ${n.description.slice(0, 100)}` : n.title
     );
     console.log('[BRIEFING] 호출 시작, headlines:', headlines.length);
