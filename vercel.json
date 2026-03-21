@@ -5,6 +5,9 @@
     },
     "api/column.js": {
       "maxDuration": 60
+    },
+    "api/insight.js": {
+      "maxDuration": 60
     }
   }
 }

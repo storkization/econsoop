@@ -1008,7 +1008,7 @@ const FX_LIST = [
 const TAB_LABEL = { economy:'경제', industry:'산업', global:'국제' };
 
 /* ═══════════ CACHE VERSION ═══════════ */
-const CACHE_VERSION = 'v95';
+const CACHE_VERSION = 'v96';
 (function clearOldCache() {
   const savedVersion = localStorage.getItem('eco_cache_version');
   if (savedVersion !== CACHE_VERSION) {
@@ -1614,7 +1614,7 @@ async function genTabSummary(tab) {
     const headlines = unique.slice(0, 18).map(n =>
       n.description ? `${n.title}\n   → ${n.description.slice(0, 100)}` : n.title
     );
-    console.log('[BRIEFING] 호출 시작, headlines:', headlines.length);
+    console.log('[BRIEFING] 1차 호출 시작 (SUMMARY+FOOTNOTES), headlines:', headlines.length);
     _briefingController = new AbortController();
     const briefingTimer = setTimeout(() => { if (_briefingController) _briefingController.abort(); }, 55000);
     const res = await fetch('/api/briefing', {
@@ -1625,37 +1625,49 @@ async function genTabSummary(tab) {
     });
     clearTimeout(briefingTimer);
     _briefingController = null;
-    console.log('[BRIEFING] 응답 상태:', res.status);
+    console.log('[BRIEFING] 1차 응답 상태:', res.status);
     const j = await res.json();
-    console.log('[BRIEFING] 응답 키:', Object.keys(j), 'summary 길이:', (j.summary||'').length);
+    console.log('[BRIEFING] 1차 응답 키:', Object.keys(j), 'summary 길이:', (j.summary||'').length);
     if (!res.ok) {
       throw new Error(j.error || `API 오류 ${res.status}`);
     }
     if (!j.summary || j.summary.trim().length === 0) {
       throw new Error('AI 응답에서 SUMMARY 파싱 실패 — 다시 시도해주세요');
     }
+
+    // 1차 결과: SUMMARY + FOOTNOTES → 즉시 렌더
     const result = {
       summary: j.summary || '',
-      briefing: j.briefing || '',
-      oneliner: j.oneliner || '',
+      oneliner: '',
       footnotes: j.footnotes || '',
-      insightFootnotes: j.insightFootnotes || '',
       topNews: unique.slice(0, 15),
     };
     summaryCache[tab] = result;
     localStorage.setItem(cacheKey, JSON.stringify(result));
     localStorage.setItem(cacheTimeKey, Date.now());
-    // "발행 완료" 단계 표시 후 1.5초 대기
     _aiStepIndex = 6;
     _aiStepTimers.forEach(t => clearTimeout(t));
     _aiStepTimers = [];
     if (_loadingInterval) { clearInterval(_loadingInterval); _loadingInterval = null; }
     setLoadingMsg(tab, 'done');
-    await new Promise(r => setTimeout(r, 1500));
+    await new Promise(r => setTimeout(r, 1000));
     stopLoadingMsg();
     showQuizAnswer();
     renderTabSummary(tab, result);
     updateFrontPreview(tab, result.summary);
+
+    // 2차: ONELINER 백그라운드 호출 (await 안 함)
+    const insightEl = document.getElementById(`${tab}-insight`);
+    if (insightEl) {
+      insightEl.innerHTML = `
+        <div class="insight-section-label">💡 쓰리포인트 요약 by Shawn</div>
+        <div style="background:#F7FBF8;border-radius:14px;padding:20px;text-align:center;">
+          <div class="dots" style="margin-bottom:10px;"><span></span><span></span><span></span></div>
+          <div style="font-size:12px;color:var(--text-muted);">인사이트 분석 중...</div>
+        </div>`;
+    }
+    fetchInsight(tab, result.summary, result.footnotes, label, unique);
+
   } catch(err) {
     console.error('[BRIEFING ERROR]', err.message, err);
     stopLoadingMsg();
@@ -1667,6 +1679,50 @@ async function genTabSummary(tab) {
         <div class="status-card-desc">${err.message}</div>
         <button class="retry-btn" onclick="summaryCache['${tab}']=null;genTabSummary('${tab}')">🔄 다시 시도</button>
       </div>`;
+  }
+}
+
+/* ═══════════ 2차: ONELINER 백그라운드 호출 ═══════════ */
+async function fetchInsight(tab, summary, footnotes, label, topNewsItems) {
+  const cacheKey = `eco_summary_${tab}`;
+  const cacheTimeKey = `eco_summary_time_${tab}`;
+
+  try {
+    console.log('[INSIGHT] 2차 호출 시작 (ONELINER)');
+    const res = await fetch('/api/insight', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ summary, footnotes, label }),
+      signal: (() => { const c = new AbortController(); setTimeout(() => c.abort(), 55000); return c.signal; })()
+    });
+    const j = await res.json();
+    console.log('[INSIGHT] 2차 응답:', res.status, 'oneliner 길이:', (j.oneliner||'').length);
+
+    if (res.ok && j.oneliner) {
+      // summaryCache 업데이트
+      if (summaryCache[tab]) {
+        summaryCache[tab].oneliner = j.oneliner;
+      }
+      // localStorage 저장 (summary + oneliner 합쳐서)
+      localStorage.setItem(cacheKey, JSON.stringify(summaryCache[tab]));
+      localStorage.setItem(cacheTimeKey, Date.now());
+      // 인사이트 렌더 (renderTabSummary 내부의 insight 렌더 로직 재활용)
+      renderInsightSection(tab, j.oneliner);
+    } else {
+      console.warn('[INSIGHT] ONELINER 없음 또는 에러');
+      const insightEl = document.getElementById(`${tab}-insight`);
+      if (insightEl) insightEl.innerHTML = '';
+      // oneliner 없이도 캐시 저장
+      localStorage.setItem(cacheKey, JSON.stringify(summaryCache[tab]));
+      localStorage.setItem(cacheTimeKey, Date.now());
+    }
+  } catch(err) {
+    console.warn('[INSIGHT ERROR]', err.message);
+    const insightEl = document.getElementById(`${tab}-insight`);
+    if (insightEl) insightEl.innerHTML = '';
+    // oneliner 실패해도 summary 캐시는 저장
+    localStorage.setItem(cacheKey, JSON.stringify(summaryCache[tab]));
+    localStorage.setItem(cacheTimeKey, Date.now());
   }
 }
 
@@ -1794,84 +1850,9 @@ function renderTabSummary(tab, result) {
     `;
   }
 
-  // Shawn's Insight 별도 섹션
-  const insightEl = document.getElementById(`${tab}-insight`);
-  if (insightEl && result.oneliner) {
-    const cleanOneliner = (result.oneliner || '')
-      .replace(/\*\*/g, '').replace(/^#+\s*/gm, '').replace(/^---+\s*/gm, '');
-
-    // 각 포인트 + 바로 아래 ※각주 함께 파싱
-    function extractPoint(raw, label, nextLabel) {
-      const pattern = nextLabel
-        ? new RegExp(`${label}:\\s*([\\s\\S]*?)(?=${nextLabel}:|$)`)
-        : new RegExp(`${label}:\\s*([\\s\\S]*?)$`);
-      const m = raw.match(pattern);
-      if (!m) return { text: '', footnotes: [] };
-      const block = m[1].trim();
-      const lines = block.split('\n');
-      const text = lines.filter(l => !l.trim().startsWith('※각주:')).join(' ').replace(/\s+/g,' ').trim();
-      const footnotes = lines
-        .filter(l => l.trim().startsWith('※각주:'))
-        .map(l => l.replace(/^※각주:\s*/, '').trim());
-      return { text, footnotes };
-    }
-
-    const p1 = extractPoint(cleanOneliner, '배경\\(상황\\)Why', '시장 영향So What');
-    const p2 = extractPoint(cleanOneliner, '시장 영향So What', '주목할 점Next Move');
-    const p3 = extractPoint(cleanOneliner, '주목할 점Next Move', null);
-    const points = [p1, p2, p3].filter(p => p.text.length > 0);
-
-    // 쓰리포인트 밑줄 헬퍼 (흰색 텍스트 위 흰색 밑줄)
-    function underlineInsight(text, fns) {
-      if (!fns.length) return text;
-      let result = text;
-      fns.forEach(fn => {
-        const raw = fn.split('│')[0].replace(/^※\s*/, '').trim();
-        if (!raw) return;
-        const core = raw.split(/[(\[（【]/)[0].trim();
-        if (!core) return;
-        const escaped = core.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-        result = result.replace(
-          new RegExp(escaped, 'g'),
-          `<span style="text-decoration:underline;text-decoration-color:rgba(255,255,255,0.7);text-underline-offset:3px;font-weight:700;">${core}</span>`
-        );
-      });
-      return result;
-    }
-
-    const labels = [
-      { ko: '배경(상황) 🌍', en: 'Why' },
-      { ko: '시장 영향 📉',  en: 'So What' },
-      { ko: '주목할 점 🔍', en: 'Focus' },
-    ];
-    const colors = ['#1A7A45', '#8B4513', '#1A5CAD'];
-
-    insightEl.innerHTML = `
-      <div class="insight-section-label">💡 쓰리포인트 요약 by Shawn</div>
-      <div class="insight-card">
-        ${points.map((p, i) => {
-          const fnHtml = p.footnotes.length
-            ? p.footnotes.map(fn => {
-                const parts = fn.split('│');
-                if (parts.length >= 2) {
-                  const term = parts[0].replace(/^※\s*/, '').trim();
-                  const desc = parts.slice(1).join('│').trim();
-                  return `<div style="margin-top:8px;padding:8px 10px;background:rgba(255,255,255,0.1);border-left:2px solid rgba(255,255,255,0.3);border-radius:0 6px 6px 0;font-size:11px;color:rgba(255,255,255,0.85);line-height:1.6;">※ <span style="font-weight:700;text-decoration:underline;text-decoration-color:rgba(255,255,255,0.6);text-underline-offset:3px;">${term}</span> │ ${desc}</div>`;
-                }
-                return `<div style="margin-top:8px;padding:8px 10px;background:rgba(255,255,255,0.1);border-left:2px solid rgba(255,255,255,0.3);border-radius:0 6px 6px 0;font-size:11px;color:rgba(255,255,255,0.85);line-height:1.6;">${fn}</div>`;
-              }).join('')
-            : '';
-          return `
-          <div class="insight-line" style="flex-direction:column;gap:8px;margin-bottom:${i < points.length - 1 ? '26px' : '0'};">
-            <span style="background:${colors[i]};display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border-radius:6px;align-self:flex-start;">
-              <span style="font-size:13px;font-weight:800;letter-spacing:-0.2px;color:#fff;">${labels[i].ko}</span>
-              <span style="font-size:11px;opacity:0.85;font-weight:600;letter-spacing:0.3px;color:#fff;">${labels[i].en}</span>
-            </span>
-            <span class="insight-text" style="font-size:14px;line-height:1.85;">${underlineInsight(p.text, p.footnotes)}</span>
-            ${fnHtml}
-          </div>`;
-        }).join('')}
-      </div>`;
+  // Shawn's Insight — oneliner가 있으면 바로 렌더, 없으면 (2차 호출 대기 중) 스킵
+  if (result.oneliner) {
+    renderInsightSection(tab, result.oneliner);
   }
 
   // 칼럼 펼치기 버튼
@@ -1928,6 +1909,86 @@ function renderTabSummary(tab, result) {
       newsEl.innerHTML = h;
     }
   }
+}
+
+/* ═══════════ INSIGHT 렌더 (독립 함수) ═══════════ */
+function renderInsightSection(tab, oneliner) {
+  const insightEl = document.getElementById(`${tab}-insight`);
+  if (!insightEl || !oneliner) return;
+
+  const cleanOneliner = (oneliner || '')
+    .replace(/\*\*/g, '').replace(/^#+\s*/gm, '').replace(/^---+\s*/gm, '');
+
+  function extractPoint(raw, label, nextLabel) {
+    const pattern = nextLabel
+      ? new RegExp(`${label}:\\s*([\\s\\S]*?)(?=${nextLabel}:|$)`)
+      : new RegExp(`${label}:\\s*([\\s\\S]*?)$`);
+    const m = raw.match(pattern);
+    if (!m) return { text: '', footnotes: [] };
+    const block = m[1].trim();
+    const lines = block.split('\n');
+    const text = lines.filter(l => !l.trim().startsWith('※각주:')).join(' ').replace(/\s+/g,' ').trim();
+    const footnotes = lines
+      .filter(l => l.trim().startsWith('※각주:'))
+      .map(l => l.replace(/^※각주:\s*/, '').trim());
+    return { text, footnotes };
+  }
+
+  const p1 = extractPoint(cleanOneliner, '배경\\(상황\\)Why', '시장 영향So What');
+  const p2 = extractPoint(cleanOneliner, '시장 영향So What', '주목할 점Next Move');
+  const p3 = extractPoint(cleanOneliner, '주목할 점Next Move', null);
+  const points = [p1, p2, p3].filter(p => p.text.length > 0);
+
+  function underlineInsight(text, fns) {
+    if (!fns.length) return text;
+    let result = text;
+    fns.forEach(fn => {
+      const raw = fn.split('│')[0].replace(/^※\s*/, '').trim();
+      if (!raw) return;
+      const core = raw.split(/[(\[（【]/)[0].trim();
+      if (!core) return;
+      const escaped = core.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      result = result.replace(
+        new RegExp(escaped, 'g'),
+        `<span style="text-decoration:underline;text-decoration-color:rgba(255,255,255,0.7);text-underline-offset:3px;font-weight:700;">${core}</span>`
+      );
+    });
+    return result;
+  }
+
+  const labels = [
+    { ko: '배경(상황) 🌍', en: 'Why' },
+    { ko: '시장 영향 📉',  en: 'So What' },
+    { ko: '주목할 점 🔍', en: 'Focus' },
+  ];
+  const colors = ['#1A7A45', '#8B4513', '#1A5CAD'];
+
+  insightEl.innerHTML = `
+    <div class="insight-section-label">💡 쓰리포인트 요약 by Shawn</div>
+    <div class="insight-card" style="animation:panelIn 0.4s ease forwards;">
+      ${points.map((p, i) => {
+        const fnHtml = p.footnotes.length
+          ? p.footnotes.map(fn => {
+              const parts = fn.split('│');
+              if (parts.length >= 2) {
+                const term = parts[0].replace(/^※\s*/, '').trim();
+                const desc = parts.slice(1).join('│').trim();
+                return `<div style="margin-top:8px;padding:8px 10px;background:rgba(255,255,255,0.1);border-left:2px solid rgba(255,255,255,0.3);border-radius:0 6px 6px 0;font-size:11px;color:rgba(255,255,255,0.85);line-height:1.6;">※ <span style="font-weight:700;text-decoration:underline;text-decoration-color:rgba(255,255,255,0.6);text-underline-offset:3px;">${term}</span> │ ${desc}</div>`;
+              }
+              return `<div style="margin-top:8px;padding:8px 10px;background:rgba(255,255,255,0.1);border-left:2px solid rgba(255,255,255,0.3);border-radius:0 6px 6px 0;font-size:11px;color:rgba(255,255,255,0.85);line-height:1.6;">${fn}</div>`;
+            }).join('')
+          : '';
+        return `
+        <div class="insight-line" style="flex-direction:column;gap:8px;margin-bottom:${i < points.length - 1 ? '26px' : '0'};">
+          <span style="background:${colors[i]};display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border-radius:6px;align-self:flex-start;">
+            <span style="font-size:13px;font-weight:800;letter-spacing:-0.2px;color:#fff;">${labels[i].ko}</span>
+            <span style="font-size:11px;opacity:0.85;font-weight:600;letter-spacing:0.3px;color:#fff;">${labels[i].en}</span>
+          </span>
+          <span class="insight-text" style="font-size:14px;line-height:1.85;">${underlineInsight(p.text, p.footnotes)}</span>
+          ${fnHtml}
+        </div>`;
+      }).join('')}
+    </div>`;
 }
 
 /* ═══════════ 칼럼 ═══════════ */
