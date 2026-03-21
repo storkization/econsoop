@@ -220,21 +220,24 @@
 
     /* ── SUMMARY CARD ── */
     .summary-card {
-      background:#FFFFFF; border-radius:14px; padding:0;
-      margin-bottom:14px;
-      box-shadow:0 2px 16px rgba(0,0,0,0.06), 0 0 0 1px rgba(26,122,69,0.15);
-      overflow:hidden;
+      background:transparent; border-radius:0; padding:0;
+      margin-bottom:0;
+      box-shadow:none;
+      overflow:visible;
     }
     .summary-report-header {
-      text-align:left; padding:18px 22px 14px;
-      border-bottom:1px solid rgba(26,122,69,0.15);
-      background:linear-gradient(180deg,#FAFFFD 0%,#FFFFFF 100%);
+      text-align:left; padding:20px 22px 16px;
+      border-bottom:none;
+      background:linear-gradient(135deg, #F0FAF4 0%, #FAFFFD 40%, #F5F0FF 100%);
+      border-radius:16px;
+      margin-bottom:10px;
+      box-shadow:0 2px 16px rgba(0,0,0,0.06);
     }
     .summary-report-eyebrow {
       font-family:var(--font-serif);
       font-size:14px; font-weight:var(--fw-black);
       color:var(--accent); letter-spacing:-0.2px;
-      margin-bottom:2px;
+      margin-bottom:3px;
     }
     .summary-report-title {
       font-family:var(--font-sans);
@@ -245,8 +248,8 @@
     .summary-report-title em { color:var(--accent); font-style:normal; }
     .summary-report-date {
       font-family:var(--font-mono);
-      font-size:var(--fs-caption); color:var(--text);
-      letter-spacing:0.5px;
+      font-size:var(--fs-caption); color:#6B7280;
+      letter-spacing:0.5px; margin-top:6px;
     }
     .insight-section-label {
       font-family:var(--font-sans);
@@ -275,21 +278,23 @@
       font-size:var(--fs-body); font-weight:var(--fw-semi);
       color:#fff; line-height:1.75;
     }
-    .summary-line-wrap { padding:16px 24px; border-bottom:1px solid #E8F0EB; }
-    .summary-line-wrap:last-child { border-bottom:none; }
+    .summary-line-wrap {
+      background:#FFFFFF; border-radius:14px; padding:18px 20px;
+      margin-bottom:10px;
+      box-shadow:0 2px 12px rgba(0,0,0,0.05);
+      border:1px solid rgba(0,0,0,0.04);
+    }
+    .summary-line-wrap:last-child { margin-bottom:0; }
     .summary-line-tag {
-      display:inline-block;
+      display:inline-flex; align-items:center; gap:6px;
       font-family:var(--font-sans);
       font-size:12px; font-weight:var(--fw-bold);
-      padding:4px 10px; border-radius:6px;
-      margin-bottom:10px; letter-spacing:-0.1px;
+      padding:5px 14px; border-radius:20px;
+      margin-bottom:12px; letter-spacing:-0.1px;
     }
-    .tag-issue  { background:#E8F5EE; color:#1A7A45; border:1px solid rgba(26,122,69,0.3); }
-    .tag-market { background:#EEF2FF; color:#3730A3; border:1px solid rgba(55,48,163,0.2); }
-    .tag-invest { background:#FEF9E7; color:#92600A; border:1px solid rgba(212,160,23,0.3); }
-    .summary-line-wrap.wrap-issue  { border-left:3px solid #1A7A45; background:#FAFFFD; }
-    .summary-line-wrap.wrap-market { border-left:3px solid #3730A3; background:#F9FAFF; }
-    .summary-line-wrap.wrap-invest { border-left:3px solid #D4A017; background:#FFFDF5; }
+    .tag-issue  { background:#E8F5EE; color:#1A7A45; border:none; box-shadow:0 1px 4px rgba(26,122,69,0.1); }
+    .tag-market { background:#EEF2FF; color:#3730A3; border:none; box-shadow:0 1px 4px rgba(55,48,163,0.08); }
+    .tag-invest { background:#FEF9E7; color:#92600A; border:none; box-shadow:0 1px 4px rgba(146,96,10,0.08); }
     .summary-line-text {
       font-family:var(--font-sans);
       font-size:var(--fs-body); font-weight:var(--fw-medium);
@@ -297,11 +302,12 @@
       letter-spacing:-0.1px;
     }
     .summary-footnote {
-      margin-top:10px; padding:10px 14px;
-      background:#F7F8F7; border-left:2px solid #D1D5DB;
-      border-radius:0 8px 8px 0;
+      margin-top:12px; padding:6px 14px;
+      display:flex; align-items:flex-start; gap:6px;
+      background:#F3F4F6;
+      border-radius:12px;
       font-family:var(--font-sans);
-      font-size:12px; color:#4B5563; line-height:1.7;
+      font-size:11px; color:#4B5563; line-height:1.5;
     }
     .front-section {
       background:#FFFFFF; border-radius:14px; padding:20px; margin-bottom:12px;
@@ -327,6 +333,8 @@
     .retry-btn:active { opacity:0.7; }
     .status-card {
       padding:32px 24px; text-align:center;
+      background:#FFFFFF; border-radius:16px;
+      box-shadow:0 2px 16px rgba(0,0,0,0.06);
     }
     .status-card-icon { font-size:36px; margin-bottom:14px; }
     .status-card-title {
@@ -338,6 +346,9 @@
     }
     .init-card {
       text-align:center; padding:32px 20px;
+      background:#FFFFFF; border-radius:16px;
+      box-shadow:0 2px 16px rgba(0,0,0,0.06);
+    }
     }
     .init-card-eyebrow {
       font-family:var(--font-mono);
@@ -989,7 +1000,7 @@ const FX_LIST = [
 const TAB_LABEL = { economy:'경제', industry:'산업', global:'국제' };
 
 /* ═══════════ CACHE VERSION ═══════════ */
-const CACHE_VERSION = 'v92';
+const CACHE_VERSION = 'v93';
 (function clearOldCache() {
   const savedVersion = localStorage.getItem('eco_cache_version');
   if (savedVersion !== CACHE_VERSION) {
@@ -1365,7 +1376,7 @@ function setLoadingMsg(tab, phase, count = null) {
       </div>` : '';
 
     card.innerHTML = `
-      <div style="padding:24px 20px;">
+      <div style="padding:24px 20px;background:#FFFFFF;border-radius:16px;box-shadow:0 2px 16px rgba(0,0,0,0.06);">
         <div style="font-family:var(--font-serif);font-size:15px;font-weight:900;color:var(--text);letter-spacing:-0.3px;margin-bottom:4px;text-align:center;">Shawn Kim's Daily Briefing</div>
         ${stepBar}
         ${quizCard}
@@ -1760,7 +1771,7 @@ function renderTabSummary(tab, result) {
               if (parts.length >= 2) {
                 const term = parts[0].replace(/^※\s*/, '').trim();
                 const desc = parts.slice(1).join('│').trim();
-                return `<div class="summary-footnote">※ <span style="font-weight:700;text-decoration:underline;text-decoration-color:#1A7A45;text-underline-offset:3px;">${term}</span> │ ${desc}</div>`;
+                return `<div class="summary-footnote"><span style="font-weight:700;color:#374151;">※</span> <span style="font-weight:600;text-decoration:underline;text-decoration-color:#1A7A45;text-underline-offset:3px;">${term}</span> · ${desc}</div>`;
               }
               return `<div class="summary-footnote">${fn}</div>`;
             }).join('')
