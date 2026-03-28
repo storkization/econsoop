@@ -16,7 +16,7 @@
   --blue-pale: #EFF6FF;
   --dark: #111827;
   --text: #1a1a1a;
-  --sub: #374151;
+  --sub: #1a1a1a;
   --light: #E5E7EB;
   --green: #059669;
   --green-pale: #ECFDF5;
@@ -35,7 +35,7 @@
 }
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
 html{scroll-behavior:smooth;scroll-padding-top:80px}
-body{font-family:var(--font);color:var(--text);background:var(--bg);line-height:1.8;-webkit-font-smoothing:antialiased;font-size:16px}
+body{font-family:var(--font);color:var(--text);background:var(--bg);line-height:1.85;-webkit-font-smoothing:antialiased;font-size:16px;letter-spacing:-0.01em;word-spacing:0.02em}
 
 /* NAV */
 .nav{position:sticky;top:0;z-index:100;background:rgba(255,255,255,0.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--light);padding:0 24px}
@@ -62,7 +62,7 @@ body{font-family:var(--font);color:var(--text);background:var(--bg);line-height:
 .section h2{font-family:var(--serif);font-size:28px;font-weight:900;color:var(--dark);margin-bottom:8px;line-height:1.3}
 .section h2 .h2-sub{font-size:18px;font-weight:500;color:var(--sub);display:block;margin-top:4px}
 .section h3{font-size:20px;font-weight:700;color:var(--dark);margin:32px 0 14px}
-.section .desc{font-size:16px;color:var(--sub);margin-bottom:28px;line-height:1.9}
+.section .desc{font-size:16px;color:var(--text);margin-bottom:28px;line-height:1.9}
 
 /* FEATURE GRID */
 .feat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;margin:20px 0}
@@ -70,7 +70,7 @@ body{font-family:var(--font);color:var(--text);background:var(--bg);line-height:
 .feat-card:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,0.08)}
 .feat-card-icon{font-size:28px;margin-bottom:12px}
 .feat-card h4{font-size:17px;font-weight:700;margin-bottom:6px}
-.feat-card p{font-size:15px;color:var(--sub);line-height:1.7}
+.feat-card p{font-size:15px;color:var(--text);line-height:1.7}
 
 /* FLOW */
 .flow{margin:24px 0}
@@ -80,7 +80,7 @@ body{font-family:var(--font);color:var(--text);background:var(--bg);line-height:
 .flow-num{width:40px;height:40px;border-radius:50%;background:var(--blue);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:16px;flex-shrink:0;z-index:1}
 .flow-body{flex:1;padding-bottom:24px}
 .flow-body h4{font-size:16px;font-weight:700;margin-bottom:4px}
-.flow-body p{font-size:15px;color:var(--sub);line-height:1.8}
+.flow-body p{font-size:15px;color:var(--text);line-height:1.8}
 
 /* BRAND LOGOS */
 .brand{display:inline-flex;align-items:center;gap:10px;margin-bottom:6px}
@@ -113,14 +113,14 @@ body{font-family:var(--font);color:var(--text);background:var(--bg);line-height:
 .vs-card .vs-sub{font-size:13px;color:var(--sub);margin-bottom:16px}
 .vs-card .pro{color:var(--green);font-weight:600;font-size:15px;margin-bottom:4px}
 .vs-card .con{color:var(--red);font-weight:600;font-size:15px;margin-bottom:4px;margin-top:16px}
-.vs-card li{font-size:15px;color:var(--sub);padding:4px 0;line-height:1.7}
+.vs-card li{font-size:15px;color:var(--text);padding:4px 0;line-height:1.7}
 .vs-center{display:flex;align-items:center;justify-content:center;font-size:32px;font-weight:900;color:var(--light)}
 @media(max-width:600px){.vs-center{display:none}}
 
 /* API TABLE */
 .api-table{width:100%;border-collapse:collapse;margin:20px 0;font-size:14px}
 .api-table th{background:var(--dark);color:#fff;padding:12px 14px;text-align:left;font-weight:600}
-.api-table td{padding:12px 14px;border-bottom:1px solid var(--light);color:var(--sub)}
+.api-table td{padding:12px 14px;border-bottom:1px solid var(--light);color:var(--text)}
 .api-table tr:nth-child(even) td{background:var(--bg2)}
 .api-file{font-family:var(--mono);font-size:13px;font-weight:600;color:var(--blue);background:var(--blue-pale);padding:2px 8px;border-radius:4px}
 
@@ -133,7 +133,7 @@ body{font-family:var(--font);color:var(--text);background:var(--bg);line-height:
 .callout.purple{background:var(--purple-pale);border-left:4px solid var(--purple)}
 .callout-icon{font-size:20px;flex-shrink:0}
 .callout-body h4{font-size:16px;font-weight:700;margin-bottom:4px}
-.callout-body p{font-size:15px;color:var(--sub);line-height:1.8}
+.callout-body p{font-size:15px;color:var(--text);line-height:1.8}
 
 /* CODE BLOCK */
 .codeblock{background:#1E293B;color:#E2E8F0;border-radius:10px;padding:20px;font-family:var(--mono);font-size:13px;line-height:1.8;overflow-x:auto;margin:16px 0}
@@ -148,19 +148,19 @@ body{font-family:var(--font);color:var(--text);background:var(--bg);line-height:
 .compare-box{border-radius:var(--radius);padding:24px;border:1px solid var(--light)}
 .compare-box h4{font-size:17px;font-weight:700;margin-bottom:12px}
 .compare-box ul{list-style:none;padding:0}
-.compare-box li{font-size:15px;color:var(--sub);padding:6px 0;padding-left:20px;position:relative;line-height:1.7}
+.compare-box li{font-size:15px;color:var(--text);padding:6px 0;padding-left:20px;position:relative;line-height:1.7}
 .compare-box li::before{content:'•';position:absolute;left:0;color:var(--blue);font-weight:700}
 
 /* LESSON CARD */
 .lesson{background:var(--bg);border:1px solid var(--light);border-radius:var(--radius);padding:24px;margin:16px 0;border-left:4px solid var(--blue)}
 .lesson h4{font-size:17px;font-weight:700;margin-bottom:8px;display:flex;align-items:center;gap:8px}
-.lesson p{font-size:15px;color:var(--sub);line-height:1.9}
+.lesson p{font-size:15px;color:var(--text);line-height:1.9}
 .lesson .tag{font-size:12px;font-weight:600;padding:2px 8px;border-radius:4px;color:#fff}
 
 /* MODEL TABLE */
 .model-table{width:100%;border-collapse:collapse;margin:20px 0;font-size:14px}
 .model-table th{background:var(--blue);color:#fff;padding:12px 14px;text-align:center;font-weight:600}
-.model-table td{padding:12px 14px;border-bottom:1px solid var(--light);text-align:center;color:var(--sub)}
+.model-table td{padding:12px 14px;border-bottom:1px solid var(--light);text-align:center;color:var(--text)}
 .model-table tr:nth-child(even) td{background:var(--bg2)}
 .model-table td:first-child{font-weight:600;text-align:left;color:var(--dark)}
 
@@ -174,13 +174,13 @@ body{font-family:var(--font);color:var(--text);background:var(--bg);line-height:
 /* SCREENSHOT */
 .screenshot-inline{text-align:center;margin:28px 0}
 .screenshot-inline img{max-width:320px;width:100%;border-radius:16px;box-shadow:0 8px 32px rgba(0,0,0,0.12);border:1px solid var(--light)}
-.screenshot-inline .cap{font-size:13px;color:var(--sub);margin-top:10px;font-weight:500}
+.screenshot-inline .cap{font-size:13px;color:var(--text);margin-top:10px;font-weight:500}
 
 /* APP SCREENSHOTS GRID */
 .screenshot-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:20px;margin:24px 0;justify-items:center}
 .screenshot-wrap{text-align:center}
 .screenshot-wrap img{max-width:280px;width:100%;border-radius:16px;box-shadow:0 8px 32px rgba(0,0,0,0.12);border:1px solid var(--light)}
-.screenshot-wrap .cap{font-size:13px;color:var(--sub);margin-top:10px;font-weight:500}
+.screenshot-wrap .cap{font-size:13px;color:var(--text);margin-top:10px;font-weight:500}
 
 /* TERM TOOLTIP */
 .term{border-bottom:2px dotted var(--blue);cursor:help;position:relative}
@@ -273,11 +273,7 @@ body{font-family:var(--font);color:var(--text);background:var(--bg);line-height:
   </div>
 
   <!-- 칼럼 스크린샷: 기능 설명 바로 아래 -->
-  <div class="screenshot-grid" style="grid-template-columns:1fr 1fr;margin-top:28px">
-    <div class="screenshot-wrap">
-      <img src="img_setting1.png" alt="경제숲 설정 화면">
-      <div class="cap">앱 설정 — 글꼴 크기, 시작 탭, 앱 정보</div>
-    </div>
+  <div class="screenshot-grid" style="grid-template-columns:1fr;margin-top:28px;max-width:360px;margin-left:auto;margin-right:auto">
     <div class="screenshot-wrap">
       <img src="img_opinion1.png" alt="오늘의 경제 칼럼">
       <div class="cap">오늘의 경제 칼럼 — AI가 쉬운 말로 풀어 씀</div>
@@ -300,18 +296,30 @@ body{font-family:var(--font);color:var(--text);background:var(--bg);line-height:
   </div>
 
   <h3>Claude 모델별 쓰임새 — 왜 여러 모델이 필요한가?</h3>
-  <p style="font-size:15px;color:var(--sub);line-height:1.8;margin-bottom:16px">AI 모델도 등급이 있습니다. 비싼 모델일수록 똑똑하고 정확하지만, 느리고 비용이 높습니다. 경제숲에서는 <strong>상황에 맞는 모델을 골라 쓰는 것</strong>이 핵심 전략입니다.</p>
+  <p style="font-size:15px;color:var(--text);line-height:1.8;margin-bottom:16px">AI 모델도 등급이 있습니다. 비싼 모델일수록 똑똑하고 정확하지만, 느리고 비용이 높습니다. 경제숲에서는 <strong>상황에 맞는 모델을 골라 쓰는 것</strong>이 핵심 전략입니다.</p>
 
   <table class="model-table">
     <thead><tr><th></th><th>Opus (최상위)</th><th>Sonnet (중간)</th><th>Haiku (경량)</th></tr></thead>
     <tbody>
       <tr><td>경제숲에서<br>어디에 쓰나?</td><td>개발자(Shawn)와<br>대화하며 코드 작성</td><td style="color:var(--blue);font-weight:600">앱 안에서 뉴스 요약,<br>칼럼 자동 생성</td><td style="color:var(--red)">처음에 썼지만 오류가<br>많아서 교체함</td></tr>
-      <tr><td>비용</td><td style="color:var(--red)">가장 비쌈</td><td>적정 수준</td><td style="color:var(--green)">가장 저렴</td></tr>
+      <tr><td>파라미터 규모</td><td>가장 큼 (수천억 개)</td><td>중간 규모</td><td>가장 작음</td></tr>
+      <tr><td>컨텍스트 윈도우<br><span class="term-explain">(한번에 읽을 수 있는 양)</span></td><td>200K 토큰</td><td>200K 토큰</td><td>200K 토큰</td></tr>
+      <tr><td>입력 비용<br><span class="term-explain">(100만 토큰 기준)</span></td><td style="color:var(--red)">$15</td><td>$3</td><td style="color:var(--green)">$0.25</td></tr>
+      <tr><td>출력 비용<br><span class="term-explain">(100만 토큰 기준)</span></td><td style="color:var(--red)">$75</td><td>$15</td><td style="color:var(--green)">$1.25</td></tr>
       <tr><td>속도</td><td>느림</td><td>보통</td><td style="color:var(--green)">빠름</td></tr>
       <tr><td>정확도</td><td style="color:var(--green)">매우 높음</td><td>높음</td><td style="color:var(--red)">상대적으로 낮음</td></tr>
       <tr><td>할루시네이션<br><span class="term-explain">(AI가 사실이 아닌 걸 만들어내는 현상)</span></td><td style="color:var(--green)">매우 낮음</td><td>낮음</td><td style="color:var(--red)">상대적으로 높음</td></tr>
     </tbody>
   </table>
+
+  <h3>왜 큰 모델일수록 비용이 더 높을까?</h3>
+  <div class="callout amber">
+    <div class="callout-icon">🧠</div>
+    <div class="callout-body">
+      <h4>파라미터가 많을수록 연산이 많다</h4>
+      <p>AI 모델의 <strong>파라미터</strong>는 사람 뇌의 시냅스(신경 연결)와 비슷합니다. Opus처럼 파라미터가 수천억 개인 모델은, 글자 하나를 생성할 때마다 그 수천억 개의 연결을 모두 계산합니다. 마치 간단한 질문에도 수천 명의 전문가가 회의를 하는 것과 같죠. 그래서 <strong>같은 질문이라도 큰 모델은 더 많은 서버 자원(GPU)을 사용</strong>하고, 그만큼 비용이 올라갑니다. 또한 똑똑한 모델일수록 더 정교하고 상세한 답변을 만들어내기 때문에, 출력 토큰 수 자체도 늘어나는 경향이 있습니다.</p>
+    </div>
+  </div>
 
   <div class="callout blue">
     <div class="callout-icon">📌</div>
@@ -381,6 +389,64 @@ body{font-family:var(--font);color:var(--text);background:var(--bg);line-height:
   <div class="section-label">DATA FLOW</div>
   <h2>앱을 열면 어떤 일이 벌어지나?</h2>
   <p class="desc">사용자 눈에는 3줄 브리핑이 보이지만, 뒤에서는 이런 과정이 진행됩니다.</p>
+
+  <!-- 앱 Flow 도식화 -->
+  <div style="margin:28px 0;background:var(--bg2);border-radius:var(--radius);padding:28px 16px;border:1px solid var(--light);overflow-x:auto">
+    <div style="text-align:center;font-size:14px;font-weight:700;color:var(--dark);margin-bottom:20px">📱 경제숲 데이터 플로우</div>
+    <svg viewBox="0 0 720 420" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:720px;margin:0 auto;display:block" font-family="Pretendard,-apple-system,sans-serif">
+      <!-- 사용자 접속 -->
+      <rect x="260" y="10" width="200" height="48" rx="24" fill="#EAF3EE" stroke="#1A7A45" stroke-width="2"/>
+      <text x="360" y="38" text-anchor="middle" font-size="14" font-weight="700" fill="#1A7A45">📱 사용자 앱 접속</text>
+      <!-- 화살표 1 -->
+      <line x1="360" y1="58" x2="360" y2="82" stroke="#9CA3AF" stroke-width="2" marker-end="url(#arrow)"/>
+      <!-- 캐시 확인 (분기) -->
+      <polygon points="360,82 440,120 360,158 280,120" fill="#FFFBEB" stroke="#D97706" stroke-width="2"/>
+      <text x="360" y="117" text-anchor="middle" font-size="12" font-weight="600" fill="#D97706">캐시 유효?</text>
+      <text x="360" y="132" text-anchor="middle" font-size="10" fill="#D97706">(저장된 데이터 확인)</text>
+      <!-- YES 분기 — 오른쪽 -->
+      <line x1="440" y1="120" x2="560" y2="120" stroke="#059669" stroke-width="2" marker-end="url(#arrow)"/>
+      <text x="480" y="112" font-size="11" font-weight="700" fill="#059669">YES</text>
+      <rect x="560" y="96" width="150" height="48" rx="10" fill="#ECFDF5" stroke="#059669" stroke-width="2"/>
+      <text x="635" y="118" text-anchor="middle" font-size="12" font-weight="600" fill="#059669">저장된 데이터 표시</text>
+      <text x="635" y="134" text-anchor="middle" font-size="10" fill="#059669">비용 0원 ✅</text>
+      <!-- NO 분기 — 아래 -->
+      <line x1="360" y1="158" x2="360" y2="186" stroke="#DC2626" stroke-width="2" marker-end="url(#arrow)"/>
+      <text x="372" y="176" font-size="11" font-weight="700" fill="#DC2626">NO</text>
+      <!-- 뉴스 수집 -->
+      <rect x="240" y="186" width="240" height="44" rx="10" fill="#E8F9EE" stroke="#03C75A" stroke-width="2"/>
+      <text x="360" y="207" text-anchor="middle" font-size="12" font-weight="600" fill="#03C75A">🔍 Naver API — 뉴스 18개 수집</text>
+      <text x="360" y="222" text-anchor="middle" font-size="10" fill="#03C75A">3개씩 × 0.25초 간격</text>
+      <!-- 화살표 -->
+      <line x1="360" y1="230" x2="360" y2="254" stroke="#9CA3AF" stroke-width="2" marker-end="url(#arrow)"/>
+      <!-- AI 1차 호출 -->
+      <rect x="220" y="254" width="280" height="44" rx="10" fill="#FFFBEB" stroke="#D97706" stroke-width="2"/>
+      <text x="360" y="275" text-anchor="middle" font-size="12" font-weight="600" fill="#D97706">🤖 1차 AI 호출 — 3줄 브리핑 생성</text>
+      <text x="360" y="290" text-anchor="middle" font-size="10" fill="#D97706">Claude Sonnet · max 1,200 토큰</text>
+      <!-- 화살표 + 즉시 렌더링 -->
+      <line x1="360" y1="298" x2="360" y2="322" stroke="#9CA3AF" stroke-width="2" marker-end="url(#arrow)"/>
+      <!-- 즉시 화면 표시 -->
+      <rect x="240" y="322" width="240" height="40" rx="10" fill="#DBEAFE" stroke="#2563EB" stroke-width="2"/>
+      <text x="360" y="346" text-anchor="middle" font-size="12" font-weight="700" fill="#2563EB">⚡ 즉시 화면에 표시!</text>
+      <!-- 병렬: AI 2차 + 저장 -->
+      <line x1="360" y1="362" x2="360" y2="378" stroke="#9CA3AF" stroke-width="2"/>
+      <line x1="360" y1="378" x2="220" y2="378" stroke="#9CA3AF" stroke-width="2"/>
+      <line x1="360" y1="378" x2="500" y2="378" stroke="#9CA3AF" stroke-width="2"/>
+      <line x1="220" y1="378" x2="220" y2="390" stroke="#9CA3AF" stroke-width="2" marker-end="url(#arrow)"/>
+      <line x1="500" y1="378" x2="500" y2="390" stroke="#9CA3AF" stroke-width="2" marker-end="url(#arrow)"/>
+      <!-- 2차 AI -->
+      <rect x="100" y="390" width="240" height="28" rx="8" fill="#F5F3FF" stroke="#7C3AED" stroke-width="1.5"/>
+      <text x="220" y="409" text-anchor="middle" font-size="11" font-weight="600" fill="#7C3AED">🔄 2차 AI — 쓰리포인트 (백그라운드)</text>
+      <!-- 저장 -->
+      <rect x="380" y="390" width="240" height="28" rx="8" fill="#F8FAFB" stroke="#6B7280" stroke-width="1.5"/>
+      <text x="500" y="409" text-anchor="middle" font-size="11" font-weight="600" fill="#374151">💾 localStorage에 캐시 저장</text>
+      <!-- 화살표 마커 정의 -->
+      <defs>
+        <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M 0 0 L 10 5 L 0 10 z" fill="#9CA3AF"/>
+        </marker>
+      </defs>
+    </svg>
+  </div>
 
   <div class="flow">
     <div class="flow-step">
@@ -761,6 +827,14 @@ body{font-family:var(--font);color:var(--text);background:var(--bg);line-height:
       <p>코드가 변경될 때마다 버전 번호(CACHE_VERSION)를 올려서, 이전에 저장된 오래된 데이터를 자동으로 삭제합니다. 사용자가 직접 캐시를 지울 필요가 없습니다.</p>
     </div>
   </div>
+
+  <!-- 앱 설정 스크린샷: 캐시 버전/앱 정보 문맥 -->
+  <div class="screenshot-grid" style="grid-template-columns:1fr;max-width:360px;margin:24px auto">
+    <div class="screenshot-wrap">
+      <img src="img_setting1.png" alt="경제숲 설정 화면">
+      <div class="cap">앱 설정 — 글꼴 크기, 시작 탭, 캐시 버전 확인</div>
+    </div>
+  </div>
 </section>
 
 <!-- ═══════ 개발하면서 느낀 점 ═══════ -->
@@ -798,8 +872,8 @@ body{font-family:var(--font);color:var(--text);background:var(--bg);line-height:
     </div>
 
     <div class="lesson" style="border-left-color:var(--amber)">
-      <h4><span class="tag" style="background:var(--amber)">기획</span> "일단 시작"보다 "먼저 계획"이 중요하다</h4>
-      <p>"일단 시작하고 고치면 되지"는 위험합니다. AI가 코드를 한번에 쏟아내면 어디를 고쳐야 할지 파악하기 어렵습니다. 처음부터 AI에게 역할을 부여해야 합니다: <em>"너는 나와 함께 방향을 잡아가며 앱을 만들 거야. 모든 결정은 합의를 거칠 것."</em> — 이 한 마디가 개발 흐름을 완전히 바꿉니다.</p>
+      <h4><span class="tag" style="background:var(--amber)">원칙</span> 일단 해보되, 의사결정권은 반드시 사람에게</h4>
+      <p>바이브코딩의 힘은 <strong>"일단 해보는 것"</strong>에서 나옵니다. 완벽한 설계 없이도 AI와 대화하며 빠르게 결과물을 만들 수 있죠. 하지만 여기에 함정이 있습니다 — <strong>똑똑한 AI일수록 자기가 옳다고 판단하면 확인 없이 실행하려는 경향</strong>이 있습니다. 특히 상위 모델(Opus)은 스스로 최선이라 생각하는 방향으로 코드를 쏟아냅니다. 그래서 반드시 필요한 규칙이 있습니다: <em>"모든 변경은 나에게 먼저 확인하고, 합의한 뒤에 진행할 것."</em> — 마치 결재를 받듯, 사람이 최종 의사결정권자여야 합니다. AI는 제안하고, 사람이 결정합니다.</p>
     </div>
 
     <div class="lesson" style="border-left-color:var(--green)">
