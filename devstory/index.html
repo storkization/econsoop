@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>경제숲 개발기 — 바이브코딩으로 앱 만들기</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700;900&family=Noto+Serif+KR:wght@600;700;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #FFFFFF;
+  --bg2: #F8FAFB;
+  --blue: #2563EB;
+  --blue-light: #DBEAFE;
+  --blue-pale: #EFF6FF;
+  --dark: #111827;
+  --text: #1F2937;
+  --sub: #6B7280;
+  --light: #E5E7EB;
+  --green: #059669;
+  --green-pale: #ECFDF5;
+  --red: #DC2626;
+  --red-pale: #FEF2F2;
+  --amber: #D97706;
+  --amber-pale: #FFFBEB;
+  --purple: #7C3AED;
+  --purple-pale: #F5F3FF;
+  --mint: #1A7A45;
+  --mint-bg: #EAF3EE;
+  --radius: 12px;
+  --font: 'Noto Sans KR', -apple-system, sans-serif;
+  --serif: 'Noto Serif KR', Georgia, serif;
+  --mono: 'JetBrains Mono', monospace;
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:80px}
+body{font-family:var(--font);color:var(--text);background:var(--bg);line-height:1.7;-webkit-font-smoothing:antialiased}
+
+/* NAV */
+.nav{position:sticky;top:0;z-index:100;background:rgba(255,255,255,0.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--light);padding:0 24px}
+.nav-inner{max-width:900px;margin:0 auto;display:flex;align-items:center;gap:24px;height:56px;overflow-x:auto;scrollbar-width:none}
+.nav-inner::-webkit-scrollbar{display:none}
+.nav-logo{font-family:var(--serif);font-weight:900;font-size:16px;color:var(--blue);white-space:nowrap;flex-shrink:0}
+.nav-link{font-size:13px;font-weight:500;color:var(--sub);text-decoration:none;white-space:nowrap;transition:color 0.2s}
+.nav-link:hover{color:var(--blue)}
+
+/* HERO */
+.hero{background:linear-gradient(135deg,#1E40AF 0%,#2563EB 50%,#3B82F6 100%);color:#fff;padding:80px 24px 60px;text-align:center}
+.hero-eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:2px;opacity:0.7;margin-bottom:16px}
+.hero h1{font-family:var(--serif);font-size:clamp(32px,5vw,48px);font-weight:900;margin-bottom:12px;line-height:1.3}
+.hero p{font-size:18px;opacity:0.85;max-width:600px;margin:0 auto 24px}
+.hero-badge{display:inline-block;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.25);border-radius:20px;padding:6px 16px;font-size:13px;font-weight:500}
+
+/* MAIN */
+.main{max-width:900px;margin:0 auto;padding:0 24px}
+
+/* SECTION */
+.section{padding:60px 0 40px;border-bottom:1px solid var(--light)}
+.section:last-child{border-bottom:none}
+.section-label{font-family:var(--mono);font-size:11px;font-weight:600;letter-spacing:2px;color:var(--blue);margin-bottom:8px}
+.section h2{font-family:var(--serif);font-size:28px;font-weight:900;color:var(--dark);margin-bottom:8px;line-height:1.3}
+.section h3{font-size:18px;font-weight:700;color:var(--dark);margin:28px 0 12px}
+.section .desc{font-size:15px;color:var(--sub);margin-bottom:28px;line-height:1.8}
+
+/* FEATURE GRID */
+.feat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;margin:20px 0}
+.feat-card{background:var(--bg2);border:1px solid var(--light);border-radius:var(--radius);padding:24px;transition:transform 0.2s,box-shadow 0.2s}
+.feat-card:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,0.08)}
+.feat-card-icon{font-size:28px;margin-bottom:12px}
+.feat-card h4{font-size:16px;font-weight:700;margin-bottom:6px}
+.feat-card p{font-size:13px;color:var(--sub);line-height:1.6}
+
+/* FLOW */
+.flow{margin:24px 0}
+.flow-step{display:flex;gap:16px;margin-bottom:0;position:relative}
+.flow-step::before{content:'';position:absolute;left:19px;top:40px;bottom:-1px;width:2px;background:var(--light)}
+.flow-step:last-child::before{display:none}
+.flow-num{width:40px;height:40px;border-radius:50%;background:var(--blue);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:16px;flex-shrink:0;z-index:1}
+.flow-body{flex:1;padding-bottom:24px}
+.flow-body h4{font-size:15px;font-weight:700;margin-bottom:4px}
+.flow-body p{font-size:13px;color:var(--sub);line-height:1.7}
+
+/* BRAND LOGOS */
+.brand{display:inline-flex;align-items:center;gap:10px;margin-bottom:6px}
+.brand-icon{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:16px;color:#fff;flex-shrink:0}
+.brand-icon.naver{background:#03C75A}
+.brand-icon.vercel{background:#000}
+.brand-icon.github{background:#24292f}
+.brand-icon.claude{background:#D97706}
+.brand-icon.google{background:#4285F4}
+.brand-icon.pwa{background:var(--purple)}
+
+/* ARCH DIAGRAM */
+.arch{margin:24px 0;background:var(--bg2);border-radius:var(--radius);padding:32px 24px;border:1px solid var(--light)}
+.arch-row{display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:16px;flex-wrap:wrap}
+.arch-box{padding:14px 20px;border-radius:10px;text-align:center;min-width:140px;font-size:13px;font-weight:600;border:1px solid transparent}
+.arch-box.dev{background:var(--blue-pale);color:var(--blue);border-color:var(--blue)}
+.arch-box.gh{background:#F6F8FA;color:#24292f;border-color:#d0d7de}
+.arch-box.vc{background:var(--bg);color:var(--dark);border-color:var(--light);box-shadow:0 2px 8px rgba(0,0,0,0.06)}
+.arch-box.nv{background:#E8F9EE;color:#03C75A;border-color:#03C75A}
+.arch-box.cl{background:var(--amber-pale);color:var(--amber);border-color:var(--amber)}
+.arch-box.user{background:var(--mint-bg);color:var(--mint);border-color:var(--mint)}
+.arch-arrow{font-size:20px;color:var(--sub)}
+.arch-sub{font-size:11px;font-weight:400;display:block;margin-top:4px;opacity:0.7}
+
+/* VS COMPARISON */
+.vs-grid{display:grid;grid-template-columns:1fr 80px 1fr;gap:0;margin:24px 0;align-items:start}
+@media(max-width:600px){.vs-grid{grid-template-columns:1fr;gap:16px}}
+.vs-card{border-radius:var(--radius);padding:24px;border:2px solid var(--light)}
+.vs-card h4{font-size:18px;font-weight:800;margin-bottom:4px}
+.vs-card .vs-sub{font-size:12px;color:var(--sub);margin-bottom:16px}
+.vs-card .pro{color:var(--green);font-weight:600;font-size:13px;margin-bottom:4px}
+.vs-card .con{color:var(--red);font-weight:600;font-size:13px;margin-bottom:4px;margin-top:16px}
+.vs-card li{font-size:13px;color:var(--sub);padding:4px 0;line-height:1.6}
+.vs-center{display:flex;align-items:center;justify-content:center;font-size:32px;font-weight:900;color:var(--light)}
+@media(max-width:600px){.vs-center{display:none}}
+
+/* API TABLE */
+.api-table{width:100%;border-collapse:collapse;margin:20px 0;font-size:13px}
+.api-table th{background:var(--dark);color:#fff;padding:10px 14px;text-align:left;font-weight:600}
+.api-table td{padding:10px 14px;border-bottom:1px solid var(--light)}
+.api-table tr:nth-child(even) td{background:var(--bg2)}
+.api-file{font-family:var(--mono);font-size:12px;font-weight:600;color:var(--blue);background:var(--blue-pale);padding:2px 8px;border-radius:4px}
+
+/* CALLOUT */
+.callout{border-radius:var(--radius);padding:20px 24px;margin:20px 0;display:flex;gap:12px;align-items:flex-start}
+.callout.blue{background:var(--blue-pale);border-left:4px solid var(--blue)}
+.callout.green{background:var(--green-pale);border-left:4px solid var(--green)}
+.callout.amber{background:var(--amber-pale);border-left:4px solid var(--amber)}
+.callout.red{background:var(--red-pale);border-left:4px solid var(--red)}
+.callout.purple{background:var(--purple-pale);border-left:4px solid var(--purple)}
+.callout-icon{font-size:20px;flex-shrink:0}
+.callout-body h4{font-size:14px;font-weight:700;margin-bottom:4px}
+.callout-body p{font-size:13px;color:var(--sub);line-height:1.7}
+
+/* CODE BLOCK */
+.codeblock{background:#1E293B;color:#E2E8F0;border-radius:10px;padding:20px;font-family:var(--mono);font-size:12px;line-height:1.8;overflow-x:auto;margin:16px 0}
+.codeblock .cm{color:#64748B}
+.codeblock .kw{color:#7DD3FC}
+.codeblock .st{color:#86EFAC}
+.codeblock .fn{color:#C4B5FD}
+
+/* COMPARE */
+.compare{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:20px 0}
+@media(max-width:600px){.compare{grid-template-columns:1fr}}
+.compare-box{border-radius:var(--radius);padding:24px;border:1px solid var(--light)}
+.compare-box h4{font-size:16px;font-weight:700;margin-bottom:12px}
+.compare-box ul{list-style:none;padding:0}
+.compare-box li{font-size:13px;color:var(--sub);padding:6px 0;padding-left:20px;position:relative;line-height:1.6}
+.compare-box li::before{content:'•';position:absolute;left:0;color:var(--blue);font-weight:700}
+
+/* LESSON CARD */
+.lesson{background:var(--bg);border:1px solid var(--light);border-radius:var(--radius);padding:24px;margin:16px 0;border-left:4px solid var(--blue)}
+.lesson h4{font-size:15px;font-weight:700;margin-bottom:8px;display:flex;align-items:center;gap:8px}
+.lesson p{font-size:13px;color:var(--sub);line-height:1.8}
+.lesson .tag{font-size:11px;font-weight:600;padding:2px 8px;border-radius:4px;color:#fff}
+
+/* MODEL TABLE */
+.model-table{width:100%;border-collapse:collapse;margin:20px 0;font-size:13px}
+.model-table th{background:var(--blue);color:#fff;padding:10px 14px;text-align:center;font-weight:600}
+.model-table td{padding:10px 14px;border-bottom:1px solid var(--light);text-align:center}
+.model-table tr:nth-child(even) td{background:var(--bg2)}
+.model-table td:first-child{font-weight:600;text-align:left}
+
+/* SCHEDULE */
+.sched-row{display:flex;gap:8px;flex-wrap:wrap;margin:16px 0}
+.sched-chip{background:var(--blue);color:#fff;padding:8px 16px;border-radius:20px;font-family:var(--mono);font-size:14px;font-weight:600}
+
+/* FOOTER */
+.footer{background:var(--dark);color:#fff;padding:48px 24px;text-align:center;margin-top:40px}
+.footer h3{font-family:var(--serif);font-size:24px;font-weight:900;margin-bottom:8px}
+.footer p{font-size:14px;opacity:0.7;max-width:500px;margin:0 auto 16px}
+.footer a{color:var(--blue-light);text-decoration:none}
+
+/* PLACEHOLDER */
+.ph{background:var(--bg2);border:2px dashed var(--light);border-radius:var(--radius);padding:40px;text-align:center;color:var(--sub);font-size:14px;margin:20px 0}
+
+/* APP SCREENSHOTS */
+.screenshot-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:20px;margin:24px 0;justify-items:center}
+.screenshot-wrap{text-align:center}
+.screenshot-wrap img{max-width:280px;width:100%;border-radius:16px;box-shadow:0 8px 32px rgba(0,0,0,0.12);border:1px solid var(--light)}
+.screenshot-wrap .cap{font-size:12px;color:var(--sub);margin-top:10px;font-weight:500}
+
+/* FADE IN */
+.fade-in{opacity:0;transform:translateY(20px);transition:opacity 0.6s ease,transform 0.6s ease}
+.fade-in.visible{opacity:1;transform:translateY(0)}
+
+@media(max-width:600px){
+  .hero{padding:60px 20px 40px}
+  .section h2{font-size:24px}
+  .arch-row{flex-direction:column;align-items:stretch}
+  .arch-arrow{transform:rotate(90deg)}
+  .why-grid{grid-template-columns:1fr !important}
+}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <span class="nav-logo">🌲 경제숲 개발기</span>
+    <a href="#intro" class="nav-link">앱 소개</a>
+    <a href="#why" class="nav-link">개발 배경</a>
+    <a href="#flow" class="nav-link">데이터 흐름</a>
+    <a href="#arch" class="nav-link">아키텍처</a>
+    <a href="#tools" class="nav-link">도구 선택</a>
+    <a href="#compare-ai" class="nav-link">Claude vs Google</a>
+    <a href="#api" class="nav-link">API 구조</a>
+    <a href="#workflow" class="nav-link">개발 과정</a>
+    <a href="#devmode" class="nav-link">DEV MODE</a>
+    <a href="#cache" class="nav-link">캐시 시스템</a>
+    <a href="#lessons" class="nav-link">시행착오</a>
+    <a href="#future" class="nav-link">미래</a>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="hero-eyebrow">VIBE CODING STORY · 2025</div>
+  <h1>경제숲, 이렇게 만들었습니다</h1>
+  <p>비개발자가 AI와 대화하며 처음부터 끝까지 혼자 만든<br>실제 서비스의 개발 이야기</p>
+  <span class="hero-badge">by Shawn Kim (김도훈) · econsoop.vercel.app</span>
+</header>
+
+<main class="main">
+
+<!-- ═══════ 앱 소개 ═══════ -->
+<section class="section fade-in" id="intro">
+  <div class="section-label">ABOUT</div>
+  <h2>경제숲은 이런 앱입니다</h2>
+  <p class="desc">"나무가 아닌 숲을 보라" — 매일 쏟아지는 경제 뉴스를 AI가 핵심만 추려 3줄로 브리핑해주는 서비스입니다.</p>
+
+  <div class="feat-grid">
+    <div class="feat-card">
+      <div class="feat-card-icon">📰</div>
+      <h4>AI 3줄 브리핑</h4>
+      <p>경제/산업/국제 뉴스를 AI가 <strong>핵심 이슈 · 시장 흐름 · 투자 포인트</strong> 3줄로 요약합니다. 각 줄에 용어 각주가 자동 생성됩니다.</p>
+    </div>
+    <div class="feat-card">
+      <div class="feat-card-icon">💡</div>
+      <h4>쓰리포인트 인사이트</h4>
+      <p><strong>배경(Why)</strong> / <strong>시장 영향(So What)</strong> / <strong>주목할 점(Next Move)</strong> — 한눈에 시장 맥락을 파악할 수 있습니다.</p>
+    </div>
+    <div class="feat-card">
+      <div class="feat-card-icon">⏰</div>
+      <h4>하루 6회 자동 갱신</h4>
+      <p>07:30 / 11:30 / 14:00 / 16:30 / 20:00 / 22:30 KST — 스케줄 캐시로 항상 최신 뉴스를 제공합니다.</p>
+    </div>
+    <div class="feat-card">
+      <div class="feat-card-icon">✍️</div>
+      <h4>오늘의 칼럼</h4>
+      <p>AI가 오늘의 핵심 이슈를 쉽고 재미있는 칼럼으로 자동 생성합니다. 사용자가 탭할 때만 호출하여 비용을 절약합니다.</p>
+    </div>
+  </div>
+
+  <div class="screenshot-grid">
+    <div class="screenshot-wrap">
+      <img src="img_loading1.png" alt="경제숲 로딩 화면">
+      <div class="cap">AI 브리핑 생성 중 — 6단계 진행 + 경제 퀴즈</div>
+    </div>
+    <div class="screenshot-wrap">
+      <img src="img_3points1.png" alt="경제숲 쓰리포인트 인사이트">
+      <div class="cap">쓰리포인트 인사이트 — 배경(Why) 분석</div>
+    </div>
+    <div class="screenshot-wrap">
+      <img src="img_opinion1.png" alt="오늘의 경제 칼럼">
+      <div class="cap">오늘의 경제 칼럼 — AI가 자동 생성</div>
+    </div>
+    <div class="screenshot-wrap">
+      <img src="img_setting1.png" alt="경제숲 설정 화면">
+      <div class="cap">앱 설정 — 글꼴, 시작 탭, 앱 정보</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════ 개발 배경 ═══════ -->
+<section class="section fade-in" id="why">
+  <div class="section-label">WHY</div>
+  <h2>왜 경제숲을 만들었는가?</h2>
+
+  <div class="why-grid" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin:24px 0">
+    <div style="background:var(--red-pale);border-radius:var(--radius);padding:24px;border-top:3px solid var(--red)">
+      <div style="font-size:28px;margin-bottom:12px">🧩</div>
+      <h4 style="font-size:15px;font-weight:700;margin-bottom:8px;color:var(--red)">파편화된 정보</h4>
+      <p style="font-size:13px;color:var(--sub);line-height:1.7">경제 뉴스가 수십 개 매체에 흩어져 있습니다. 중요한 뉴스를 찾으려면 여러 사이트를 돌아다녀야 하고, 정작 핵심이 뭔지 파악하기 어렵습니다.</p>
+    </div>
+    <div style="background:var(--amber-pale);border-radius:var(--radius);padding:24px;border-top:3px solid var(--amber)">
+      <div style="font-size:28px;margin-bottom:12px">🎯</div>
+      <h4 style="font-size:15px;font-weight:700;margin-bottom:8px;color:var(--amber)">알고리즘의 편향</h4>
+      <p style="font-size:13px;color:var(--sub);line-height:1.7">플랫폼 알고리즘은 내 관심사만 보여줍니다. 내가 좋아하는 것만 계속 추천하니, 정작 <strong>객관적으로 중요한 정보</strong>는 놓치게 됩니다.</p>
+    </div>
+    <div style="background:var(--blue-pale);border-radius:var(--radius);padding:24px;border-top:3px solid var(--blue)">
+      <div style="font-size:28px;margin-bottom:12px">⏱</div>
+      <h4 style="font-size:15px;font-weight:700;margin-bottom:8px;color:var(--blue)">시간의 부족</h4>
+      <p style="font-size:13px;color:var(--sub);line-height:1.7">바쁜 일상 속에서 경제 뉴스를 하나하나 읽을 시간이 없습니다. 핵심만 빠르게 파악할 수 있는 방법이 필요했습니다.</p>
+    </div>
+  </div>
+
+  <div class="callout green" style="margin-top:24px">
+    <div class="callout-icon">💡</div>
+    <div class="callout-body">
+      <h4>그래서 떠오른 아이디어</h4>
+      <p>"AI 모델을 활용해서 뉴스를 자동으로 수집하고 분석하면, 오래 인터넷을 떠돌지 않더라도 <strong>1분 이내에 오늘의 주요 정보를 파악</strong>할 수 있지 않을까?"</p>
+      <p style="margin-top:8px">이 생각이 경제숲의 출발점이었습니다. 누구나 가지고 있는 이 니즈를, 바이브코딩으로 직접 해결해보기로 했습니다.</p>
+    </div>
+  </div>
+
+  <div style="background:var(--bg2);border-radius:var(--radius);padding:24px;margin-top:20px;border:1px solid var(--light)">
+    <h4 style="font-size:15px;font-weight:700;margin-bottom:12px">경제숲이 해결하는 것</h4>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+      <div>
+        <div style="font-size:13px;color:var(--red);font-weight:600;margin-bottom:6px">❌ 기존 방식</div>
+        <p style="font-size:13px;color:var(--sub);line-height:1.7">여러 뉴스 사이트를 돌아다니며 30분 이상 소요. 알고리즘이 추천하는 편향된 정보만 소비. 핵심이 뭔지 판단은 본인 몫.</p>
+      </div>
+      <div>
+        <div style="font-size:13px;color:var(--green);font-weight:600;margin-bottom:6px">✅ 경제숲</div>
+        <p style="font-size:13px;color:var(--sub);line-height:1.7">앱을 열면 1분 이내에 핵심 파악 완료. AI가 객관적으로 중요한 뉴스를 선별. 배경·시장·전망까지 한눈에.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════ 데이터 흐름 ═══════ -->
+<section class="section fade-in" id="flow">
+  <div class="section-label">DATA FLOW</div>
+  <h2>앱을 열면 어떤 일이 벌어지나?</h2>
+  <p class="desc">사용자 눈에는 3줄 브리핑이 보이지만, 뒤에서는 이런 과정이 진행됩니다.</p>
+
+  <div class="flow">
+    <div class="flow-step">
+      <div class="flow-num">1</div>
+      <div class="flow-body">
+        <h4>뉴스 수집 — Naver API</h4>
+        <p>키워드별로 Naver 뉴스 API에 요청을 보냅니다. 18개 헤드라인을 확보하되, <strong>3개씩 배치로 250ms 간격</strong>을 두어 API 429(과다 요청) 에러를 방지합니다. 중복과 스팸 키워드를 필터링합니다.</p>
+      </div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-num">2</div>
+      <div class="flow-body">
+        <h4>1차 AI 호출 — briefing.js</h4>
+        <p>수집된 헤드라인 + 설명(앞 100자)을 Claude Sonnet에 전달합니다. AI가 <strong>SUMMARY 3줄 + FOOTNOTES(용어 각주)</strong>를 생성하면 <strong>즉시 화면에 렌더링</strong>합니다. 사용자는 이 단계에서 바로 브리핑을 볼 수 있습니다.</p>
+      </div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-num">3</div>
+      <div class="flow-body">
+        <h4>2차 AI 호출 — insight.js (백그라운드)</h4>
+        <p>1차 결과를 기반으로 <strong>배경(Why) / 시장(So What) / 주목(Next Move)</strong> 쓰리포인트 분석을 생성합니다. 이 호출은 <strong>백그라운드에서</strong> 진행되어 사용자 체감 속도에 영향을 주지 않습니다.</p>
+      </div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-num">4</div>
+      <div class="flow-body">
+        <h4>캐시 저장 — localStorage</h4>
+        <p>결과를 브라우저 localStorage에 저장합니다. 다음 스케줄 시간까지 캐시를 재사용하여 <strong>불필요한 API 호출을 차단</strong>합니다.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="callout blue">
+    <div class="callout-icon">⚡</div>
+    <div class="callout-body">
+      <h4>핵심 설계 원칙</h4>
+      <p>1차 호출이 끝나면 즉시 화면에 보여주고, 2차는 백그라운드에서 처리합니다. <strong>체감 속도 최우선</strong>이 경제숲의 로딩 전략입니다.</p>
+    </div>
+  </div>
+
+  <div style="text-align:center;margin:24px 0">
+    <img src="img_loading1.png" alt="경제숲 로딩 UX" style="max-width:320px;width:100%;border-radius:16px;box-shadow:0 8px 32px rgba(0,0,0,0.12);border:1px solid var(--light)">
+    <p style="font-size:12px;color:var(--sub);margin-top:10px">실제 로딩 화면 — 6단계 진행 표시 + 경제 퀴즈로 대기 시간 활용</p>
+  </div>
+</section>
+
+<!-- ═══════ 아키텍처 ═══════ -->
+<section class="section fade-in" id="arch">
+  <div class="section-label">ARCHITECTURE</div>
+  <h2>전체 기술 아키텍처</h2>
+  <p class="desc">4개 도구가 각자의 역할을 하며 연결됩니다.</p>
+
+  <div class="arch">
+    <div class="arch-row">
+      <div class="arch-box dev">👨‍💻 개발자 (Shawn)<span class="arch-sub">Claude와 대화 → 코드 생성</span></div>
+      <div class="arch-arrow">→</div>
+      <div class="arch-box gh"><span style="display:inline-flex;align-items:center;gap:6px"><svg width="20" height="20" viewBox="0 0 16 16" fill="#24292f"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg> GitHub</span><span class="arch-sub">코드 저장 + 버전 관리</span></div>
+      <div class="arch-arrow">→</div>
+      <div class="arch-box vc"><span style="display:inline-flex;align-items:center;gap:6px"><svg width="18" height="18" viewBox="0 0 76 65" fill="#000"><path d="M37.5274 0L75.0548 65H0L37.5274 0Z"/></svg> Vercel</span><span class="arch-sub">자동 빌드 + 서버리스 호스팅</span></div>
+    </div>
+    <div style="text-align:center;color:var(--sub);font-size:20px;margin:8px 0">↕</div>
+    <div class="arch-row">
+      <div class="arch-box nv"><span style="display:inline-flex;align-items:center;gap:6px"><span style="background:#03C75A;color:#fff;font-weight:900;font-size:11px;padding:2px 6px;border-radius:3px;letter-spacing:-0.5px">N</span> Naver 뉴스 API</span><span class="arch-sub">경제 뉴스 데이터 수집</span></div>
+      <div class="arch-arrow">←</div>
+      <div class="arch-box vc" style="min-width:200px">Vercel 서버리스 함수<span class="arch-sub">news · briefing · insight · column</span></div>
+      <div class="arch-arrow">→</div>
+      <div class="arch-box cl"><span style="display:inline-flex;align-items:center;gap:6px"><span style="background:#D97706;color:#fff;font-weight:900;font-size:11px;padding:3px 7px;border-radius:3px">C</span> Claude AI API</span><span class="arch-sub">브리핑 / 인사이트 / 칼럼 생성</span></div>
+    </div>
+    <div style="text-align:center;color:var(--sub);font-size:20px;margin:8px 0">↓</div>
+    <div class="arch-row">
+      <div class="arch-box user">📱 사용자 — econsoop.vercel.app<span class="arch-sub">PWA 지원 · 모바일 홈 화면 설치 가능</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════ 도구 선택 ═══════ -->
+<section class="section fade-in" id="tools">
+  <div class="section-label">TOOLS</div>
+  <h2>왜 이 도구들을 선택했나?</h2>
+
+  <h3><span style="display:inline-flex;align-items:center;gap:8px"><svg width="22" height="22" viewBox="0 0 16 16" fill="#24292f"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg> GitHub — 코드의 안전망</span></h3>
+  <div class="callout green">
+    <div class="callout-icon">📦</div>
+    <div class="callout-body">
+      <p>모든 코드가 클라우드에 저장되어 컴퓨터가 고장나도 안전합니다. 모든 변경 이력이 기록되어 문제 시 이전 버전으로 되돌릴 수 있습니다. 그리고 가장 중요한 것 — <strong>Push하면 Vercel이 자동으로 배포</strong>합니다.</p>
+    </div>
+  </div>
+  <div class="codeblock">
+<span class="cm">## 실제 배포 과정 — 이 2줄이 전부입니다</span>
+<span class="kw">cd</span> /c/Users/dodoh/OneDrive/Desktop/Project101/ecobrief
+<span class="kw">git add</span> -A && <span class="kw">git commit</span> -m <span class="st">"로딩 UX 개선 (v97)"</span> && <span class="kw">git push</span>
+<span class="cm">## → 10초 후 전 세계에 배포 완료</span>
+  </div>
+
+  <h3><span style="display:inline-flex;align-items:center;gap:8px"><svg width="20" height="18" viewBox="0 0 76 65" fill="#000"><path d="M37.5274 0L75.0548 65H0L37.5274 0Z"/></svg> Vercel — 서버 없이 서비스 운영</span></h3>
+  <div class="feat-grid">
+    <div class="feat-card">
+      <h4>🔧 서버리스 함수</h4>
+      <p>/api/ 폴더에 JS 파일을 넣으면 자동으로 API 엔드포인트가 됩니다. 별도 서버 관리가 필요 없습니다.</p>
+    </div>
+    <div class="feat-card">
+      <h4>🚀 자동 배포</h4>
+      <p>GitHub Push → 10초 내 전 세계 CDN 배포. 도메인 설정, SSL 인증서 작업이 전혀 없습니다.</p>
+    </div>
+    <div class="feat-card">
+      <h4>⏱ 60초 타임아웃</h4>
+      <p>AI API 호출은 시간이 오래 걸릴 수 있어 vercel.json에서 함수별 타임아웃을 60초로 설정했습니다.</p>
+    </div>
+    <div class="feat-card">
+      <h4>🔐 환경 변수</h4>
+      <p>NAVER_CLIENT_ID, ANTHROPIC_API_KEY 같은 민감한 키를 Vercel 대시보드에서 안전하게 관리합니다.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════ Claude vs Google AI Studio ═══════ -->
+<section class="section fade-in" id="compare-ai">
+  <div class="section-label">AI TOOL COMPARISON</div>
+  <h2>Claude vs Google AI Studio — 개발 도구로서의 비교</h2>
+  <p class="desc">경제숲을 만들면서 두 도구를 모두 사용해본 경험을 바탕으로 비교합니다.</p>
+
+  <div class="vs-grid">
+    <div class="vs-card" style="border-color:var(--amber)">
+      <div class="brand"><span class="brand-icon claude">C</span></div>
+      <h4 style="color:var(--amber)">Claude (Anthropic)</h4>
+      <div class="vs-sub">경제숲의 주력 개발 도구</div>
+      <div class="pro">✅ 장점</div>
+      <ul style="list-style:none;padding:0">
+        <li>• 대화형 개발에 최적화 — 긴 맥락을 유지하며 코드 수정 가능</li>
+        <li>• 코드 품질이 매우 우수 — 복잡한 로직, 디버깅에 강함</li>
+        <li>• <strong>Artifacts</strong> — 코드를 대화 중 실시간 미리보기</li>
+        <li>• <strong>프로젝트 기능</strong> — 파일 업로드 + 맥락 기억</li>
+        <li>• <strong>Claude Code</strong> — 터미널에서 에이전트형 코딩</li>
+        <li>• 한국어 이해도 높음</li>
+      </ul>
+      <div class="con">⚠️ 단점</div>
+      <ul style="list-style:none;padding:0">
+        <li>• Pro 월 $20 필요 (무료는 제한적)</li>
+        <li>• 상위 모델(Opus) 토큰 소진이 빠름</li>
+        <li>• 세션이 길어지면 맥락을 놓칠 수 있음</li>
+        <li>• 이미지 생성 불가</li>
+      </ul>
+    </div>
+
+    <div class="vs-center">VS</div>
+
+    <div class="vs-card" style="border-color:#4285F4">
+      <div class="brand"><span class="brand-icon google">G</span></div>
+      <h4 style="color:#4285F4">Google AI Studio (Gemini)</h4>
+      <div class="vs-sub">보조 도구로 병행 사용</div>
+      <div class="pro">✅ 장점</div>
+      <ul style="list-style:none;padding:0">
+        <li>• <strong>넉넉한 무료 티어</strong> — 부담 없이 시작 가능</li>
+        <li>• 토큰 소진율이 비교적 낮음</li>
+        <li>• Google 생태계 연동 (Sheets, Drive 등)</li>
+        <li>• 멀티모달 — 이미지, 영상, 오디오 입력 지원</li>
+        <li>• Gemini 2.5 Pro의 코드 품질 개선</li>
+        <li>• 긴 컨텍스트 윈도우</li>
+      </ul>
+      <div class="con">⚠️ 단점</div>
+      <ul style="list-style:none;padding:0">
+        <li>• 대화형 개발 흐름이 Claude만큼 자연스럽지 않음</li>
+        <li>• Artifacts 같은 실시간 미리보기 부재</li>
+        <li>• 프로젝트/메모리 기능이 제한적</li>
+        <li>• 복잡한 코드 설계에서 Claude 대비 약함</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3>경제숲에서의 실전 활용법</h3>
+  <table class="api-table">
+    <thead><tr><th>상황</th><th>선택</th><th>이유</th></tr></thead>
+    <tbody>
+      <tr><td>복잡한 코드 설계 / 아키텍처</td><td style="color:var(--amber);font-weight:700">Claude Opus</td><td>깊이 있는 대화, 높은 코드 품질, 맥락 유지</td></tr>
+      <tr><td>일상적인 코드 수정 / 디버깅</td><td style="color:var(--amber);font-weight:700">Claude Sonnet</td><td>비용 대비 충분한 품질, 경제숲 API에서도 사용 중</td></tr>
+      <tr><td>Claude 토큰 소진 시</td><td style="color:#4285F4;font-weight:700">Google AI Studio</td><td>무료 티어 활용, 간단한 작업 처리</td></tr>
+      <tr><td>간단한 질문 / 텍스트 작업</td><td style="color:var(--sub)">어떤 것이든</td><td>도구 차이가 크지 않은 영역</td></tr>
+      <tr><td>이미지 분석이 필요한 작업</td><td style="color:#4285F4;font-weight:700">Google AI Studio</td><td>멀티모달 지원이 더 유연</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout amber">
+    <div class="callout-icon">💡</div>
+    <div class="callout-body">
+      <h4>결론: 하나만 고집하지 말 것</h4>
+      <p>Claude는 <strong>"깊이 있는 개발 파트너"</strong>, Google AI Studio는 <strong>"비용 효율적인 보조 도구"</strong>입니다. 프로젝트 단계, 작업 복잡도, 남은 토큰에 따라 유연하게 선택하는 것이 실전에서의 핵심 전략입니다. 결국 상위 모델을 쓰게 되며 토큰이 빠르게 소진되기 때문에, 병행 사용은 선택이 아닌 필수입니다.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════ API 구조 ═══════ -->
+<section class="section fade-in" id="api">
+  <div class="section-label">API STRUCTURE</div>
+  <h2>4개의 서버리스 함수</h2>
+  <p class="desc">경제숲의 모든 데이터는 이 4개 API를 통해 흐릅니다.</p>
+
+  <table class="api-table">
+    <thead>
+      <tr><th>파일</th><th>역할</th><th>외부 API</th><th>세부 사항</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="api-file">api/news.js</span></td>
+        <td>뉴스 수집</td>
+        <td><span style="background:#03C75A;color:#fff;font-weight:800;font-size:10px;padding:2px 6px;border-radius:3px;letter-spacing:-0.5px">N</span> Naver 뉴스 API</td>
+        <td>키워드별 검색 → 헤드라인+설명 반환. 클라이언트 CORS 우회용 중계 함수</td>
+      </tr>
+      <tr>
+        <td><span class="api-file">api/briefing.js</span></td>
+        <td>1차: AI 브리핑</td>
+        <td><span style="background:#D97706;color:#fff;font-weight:800;font-size:10px;padding:2px 6px;border-radius:3px">C</span> Claude Sonnet</td>
+        <td>헤드라인 18개 → SUMMARY 3줄 + FOOTNOTES 생성. max_tokens: 1200</td>
+      </tr>
+      <tr>
+        <td><span class="api-file">api/insight.js</span></td>
+        <td>2차: 인사이트</td>
+        <td><span style="background:#D97706;color:#fff;font-weight:800;font-size:10px;padding:2px 6px;border-radius:3px">C</span> Claude Sonnet</td>
+        <td>배경Why / 시장So What / 주목Next Move. 백그라운드 호출. max_tokens: 1000</td>
+      </tr>
+      <tr>
+        <td><span class="api-file">api/column.js</span></td>
+        <td>칼럼 생성</td>
+        <td><span style="background:#D97706;color:#fff;font-weight:800;font-size:10px;padding:2px 6px;border-radius:3px">C</span> Claude Sonnet</td>
+        <td>쉽고 재미있는 칼럼. 사용자가 탭할 때만 호출 (비용 절약). max_tokens: 2000</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>AI에게 보내는 것 vs 받는 것</h3>
+  <div class="compare">
+    <div class="compare-box" style="background:var(--blue-pale)">
+      <h4 style="color:var(--blue)">📤 입력 (AI에게 보내는 것)</h4>
+      <ul>
+        <li>뉴스 헤드라인 18개</li>
+        <li>각 뉴스의 설명 (앞 100자)</li>
+        <li>탭 정보 (경제/산업/국제)</li>
+        <li>출력 형식 지시 (프롬프트)</li>
+        <li>"제공된 뉴스에만 근거하라" 검증 지시</li>
+      </ul>
+    </div>
+    <div class="compare-box" style="background:var(--green-pale)">
+      <h4 style="color:var(--green)">📥 출력 (AI가 만드는 것)</h4>
+      <ul>
+        <li>SUMMARY — 핵심이슈 / 시장흐름 / 투자포인트 3줄</li>
+        <li>FOOTNOTES — 줄별 용어 각주 (※ 형식)</li>
+        <li>ONELINER — 배경Why / 시장So What / 주목Next Move</li>
+        <li>각 포인트별 인라인 각주</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════ 개발 과정 ═══════ -->
+<section class="section fade-in" id="workflow">
+  <div class="section-label">WORKFLOW</div>
+  <h2>나의 개발 워크플로우</h2>
+  <p class="desc">매일 이 사이클을 반복하며 앱을 개선합니다.</p>
+
+  <div class="flow">
+    <div class="flow-step"><div class="flow-num">1</div><div class="flow-body"><h4>아이디어 / 버그 발견</h4><p>"로딩 중에 퀴즈를 보여주면 어떨까?" "각주 파싱이 깨진다"</p></div></div>
+    <div class="flow-step"><div class="flow-num">2</div><div class="flow-body"><h4>Claude에게 설명</h4><p>현재 코드 + 문제/아이디어를 자연어로 설명합니다. <strong>계획을 먼저 공유하고, 승인 후 작업</strong>합니다.</p></div></div>
+    <div class="flow-step"><div class="flow-num">3</div><div class="flow-body"><h4>AI가 코드 생성/수정</h4><p>Claude가 수정된 코드를 제공합니다. 내가 확인하고 이해한 뒤 반영합니다.</p></div></div>
+    <div class="flow-step"><div class="flow-num">4</div><div class="flow-body"><h4>DEV MODE에서 테스트</h4><p><code>?dev=true</code>로 AI 호출 없이 UI만 확인합니다. API 비용 $0.</p></div></div>
+    <div class="flow-step"><div class="flow-num">5</div><div class="flow-body"><h4>Git Push → 자동 배포</h4><p><code>git add -A && git commit -m "설명" && git push</code> → 10초 후 라이브.</p></div></div>
+    <div class="flow-step"><div class="flow-num">6</div><div class="flow-body"><h4>실제 환경 테스트</h4><p>econsoop.vercel.app에서 실제 API 호출하여 최종 확인합니다.</p></div></div>
+  </div>
+
+  <div class="callout amber">
+    <div class="callout-icon">📋</div>
+    <div class="callout-body">
+      <h4>핵심 원칙</h4>
+      <p>코드 변경 전 반드시 <strong>계획 공유 → 승인 후 작업</strong>. 여러 수정을 모아서 한번에 Push하여 배포 대기 시간을 줄입니다. 세션이 길어지면 새 대화를 시작합니다.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════ DEV MODE ═══════ -->
+<section class="section fade-in" id="devmode">
+  <div class="section-label">COST CONTROL</div>
+  <h2>DEV MODE — 비용 없이 개발하기</h2>
+  <p class="desc">URL 뒤에 <code>?dev=true</code>를 붙이면 AI 호출 없이 더미 데이터로 동작합니다.</p>
+
+  <div class="compare">
+    <div class="compare-box" style="background:var(--red-pale)">
+      <h4 style="color:var(--red)">🚨 왜 필요한가?</h4>
+      <ul>
+        <li>AI API는 호출할 때마다 비용 발생</li>
+        <li>글자 색깔 하나 바꾸는 UI 작업에도 AI 호출하면 불필요한 비용</li>
+        <li><strong>실제 사고:</strong> 테스트 중 API 호출이 누적 → 하루 만에 $2.38 예상 외 비용</li>
+        <li>→ 이후 DEV MODE 도입으로 개발 중 API 비용 완전 차단</li>
+      </ul>
+    </div>
+    <div class="compare-box" style="background:var(--green-pale)">
+      <h4 style="color:var(--green)">✅ 어떻게 작동하는가?</h4>
+      <ul>
+        <li>DEV_DUMMY에 실제 API 응답과 동일한 형식의 더미 데이터</li>
+        <li>빨간색 DEV 배너 + 워터마크 표시</li>
+        <li>실제 출력과 100% 동일한 UI 확인 가능</li>
+        <li><strong>규칙:</strong> API 형식이 바뀌면 DEV_DUMMY도 반드시 함께 업데이트</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="codeblock">
+<span class="cm">// DEV MODE 핵심 코드</span>
+<span class="kw">if</span> (DEV_MODE) {
+  summaryCache[tab] = DEV_DUMMY;
+  <span class="fn">renderTabSummary</span>(tab, DEV_DUMMY);  <span class="cm">// AI 호출 건너뜀!</span>
+  <span class="kw">return</span>;
+}
+  </div>
+</section>
+
+<!-- ═══════ 캐시 시스템 ═══════ -->
+<section class="section fade-in" id="cache">
+  <div class="section-label">CACHING</div>
+  <h2>캐시 & 스케줄 시스템</h2>
+  <p class="desc">불필요한 API 호출을 막으면서도 항상 최신 뉴스를 제공합니다.</p>
+
+  <h3>하루 6회 갱신 스케줄 (KST)</h3>
+  <div class="sched-row">
+    <span class="sched-chip">07:30</span>
+    <span class="sched-chip">11:30</span>
+    <span class="sched-chip">14:00</span>
+    <span class="sched-chip">16:30</span>
+    <span class="sched-chip">20:00</span>
+    <span class="sched-chip">22:30</span>
+  </div>
+
+  <h3>캐시 작동 원리</h3>
+  <div class="flow">
+    <div class="flow-step"><div class="flow-num">1</div><div class="flow-body"><h4>사용자 접속</h4><p>localStorage에 저장된 캐시 확인</p></div></div>
+    <div class="flow-step"><div class="flow-num">2</div><div class="flow-body"><h4>시간 비교</h4><p>마지막 저장 시간이 현재 스케줄 이후인지 확인</p></div></div>
+    <div class="flow-step"><div class="flow-num">3</div><div class="flow-body"><h4>캐시 유효 → 재사용</h4><p>API 호출 없이 저장된 데이터로 즉시 렌더링</p></div></div>
+    <div class="flow-step"><div class="flow-num">4</div><div class="flow-body"><h4>캐시 만료 → 새로운 호출</h4><p>새로운 뉴스를 수집하고 AI 브리핑 생성</p></div></div>
+  </div>
+
+  <div class="callout blue">
+    <div class="callout-icon">🔄</div>
+    <div class="callout-body">
+      <h4>캐시 버전 관리 (현재 v97)</h4>
+      <p>코드가 변경될 때마다 <code>CACHE_VERSION</code>을 올려서 이전 캐시를 자동으로 무효화합니다. <code>localStorage.clear()</code>를 수동으로 할 필요가 없습니다.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════ 시행착오 ═══════ -->
+<section class="section fade-in" id="lessons">
+  <div class="section-label">LESSONS LEARNED</div>
+  <h2>시행착오와 교훈</h2>
+
+  <div class="lesson" style="border-left-color:var(--red)">
+    <h4><span class="tag" style="background:var(--red)">비용</span> API 비용 — AI 회사의 핵심 비즈니스 모델</h4>
+    <p>더 많은 서비스를 쓸수록 더 많은 비용. 유료 구독 모델이 AI 업계의 표준이 되었습니다. 경제숲에서는 DEV MODE, 칼럼 탭 호출, 스케줄 캐시로 일일 API 비용을 최소화했습니다.</p>
+  </div>
+
+  <div class="lesson" style="border-left-color:var(--amber)">
+    <h4><span class="tag" style="background:var(--amber)">정확도</span> AI 할루시네이션 — 낮은 모델일수록 심하다</h4>
+    <p>Haiku 모델에서 뉴스 내용을 사실과 반대로 요약하는 문제가 실제로 발생했습니다. 해결: ① Haiku → Sonnet 업그레이드 ② 설명 앞 100자를 함께 전달 ③ 프롬프트에 검증 지시 강화.</p>
+  </div>
+
+  <div class="lesson" style="border-left-color:var(--blue)">
+    <h4><span class="tag" style="background:var(--blue)">인식</span> AI는 만능 비서가 아니라, 명령을 수행하는 로봇</h4>
+    <p>나의 마음을 다 알아줄 것 같지만, 아직까지는 내가 정확한 프롬프트를 입력하고 역할을 부여해야 합니다. AI를 "다룰 줄 아는 능력"이 결과물의 품질을 결정합니다.</p>
+  </div>
+
+  <div class="lesson" style="border-left-color:var(--purple)">
+    <h4><span class="tag" style="background:var(--purple)">스킬</span> 코딩을 몰라도 되지만, 알면 10배 빨라진다</h4>
+    <p>글자 색깔 하나 바꾸는 것도, 코드를 모르면 AI에게 부탁하고 모든 프로세스를 거쳐야 합니다. 코딩 기초 지식이 있으면 간단한 수정은 직접 → 개발 속도가 비약적으로 빨라집니다.</p>
+  </div>
+
+  <div class="lesson" style="border-left-color:var(--amber)">
+    <h4><span class="tag" style="background:var(--amber)">기획</span> 기획이 가장 중요하다</h4>
+    <p>"일단 시작하고 고치면 되지" 접근은 위험합니다. AI가 코드를 한번에 다 생성하면 수정이 매우 어렵습니다. 처음부터 AI에게 말해야 합니다: <em>"너는 나와 함께 방향을 잡아가며 앱을 만들 거야. 모든 부분 합의를 거쳐서 의사결정을 할 것."</em></p>
+  </div>
+
+  <h3>Claude 모델별 쓰임새</h3>
+  <table class="model-table">
+    <thead><tr><th></th><th>Opus (최상위)</th><th>Sonnet (중간)</th><th>Haiku (경량)</th></tr></thead>
+    <tbody>
+      <tr><td>경제숲 쓰임</td><td>대화형 개발 세션<br>아키텍처 설계</td><td style="color:var(--blue);font-weight:600">앱 내 AI 브리핑 생성<br>briefing/insight/column</td><td style="color:var(--red)">초기 사용 → 할루시네이션으로 교체</td></tr>
+      <tr><td>비용 / 속도</td><td style="color:var(--red)">비쌈 / 느림</td><td>적정 / 보통</td><td style="color:var(--green)">저렴 / 빠름</td></tr>
+      <tr><td>할루시네이션</td><td style="color:var(--green)">매우 낮음</td><td>낮음</td><td style="color:var(--red)">상대적 높음</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout purple">
+    <div class="callout-icon">💡</div>
+    <div class="callout-body">
+      <h4>Google AI Studio와의 병행</h4>
+      <p>Claude 토큰이 소진되면 Google AI Studio(Gemini)를 보조로 활용합니다. 무료 티어가 넉넉하고 토큰 소진율이 낮아 비용 부담이 적습니다. 복잡한 개발은 Claude, 간단한 작업은 Google — 상황에 따라 유연하게 선택합니다.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════ 현재와 미래 ═══════ -->
+<section class="section fade-in" id="future">
+  <div class="section-label">FUTURE</div>
+  <h2>경제숲의 현재와 미래</h2>
+
+  <div class="compare">
+    <div class="compare-box" style="background:var(--blue-pale)">
+      <h4 style="color:var(--blue)">📊 현재 상태</h4>
+      <ul>
+        <li>프론트엔드: Vanilla HTML/CSS/JS (단일 파일)</li>
+        <li>호스팅: Vercel 서버리스</li>
+        <li>AI: Claude Sonnet (claude-sonnet-4-6)</li>
+        <li>뉴스: Naver News API</li>
+        <li>6개 탭, 4개 API, 하루 6회 갱신</li>
+        <li>캐시 버전 v97</li>
+        <li>PWA 모바일 홈 화면 설치 지원</li>
+        <li>개발자 1명이 기획~운영까지 전담</li>
+      </ul>
+    </div>
+    <div class="compare-box" style="background:var(--amber-pale)">
+      <h4 style="color:var(--amber)">🚀 앞으로의 계획</h4>
+      <ul>
+        <li>구독 & 결제: Stripe + Supabase 연동</li>
+        <li>1면 탭 종합 완성</li>
+        <li>주식 탭 CORS 해결 (api/stocks.js)</li>
+        <li>경제숲 팀 (가상 편집 팀) 도입</li>
+        <li>Claude Code 연동으로 개발 효율화</li>
+        <li>브리핑 정확도 지속 개선</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer class="footer">
+  <h3>🌲 경제숲</h3>
+  <p>코딩을 모르는 사람이 AI와 대화하며<br>실제 서비스를 만들어냈습니다.</p>
+  <p style="opacity:0.5;font-size:12px;font-style:italic">"중요한 것은 어떤 도구를 쓰느냐가 아니라,<br>무엇을 만들고 싶은지에 대한 나의 생각입니다."</p>
+  <p style="margin-top:24px"><a href="https://econsoop.vercel.app" target="_blank">econsoop.vercel.app →</a></p>
+  <p style="font-size:11px;opacity:0.4;margin-top:24px">© 2025 Shawn Kim. All rights reserved.</p>
+</footer>
+
+<script>
+// Fade-in on scroll
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); } });
+}, { threshold: 0.1 });
+document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+</script>
+</body>
+</html>
