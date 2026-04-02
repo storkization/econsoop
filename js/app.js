@@ -596,14 +596,12 @@ async function genTabSummary(tab) {
         summaryCache[tab] = result;
         localStorage.setItem(cacheKey, JSON.stringify(result));
         localStorage.setItem(cacheTimeKey, cf.created_at.toString());
-        // 로딩 애니메이션 5초 후 렌더링
+        // 로딩 애니메이션 5초 후 렌더링 → 렌더 완료 후 뉴스 백그라운드 로딩
         setLoadingMsg(tab, 'fast');
-        setTimeout(() => {
+        setTimeout(async () => {
           renderTabSummary(tab, result);
           updateFrontPreview(tab, result.summary);
-        }, 5500);
-        // 뉴스 목록 백그라운드 로딩 (요약 표시 후)
-        (async () => {
+          // 뉴스 목록 백그라운드 로딩 (렌더 완료 후 시작)
           const allItems = [];
           for (const q of SUMMARY_QUERIES[tab]) {
             try {
@@ -625,7 +623,7 @@ async function genTabSummary(tab) {
             localStorage.setItem(cacheKey, JSON.stringify(result));
             renderTabSummary(tab, result);
           }
-        })();
+        }, 5500);
         return;
       }
     }
@@ -816,6 +814,11 @@ function retryInsight(tab) {
 }
 
 function renderTabSummary(tab, result) {
+  // 로딩 타이머 전부 정리 (renderLoading이 기사를 덮어쓰는 레이스 컨디션 방지)
+  _aiStepTimers.forEach(t => clearTimeout(t));
+  _aiStepTimers = [];
+  if (_loadingInterval) { clearInterval(_loadingInterval); _loadingInterval = null; }
+
   const card = document.getElementById(`${tab}-summary-card`);
   if (card && result.summary) {
     // 디버그: 실제 summary 포맷 확인
