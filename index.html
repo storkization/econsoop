@@ -1759,7 +1759,7 @@ async function genTabSummary(tab) {
     const briefingTimer = setTimeout(() => { if (_briefingController) _briefingController.abort(); }, 55000);
 
     // DEV: mock=true 로 테스트 시 API 호출 없이 스트리밍 동작 확인
-    const DEV_MOCK = true;
+    const DEV_MOCK = false;
 
     const res = await fetch('/api/briefing', {
       method: 'POST',
