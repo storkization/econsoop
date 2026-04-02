@@ -61,7 +61,7 @@ export default async function handler(req, res) {
       });
       if (!briefingRes.ok) throw new Error(`briefing API 오류 ${briefingRes.status}`);
 
-      const { summary, footnotes, headline, subheading } = await briefingRes.json();
+      const { summary, footnotes, headline, subheading, columnHook } = await briefingRes.json();
       if (!summary) throw new Error('브리핑 파싱 실패');
 
       // 3. Firestore 저장 (Admin SDK — 보안 규칙 우회)
@@ -70,6 +70,7 @@ export default async function handler(req, res) {
         footnotes: footnotes || '',
         headline: headline || '',
         subheading: subheading || '',
+        columnHook: columnHook || '',
         created_at: Date.now(),
       });
 

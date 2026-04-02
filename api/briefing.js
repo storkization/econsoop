@@ -94,7 +94,21 @@ POINT1·2·3 반복 금지.
 
 형식: 포인트N: ※ 용어(영문 있으면 병기) — 설명 (1문장, 쉽고 간결하게)
 확신 없으면 생략. 억지로 채우지 말 것.
-[/FOOTNOTES]`
+[/FOOTNOTES]
+
+[COLUMN_HOOK]
+오늘의 심층 칼럼 예고 제목. 독자가 "이거 꼭 읽어야겠다"는 생각이 들도록.
+
+규칙:
+- 위 POINT1~4에서 다룬 내용 중 가장 파급력 있는 이슈를 기반으로 할 것 (할루시네이션 금지)
+- "당신이 모르는", "지금 당장", "충격", "폭탄", "진짜 이유" 같은 감정을 자극하는 표현 사용
+- 질문형("~라고?", "~인가?") 또는 반전형("~인데 사실은...") 구조 권장
+- 이모티콘 1개 포함
+- 40자 이내
+- 예시: "💣 금리 동결인데 집값 또 오른다? 당신이 모르는 진짜 이유"
+- 예시: "🔥 미국이 한국을 겨냥했다 — 관세 폭탄의 숨겨진 타깃"
+- 예시: "⚠️ 지금 예금 들면 손해? 전문가들이 말 못 하는 속사정"
+[/COLUMN_HOOK]`
         }]
       })
     });
@@ -139,13 +153,16 @@ POINT1·2·3 반복 금지.
     const footnotesMatch = fullText.match(/\[FOOTNOTES\]([\s\S]*?)\[\/FOOTNOTES\]/);
     const footnotes = footnotesMatch ? footnotesMatch[1].trim() : '';
 
-    console.log('[BRIEFING] 파싱 — summary:', summary.length, 'headline:', headline.length, 'footnotes:', footnotes.length);
+    const columnHookMatch = fullText.match(/\[COLUMN_HOOK\]([\s\S]*?)\[\/COLUMN_HOOK\]/);
+    const columnHook = columnHookMatch ? columnHookMatch[1].trim() : '';
+
+    console.log('[BRIEFING] 파싱 — summary:', summary.length, 'headline:', headline.length, 'columnHook:', columnHook.length);
 
     if (!summary) {
       console.error('[BRIEFING] 파싱 실패! fullText 앞 500자:', fullText.slice(0, 500));
     }
 
-    res.status(200).json({ summary, footnotes, headline, subheading });
+    res.status(200).json({ summary, footnotes, headline, subheading, columnHook });
 
   } catch (err) {
     res.status(500).json({ error: err.message });

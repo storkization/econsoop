@@ -36,7 +36,7 @@ const FX_LIST = [
 const TAB_LABEL = { economy:'경제', industry:'산업', global:'국제' };
 
 /* ═══════════ CACHE VERSION ═══════════ */
-const CACHE_VERSION = 'v108';
+const CACHE_VERSION = 'v109';
 (function clearOldCache() {
   const savedVersion = localStorage.getItem('eco_cache_version');
   if (savedVersion !== CACHE_VERSION) {
@@ -593,7 +593,7 @@ async function genTabSummary(tab) {
       const cf = await cfRes.json();
       if (cf.fresh && cf.summary) {
         console.log(`[CACHED] ${tab} 프리젠 데이터 사용 (created_at: ${new Date(cf.created_at).toLocaleTimeString()})`);
-        const result = { summary: cf.summary, oneliner: '', footnotes: cf.footnotes || '', headline: cf.headline || '', subheading: cf.subheading || '', topNews: [] };
+        const result = { summary: cf.summary, oneliner: '', footnotes: cf.footnotes || '', headline: cf.headline || '', subheading: cf.subheading || '', columnHook: cf.columnHook || '', topNews: [] };
         summaryCache[tab] = result;
         localStorage.setItem(cacheKey, JSON.stringify(result));
         localStorage.setItem(cacheTimeKey, cf.created_at.toString());
@@ -716,6 +716,7 @@ async function genTabSummary(tab) {
       footnotes: j.footnotes || '',
       headline: j.headline || '',
       subheading: j.subheading || '',
+      columnHook: j.columnHook || '',
       topNews: unique.slice(0, 15),
     };
     summaryCache[tab] = result;
@@ -930,21 +931,20 @@ function renderTabSummary(tab, result) {
   // 프리미엄 칼럼 배너 (칼럼 탭으로 연결)
   const columnEl = document.getElementById(`${tab}-column`);
   if (columnEl) {
+    const hook = result.columnHook || `오늘의 ${TAB_LABEL[tab]} 심층 분석`;
     columnEl.innerHTML = `
       <div onclick="openColumnTab('${tab}')"
         style="margin:4px 0 14px;background:linear-gradient(135deg,#0F172A 0%,#1E3A5F 50%,#1A365D 100%);
-               border-radius:14px;padding:14px 18px;display:flex;align-items:center;justify-content:space-between;
-               cursor:pointer;box-shadow:0 4px 20px rgba(15,23,42,0.22);">
-        <div style="display:flex;align-items:center;gap:12px;">
-          <div style="width:34px;height:34px;border-radius:9px;background:rgba(255,255,255,0.10);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-            <span style="font-size:16px;">📰</span>
+               border-radius:14px;padding:16px 18px;cursor:pointer;box-shadow:0 4px 20px rgba(15,23,42,0.22);">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+          <div style="display:flex;align-items:center;gap:7px;">
+            <span style="font-size:13px;">📰</span>
+            <span style="font-size:10px;font-weight:700;color:rgba(255,255,255,0.55);font-family:var(--font-mono);letter-spacing:0.5px;">오늘의 ${TAB_LABEL[tab]} 칼럼 · by Shawn Kim</span>
           </div>
-          <div>
-            <div style="font-size:13px;font-weight:800;color:#fff;letter-spacing:-0.2px;">오늘의 ${TAB_LABEL[tab]} 칼럼</div>
-            <div style="font-size:10px;color:rgba(255,255,255,0.5);margin-top:2px;font-family:var(--font-mono);letter-spacing:0.3px;">by Shawn Kim · Daily Editorial</div>
-          </div>
+          <span style="font-size:10px;font-weight:700;color:#FCD34D;background:rgba(252,211,77,0.12);padding:3px 9px;border-radius:20px;letter-spacing:0.5px;white-space:nowrap;">💎 PREMIUM</span>
         </div>
-        <span style="font-size:11px;font-weight:700;color:#FCD34D;background:rgba(252,211,77,0.12);padding:4px 10px;border-radius:20px;letter-spacing:0.5px;white-space:nowrap;">💎 PREMIUM →</span>
+        <div style="font-size:14px;font-weight:800;color:#FFFFFF;line-height:1.45;letter-spacing:-0.3px;">${hook}</div>
+        <div style="margin-top:10px;font-size:10px;font-weight:600;color:rgba(255,255,255,0.4);font-family:var(--font-mono);letter-spacing:0.5px;">TAP TO READ FULL COLUMN →</div>
       </div>`;
   }
   const newsEl = document.getElementById(`${tab}-summary-news`);
