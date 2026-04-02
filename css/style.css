@@ -25,8 +25,8 @@
       --forest-dapple:  rgba(255, 248, 220, 0.08);
 
       /* ── Typography Scale ── */
-      --font-serif:   'Playfair Display', Georgia, 'Times New Roman', serif;
-      --font-sans:    'Noto Sans KR', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', sans-serif;
+      --font-serif:   'Pretendard', 'Noto Sans KR', -apple-system, sans-serif;
+      --font-sans:    'Pretendard', 'Noto Sans KR', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', sans-serif;
       --font-mono:    'IBM Plex Mono', 'SF Mono', Menlo, Consolas, monospace;
 
       /* Size */
@@ -144,18 +144,18 @@
     .header.shrunk { padding-bottom: 8px; }
     .header-top { display:flex; justify-content:space-between; align-items:flex-end; position:relative; z-index:1; }
     .app-logo {
-      font-family:var(--font-serif);
-      font-size:26px; font-weight:var(--fw-black);
-      letter-spacing:-0.5px; color:var(--text);
+      font-family:'Pretendard', 'Noto Sans KR', sans-serif;
+      font-size:24px; font-weight:900;
+      letter-spacing:-1px; color:var(--text);
       transition: font-size 0.3s ease;
-      display:flex; flex-direction:column; gap:1px;
+      display:flex; flex-direction:column; gap:2px;
     }
     .header.shrunk .app-logo { font-size:20px; }
     .app-logo em { color:var(--accent); font-style:normal; }
     .app-logo span {
-      color:var(--text-dim); font-size:8.5px;
-      font-family:var(--font-mono); font-weight:600;
-      letter-spacing:1.8px;
+      color:var(--text-dim); font-size:8px;
+      font-family:var(--font-mono); font-weight:500;
+      letter-spacing:2.5px; text-transform:uppercase;
       transition: font-size 0.3s ease;
     }
     .header.shrunk .app-logo span { font-size:7px; }
