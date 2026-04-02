@@ -397,7 +397,8 @@
       color:#fff;
     }
     .tag-issue  { background:#1A7A45; box-shadow:0 2px 8px rgba(26,122,69,0.2); }
-    .tag-market { background:#3730A3; box-shadow:0 2px 8px rgba(55,48,163,0.18); }
+    .tag-bg     { background:#6B21A8; box-shadow:0 2px 8px rgba(107,33,168,0.18); }
+    .tag-market { background:#1D4ED8; box-shadow:0 2px 8px rgba(29,78,216,0.18); }
     .tag-invest { background:#B45309; box-shadow:0 2px 8px rgba(180,83,9,0.18); }
     .summary-line-text {
       font-family:var(--font-sans);
@@ -1796,17 +1797,6 @@ async function genTabSummary(tab) {
     renderTabSummary(tab, result);
     updateFrontPreview(tab, result.summary);
 
-    // 2차: ONELINER 백그라운드 호출 (await 안 함)
-    const insightEl = document.getElementById(`${tab}-insight`);
-    if (insightEl) {
-      insightEl.innerHTML = `
-        <div class="insight-section-label">💡 쓰리포인트 요약 by Shawn</div>
-        <div style="background:#F7FBF8;border-radius:14px;padding:20px;text-align:center;">
-          <div class="dots" style="margin-bottom:10px;"><span></span><span></span><span></span></div>
-          <div style="font-size:12px;color:var(--text-muted);">인사이트 분석 중...</div>
-        </div>`;
-    }
-    fetchInsight(tab, result.summary, result.footnotes, label, unique);
 
   } catch(err) {
     console.error('[BRIEFING ERROR]', err.message, err);
@@ -1897,20 +1887,21 @@ function renderTabSummary(tab, result) {
     // 디버그: 실제 summary 포맷 확인
     console.log('[SUMMARY RAW]', JSON.stringify(result.summary));
 
-    // 줄1:/줄2:/줄3: 패턴 (한줄/멀티라인 모두 대응)
+    // 포인트1/2/3/4 패턴 파싱
     const summaryClean = (result.summary || '')
       .replace(/\*\*/g, '')
       .replace(/^#+\s*/gm, '')
       .replace(/^---+\s*/gm, '')
-      .replace(/\[\/?(SUMMARY|ONELINER|FOOTNOTES|BRIEFING)\]/g, '')
+      .replace(/\[\/?(SUMMARY|ONELINER|FOOTNOTES|BRIEFING|POINT\d)\]/g, '')
       .trim();
-    const m1 = summaryClean.match(/줄1:\s*(.+?)(?=\s*줄2:|$)/s);
-    const m2 = summaryClean.match(/줄2:\s*(.+?)(?=\s*줄3:|$)/s);
-    const m3 = summaryClean.match(/줄3:\s*(.+?)(?=\s*\[|배경\(상황\)|$)/s);
-    const lines = [m1, m2, m3].map(m => m ? m[1].trim() : null).filter(Boolean);
-    
+    const m1 = summaryClean.match(/포인트1:\s*(.+?)(?=\s*포인트2:|$)/s);
+    const m2 = summaryClean.match(/포인트2:\s*(.+?)(?=\s*포인트3:|$)/s);
+    const m3 = summaryClean.match(/포인트3:\s*(.+?)(?=\s*포인트4:|$)/s);
+    const m4 = summaryClean.match(/포인트4:\s*(.+?)(?=\s*\[|$)/s);
+    const lines = [m1, m2, m3, m4].map(m => m ? m[1].trim() : null).filter(Boolean);
+
     // 본문에 ※ 각주가 인라인으로 붙어있는 경우 분리
-    const inlineFootnotes = { 1: [], 2: [], 3: [] };
+    const inlineFootnotes = { 1: [], 2: [], 3: [], 4: [] };
     const cleanedLines = lines.map((line, i) => {
       const fnIdx = line.indexOf('※');
       if (fnIdx > 0 && line.slice(fnIdx).includes('—')) {
@@ -1930,14 +1921,15 @@ function renderTabSummary(tab, result) {
     const finalLines = cleanedLines.length >= 2 ? cleanedLines :
       summaryClean
         .split(/(?<=다\.|했다\.|이다\.)\s+/)
-        .map(l => l.replace(/^줄\d+:\s*/, '').trim())
+        .map(l => l.replace(/^포인트\d+:\s*/, '').trim())
         .filter(l => l.length > 10)
-        .slice(0, 3);
+        .slice(0, 4);
 
     const tags = [
-      { cls:'tag-issue',  label:'핵심 이슈',   lineColor:'linear-gradient(180deg, #1A7A45, transparent)' },
-      { cls:'tag-market', label:'시장 흐름',   lineColor:'linear-gradient(180deg, #3730A3, transparent)' },
-      { cls:'tag-invest', label:'투자 포인트', lineColor:'linear-gradient(180deg, #B45309, transparent)' },
+      { cls:'tag-issue',  label:'핵심 이슈', lineColor:'linear-gradient(180deg, #1A7A45, transparent)' },
+      { cls:'tag-bg',     label:'배경',      lineColor:'linear-gradient(180deg, #6B21A8, transparent)' },
+      { cls:'tag-market', label:'시장 영향', lineColor:'linear-gradient(180deg, #1D4ED8, transparent)' },
+      { cls:'tag-invest', label:'투자 전략', lineColor:'linear-gradient(180deg, #B45309, transparent)' },
     ];
 
     // 날짜/시간 + 스케줄 기준 표시
@@ -1958,10 +1950,10 @@ function renderTabSummary(tab, result) {
 
     // footnotes 줄별 파싱 — carry-forward 방식 (줄당 각주 2개 이상 지원)
     const footnotesRaw = (result.footnotes || '').replace(/\*\*/g, '').replace(/^#+\s*/gm, '').replace(/^---+\s*/gm, '');
-    const fnMap = { 1: [], 2: [], 3: [] };
+    const fnMap = { 1: [], 2: [], 3: [], 4: [] };
     let lastFnLine = null;
     footnotesRaw.split('\n').forEach(line => {
-      const m = line.match(/줄([123]):\s*(.*)/);
+      const m = line.match(/포인트([1234]):\s*(.*)/);
       if (m) {
         lastFnLine = Number(m[1]);
         if (m[2].trim()) fnMap[lastFnLine].push(m[2].trim());
@@ -1970,7 +1962,7 @@ function renderTabSummary(tab, result) {
       }
     });
     // 본문에서 분리된 인라인 각주 병합
-    [1,2,3].forEach(i => {
+    [1,2,3,4].forEach(i => {
       if (inlineFootnotes[i]) fnMap[i].push(...inlineFootnotes[i]);
     });
 
