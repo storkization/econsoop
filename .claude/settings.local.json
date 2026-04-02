@@ -20,7 +20,9 @@
       "Bash(/c/Program Files/GitHub CLI/gh.exe run:*)",
       "Bash(\"/c/Program Files/GitHub CLI/gh.exe\" run list --repo storkization/econsoop --limit 1)",
       "Bash(git revert:*)",
-      "Bash(git commit:*)"
+      "Bash(git commit:*)",
+      "Bash(\"/c/Program Files/GitHub CLI/gh.exe\" run list --limit 3 --repo storkization/econsoop)",
+      "Bash(curl:*)"
     ]
   }
 }

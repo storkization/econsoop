@@ -1,0 +1,18 @@
+name: Prebuild Briefings
+
+on:
+  schedule:
+    - cron: '0 22 * * *'   # 07:00 KST
+    - cron: '0 7 * * *'    # 16:00 KST
+    - cron: '0 11 * * *'   # 20:00 KST
+  workflow_dispatch:        # 수동 실행 가능
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Call generate API
+        run: |
+          curl -s -X GET \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
+            https://econsoop.vercel.app/api/generate
