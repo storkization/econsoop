@@ -1754,44 +1754,123 @@ async function genTabSummary(tab) {
     const headlines = unique.slice(0, 18).map(n =>
       n.description ? `${n.title}\n   → ${n.description.slice(0, 100)}` : n.title
     );
-    console.log('[BRIEFING] 1차 호출 시작 (SUMMARY+FOOTNOTES), headlines:', headlines.length);
+    console.log('[BRIEFING] 1차 호출 시작 (SUMMARY+FOOTNOTES, 스트리밍), headlines:', headlines.length);
     _briefingController = new AbortController();
     const briefingTimer = setTimeout(() => { if (_briefingController) _briefingController.abort(); }, 55000);
+
+    // DEV: mock=true 로 테스트 시 API 호출 없이 스트리밍 동작 확인
+    const DEV_MOCK = true;
+
     const res = await fetch('/api/briefing', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ headlines, tab, label }),
+      body: JSON.stringify({ headlines, tab, label, mock: DEV_MOCK }),
       signal: _briefingController.signal,
     });
     clearTimeout(briefingTimer);
     _briefingController = null;
-    console.log('[BRIEFING] 1차 응답 상태:', res.status);
-    const j = await res.json();
-    console.log('[BRIEFING] 1차 응답 키:', Object.keys(j), 'summary 길이:', (j.summary||'').length);
+    console.log('[BRIEFING] 스트리밍 응답 시작, status:', res.status);
+
     if (!res.ok) {
-      throw new Error(j.error || `API 오류 ${res.status}`);
+      const errJson = await res.json().catch(() => ({}));
+      throw new Error(errJson.error || `API 오류 ${res.status}`);
     }
-    if (!j.summary || j.summary.trim().length === 0) {
+
+    // 스트리밍 읽기
+    const streamReader = res.body.getReader();
+    const streamDecoder = new TextDecoder();
+    let fullText = '';
+    let sseBuffer = '';
+    let streamingStarted = false;
+
+    // 스트리밍 표시용 카드 세팅 (로딩 화면 대체)
+    const streamCard = document.getElementById(`${tab}-summary-card`);
+
+    while (true) {
+      const { done, value } = await streamReader.read();
+      if (done) break;
+
+      sseBuffer += streamDecoder.decode(value, { stream: true });
+      const sseLines = sseBuffer.split('\n');
+      sseBuffer = sseLines.pop();
+
+      for (const sseLine of sseLines) {
+        if (!sseLine.startsWith('data: ')) continue;
+        const sseData = sseLine.slice(6).trim();
+        if (sseData === '[DONE]') continue;
+
+        try {
+          const parsed = JSON.parse(sseData);
+          if (parsed.error) throw new Error(parsed.error);
+          if (parsed.text) {
+            fullText += parsed.text;
+
+            // 첫 토큰 도착 시 로딩 화면 → 스트리밍 화면 전환
+            if (!streamingStarted && fullText.includes('줄1:')) {
+              streamingStarted = true;
+              _aiStepTimers.forEach(t => clearTimeout(t));
+              _aiStepTimers = [];
+              if (_loadingInterval) { clearInterval(_loadingInterval); _loadingInterval = null; }
+              stopLoadingMsg();
+              if (streamCard) {
+                streamCard.innerHTML = `<div id="${tab}-stream-text" style="padding:20px 4px 8px;font-size:14px;line-height:1.9;color:#374151;white-space:pre-wrap;font-family:var(--font-body);"></div>`;
+              }
+            }
+
+            // 스트리밍 중 요약 본문만 실시간 표시
+            if (streamingStarted) {
+              const streamEl = document.getElementById(`${tab}-stream-text`);
+              if (streamEl) {
+                const m = fullText.match(/\[SUMMARY\]([\s\S]*?)(\[\/SUMMARY\]|$)/);
+                if (m) {
+                  const raw = m[1].replace(/\[\/SUMMARY\]/, '').trim();
+                  streamEl.textContent = raw;
+                }
+              }
+            }
+          }
+        } catch(e) {
+          if (e.message && !e.message.includes('JSON')) throw e;
+        }
+      }
+    }
+
+    console.log('[BRIEFING] 스트리밍 완료, fullText 길이:', fullText.length);
+
+    // 스트리밍 완료 → 기존 파서로 최종 렌더
+    let summaryMatch   = fullText.match(/\[SUMMARY\]([\s\S]*?)\[\/SUMMARY\]/);
+    let footnotesMatch = fullText.match(/\[FOOTNOTES\]([\s\S]*?)\[\/FOOTNOTES\]/);
+
+    // 폴백 파서 (태그 없을 때)
+    if (!summaryMatch && fullText.includes('줄1:')) {
+      console.log('[BRIEFING] 태그 없음 → 폴백 파서');
+      const smFallback = fullText.match(/(줄1:[\s\S]*?줄3:[\s\S]*?)(?=줄1:.*※|$)/);
+      if (smFallback) summaryMatch = [null, smFallback[1]];
+    }
+    if (!footnotesMatch && fullText.match(/줄[123]:.*※/)) {
+      const fnStart = fullText.lastIndexOf('줄1:');
+      const fnBlock = fullText.slice(fnStart);
+      if (fnBlock.includes('※')) footnotesMatch = [null, fnBlock];
+    }
+
+    const summary   = summaryMatch   ? summaryMatch[1].trim()   : '';
+    const footnotes = footnotesMatch ? footnotesMatch[1].trim() : '';
+    console.log('[BRIEFING] 파싱 — summary:', summary.length, 'footnotes:', footnotes.length);
+
+    if (!summary || summary.trim().length === 0) {
       throw new Error('AI 응답에서 SUMMARY 파싱 실패 — 다시 시도해주세요');
     }
 
-    // 1차 결과: SUMMARY + FOOTNOTES → 즉시 렌더
+    // 1차 결과: SUMMARY + FOOTNOTES → 최종 렌더
     const result = {
-      summary: j.summary || '',
+      summary,
       oneliner: '',
-      footnotes: j.footnotes || '',
+      footnotes,
       topNews: unique.slice(0, 15),
     };
     summaryCache[tab] = result;
     localStorage.setItem(cacheKey, JSON.stringify(result));
     localStorage.setItem(cacheTimeKey, Date.now());
-    _aiStepIndex = 6;
-    _aiStepTimers.forEach(t => clearTimeout(t));
-    _aiStepTimers = [];
-    if (_loadingInterval) { clearInterval(_loadingInterval); _loadingInterval = null; }
-    setLoadingMsg(tab, 'done');
-    await new Promise(r => setTimeout(r, 1000));
-    stopLoadingMsg();
     showQuizAnswer();
     renderTabSummary(tab, result);
     updateFrontPreview(tab, result.summary);
