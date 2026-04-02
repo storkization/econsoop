@@ -1455,12 +1455,12 @@ function setLoadingMsg(tab, phase, count = null) {
   let msgIdx = 0;
 
   const ALL_STEPS = [
-    { label:'씨앗 심기',     icon:'🌰' },
-    { label:'새싹 돋기',   icon:'🌱' },
-    { label:'줄기 성장', icon:'🌿' },
-    { label:'가지 뻗기',   icon:'🪵' },
-    { label:'잎 피우기',     icon:'🍃' },
-    { label:'경제숲 완성',   icon:'🌲' },
+    { label:'씨앗 심기',   icon:'🌰', desc:'뉴스를 수집하는 중이에요' },
+    { label:'새싹 돋기',   icon:'🌱', desc:'AI가 헤드라인을 읽고 있어요' },
+    { label:'줄기 성장',   icon:'🌿', desc:'핵심 이슈를 분석하는 중이에요' },
+    { label:'가지 뻗기',   icon:'🪵', desc:'시장 흐름을 파악하는 중이에요' },
+    { label:'잎 피우기',   icon:'🍃', desc:'투자 포인트를 정리하는 중이에요' },
+    { label:'경제숲 완성', icon:'🌲', desc:'브리핑을 마무리하는 중이에요' },
   ];
 
   function renderLoading() {
@@ -1486,7 +1486,10 @@ function setLoadingMsg(tab, phase, count = null) {
       const pulse = active ? 'animation:pulse 1s infinite;' : '';
       return `<div style="position:absolute;bottom:${pct}%;${posStyle}transform:translateY(50%);white-space:nowrap;display:flex;align-items:center;gap:5px;opacity:${opacity};transition:all 0.5s ease;${side === 'left' ? 'flex-direction:row-reverse;' : ''}">
         <span style="font-size:14px;${pulse}">${s.icon}</span>
-        <span style="font-size:9px;font-weight:${weight};color:${color};font-family:var(--font-sans);letter-spacing:-0.2px;">${s.label}</span>
+        <div style="display:flex;flex-direction:column;${side === 'left' ? 'align-items:flex-end;' : 'align-items:flex-start;'}gap:1px;">
+          <span style="font-size:9px;font-weight:${weight};color:${color};font-family:var(--font-sans);letter-spacing:-0.2px;">${s.label}</span>
+          ${active ? `<span style="font-size:9px;color:#1A7A45;font-weight:500;font-family:var(--font-sans);opacity:0.85;">${s.desc}</span>` : ''}
+        </div>
       </div>`;
     }).join('');
 
