@@ -15,4 +15,7 @@ jobs:
         run: |
           curl -s -X GET \
             -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
-            https://econsoop.vercel.app/api/generate
+            https://econsoop.vercel.app/api/generate \
+            | tee response.json
+          echo "--- HTTP 응답 확인 ---"
+          cat response.json
