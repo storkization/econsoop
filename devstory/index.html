@@ -262,8 +262,8 @@ body{font-family:var(--font);color:var(--text);background:var(--bg);line-height:
     </div>
     <div class="feat-card">
       <div class="feat-card-icon">⏰</div>
-      <h4>하루 6회 자동 갱신</h4>
-      <p>07:30 / 11:30 / 14:00 / 16:30 / 20:00 / 22:30 KST — 미리 정해둔 시간에 자동으로 새 뉴스를 불러옵니다.</p>
+      <h4>하루 2회 자동 갱신</h4>
+      <p>07:00 / 17:00 KST — 미리 정해둔 시간에 자동으로 새 뉴스를 불러옵니다.</p>
     </div>
     <div class="feat-card">
       <div class="feat-card-icon">✍️</div>
@@ -802,14 +802,10 @@ body{font-family:var(--font);color:var(--text);background:var(--bg);line-height:
   <h2>캐시 & 스케줄 시스템</h2>
   <p class="desc">불필요한 AI 호출(= 비용)을 막으면서도 항상 최신 뉴스를 제공합니다. <strong>캐시(Cache)</strong>란 한 번 받아온 데이터를 임시로 저장해뒀다가 재사용하는 방식입니다.</p>
 
-  <h3>하루 6회 갱신 스케줄 (KST)</h3>
+  <h3>하루 2회 갱신 스케줄 (KST)</h3>
   <div class="sched-row">
-    <span class="sched-chip">07:30</span>
-    <span class="sched-chip">11:30</span>
-    <span class="sched-chip">14:00</span>
-    <span class="sched-chip">16:30</span>
-    <span class="sched-chip">20:00</span>
-    <span class="sched-chip">22:30</span>
+    <span class="sched-chip">07:00</span>
+    <span class="sched-chip">17:00</span>
   </div>
 
   <h3>캐시 작동 원리</h3>
@@ -904,7 +900,7 @@ body{font-family:var(--font);color:var(--text);background:var(--bg);line-height:
         <li>호스팅: Vercel (서버 없이 운영)</li>
         <li>AI: Claude Sonnet으로 뉴스 요약</li>
         <li>뉴스: 네이버 뉴스 API로 자동 수집</li>
-        <li>6개 탭, 4개 서버리스 함수, 하루 6회 갱신</li>
+        <li>6개 탭, 4개 서버리스 함수, 하루 2회 갱신</li>
         <li>모바일에서 앱처럼 설치 가능 (PWA)</li>
         <li>개발자 1명이 기획부터 운영까지 전담</li>
       </ul>

@@ -10,7 +10,7 @@ if (!admin.apps.length) {
 }
 const db = admin.firestore();
 
-// 크론 슬롯 기준: 07:00 / 16:00 / 20:00 KST
+// 크론 슬롯 기준: 07:00 / 17:00 KST
 function getLastSlotTime() {
   const now = new Date();
   const kst = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Seoul' }));
