@@ -230,6 +230,7 @@ function switchTab(id) {
   currentTab = id;
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab===id));
   document.querySelectorAll('.tab-panel').forEach(p => p.classList.toggle('active', p.id==='tab-'+id));
+  updateDrawerActive(id);
 
   const chipsRow = document.getElementById('chips-row');
   const isNewsTab = ['economy','industry','global'].includes(id);
@@ -1555,4 +1556,26 @@ function initSettings() {
 
 function closeModal(e){
   if(e.target.id==='modal') document.getElementById('modal').classList.remove('open');
+}
+
+/* ═══════════ DRAWER ═══════════ */
+function openDrawer() {
+  document.getElementById('drawer').classList.add('open');
+  document.getElementById('drawer-overlay').classList.add('open');
+}
+
+function closeDrawer() {
+  document.getElementById('drawer').classList.remove('open');
+  document.getElementById('drawer-overlay').classList.remove('open');
+}
+
+function drawerNav(tab) {
+  closeDrawer();
+  switchTab(tab);
+}
+
+function updateDrawerActive(tab) {
+  document.querySelectorAll('[data-drawer-tab]').forEach(el => {
+    el.classList.toggle('active', el.dataset.drawerTab === tab);
+  });
 }

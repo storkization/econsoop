@@ -24,11 +24,46 @@
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
+<!-- 드로어 오버레이 -->
+<div class="drawer-overlay" id="drawer-overlay" onclick="closeDrawer()"></div>
+
+<!-- 사이드 드로어 -->
+<div class="drawer" id="drawer">
+  <div class="drawer-header">
+    <div class="drawer-logo">Econ.<em>SOOP</em></div>
+    <button class="drawer-close" onclick="closeDrawer()">✕</button>
+  </div>
+  <nav class="drawer-nav">
+    <div class="drawer-section-label">뉴스</div>
+    <button class="drawer-item active" data-drawer-tab="economy" onclick="drawerNav('economy')">
+      🏦 경제 <span class="drawer-arrow">∨</span>
+    </button>
+    <button class="drawer-item" data-drawer-tab="industry" onclick="drawerNav('industry')">
+      🏭 산업 <span class="drawer-arrow">∨</span>
+    </button>
+    <button class="drawer-item" data-drawer-tab="global" onclick="drawerNav('global')">
+      🌐 국제 <span class="drawer-arrow">∨</span>
+    </button>
+    <button class="drawer-item" data-drawer-tab="stocks" onclick="drawerNav('stocks')">
+      📈 증권 <span class="drawer-arrow">∨</span>
+    </button>
+
+    <div class="drawer-divider"></div>
+
+    <div class="drawer-section-label">Econ.SOOP ∧</div>
+    <button class="drawer-sub-item" data-drawer-tab="front" onclick="drawerNav('front')">서비스 소개</button>
+    <button class="drawer-sub-item" data-drawer-tab="newsroom" onclick="drawerNav('newsroom')">뉴스룸</button>
+    <button class="drawer-sub-item" onclick="closeDrawer(); alert('구독 기능은 준비 중입니다. 곧 만나요! 🌱')">구독하기</button>
+    <button class="drawer-sub-item" data-drawer-tab="settings" onclick="drawerNav('settings')">설정</button>
+  </nav>
+</div>
+
 <div id="app">
 
   <!-- HEADER -->
   <div class="header">
     <div class="header-top">
+      <button class="hamburger-btn" onclick="openDrawer()">☰</button>
       <div class="app-logo">Econ.<em>SOOP</em><span>경제숲</span></div>
       <div class="header-right">
         <div class="live-dot">LIVE</div>
@@ -41,8 +76,8 @@
     </div>
   </div>
 
-  <!-- TABS -->
-  <div class="tabs-container">
+  <!-- TABS (숨김 — 드로어로 대체, JS 호환성 유지) -->
+  <div class="tabs-container" style="display:none;">
   <div class="tabs">
     <button class="tab-btn" data-tab="breaking">🚨 속보</button>
     <button class="tab-btn" data-tab="front">🗞 1면</button>
