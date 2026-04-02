@@ -1,5 +1,4 @@
 // ── 뉴스룸 팀 데이터 ───────────────────────────────────────
-// Phase 3에서 렌더링 로직 추가 예정
 
 const NEWSROOM_CEO = {
   name: 'Shawn Kim (김도훈)',
@@ -23,3 +22,53 @@ const NEWSROOM_TEAM = [
   { name: '윤서영',        flag: '🇰🇷', team: 'Markets',  role: 'Senior Researcher', spec: '개인투자·실전전략',    photo: '/images/team/seoyoung.jpg' },
   { name: 'Yuki Tanaka',   flag: '🇯🇵', team: 'Markets',  role: 'Junior Analyst',    spec: '닛케이·아시아증시',    photo: '/images/team/yuki.jpg' },
 ];
+
+// ── 뉴스룸 렌더링 ──────────────────────────────────────────
+function renderNewsroom() {
+  const root = document.getElementById('newsroom-root');
+  if (!root || root.dataset.rendered) return;
+  root.dataset.rendered = 'true';
+
+  // CEO 카드
+  const ceoHtml = `
+    <div class="ceo-card">
+      <div class="ceo-photo">
+        <img src="${NEWSROOM_CEO.photo}" alt="${NEWSROOM_CEO.name}"
+             onerror="this.parentElement.textContent='👤'">
+      </div>
+      <div class="ceo-info">
+        <div class="ceo-badge">CEO · Founder ${NEWSROOM_CEO.flag}</div>
+        <div class="ceo-name">${NEWSROOM_CEO.name}</div>
+        <div class="ceo-role">${NEWSROOM_CEO.role}</div>
+        <div class="ceo-bio">${NEWSROOM_CEO.bio}</div>
+      </div>
+    </div>
+  `;
+
+  // 팀 카드 그리드
+  const teamHtml = NEWSROOM_TEAM.map(m => `
+    <div class="team-card">
+      <div class="team-photo">
+        <img src="${m.photo}" alt="${m.name}"
+             onerror="this.parentElement.textContent='${m.flag}'">
+      </div>
+      <div class="team-name">${m.name}</div>
+      <div class="team-team">${m.team}</div>
+      <div class="team-role">${m.role}</div>
+      <div class="team-spec">${m.spec}</div>
+    </div>
+  `).join('');
+
+  root.innerHTML = `
+    <div class="newsroom-wrap">
+      <div class="newsroom-header">
+        <div class="newsroom-eyebrow">Econ.SOOP Newsroom</div>
+        <div class="newsroom-title">우리 팀을 소개합니다</div>
+        <div class="newsroom-desc">경제숲을 만드는 사람들</div>
+      </div>
+      ${ceoHtml}
+      <div class="team-section-label">팀 멤버 · ${NEWSROOM_TEAM.length}명</div>
+      <div class="team-grid">${teamHtml}</div>
+    </div>
+  `;
+}

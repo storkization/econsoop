@@ -59,7 +59,7 @@ const FX_LIST = [
 const TAB_LABEL = { economy:'경제', industry:'산업', global:'국제' };
 
 /* ═══════════ CACHE VERSION ═══════════ */
-const CACHE_VERSION = 'v105';
+const CACHE_VERSION = 'v106';
 (function clearOldCache() {
   const savedVersion = localStorage.getItem('eco_cache_version');
   if (savedVersion !== CACHE_VERSION) {
@@ -243,6 +243,7 @@ function switchTab(id) {
   if (id==='stocks') loadStocks();
   if (id==='fx' && !fxRates) loadFX();
   if (id==='breaking') loadBreaking();
+  if (id==='newsroom') renderNewsroom();
 }
 
 /* ═══════════ CHIPS ═══════════ */
