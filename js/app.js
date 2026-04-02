@@ -214,6 +214,7 @@ function switchTab(id) {
   if (id==='fx' && !fxRates) loadFX();
   if (id==='breaking') loadBreaking();
   if (id==='newsroom') renderNewsroom();
+  if (id==='column') loadColumnTab();
 }
 
 
@@ -926,28 +927,24 @@ function renderTabSummary(tab, result) {
     `;
   }
 
-  // 칼럼 펼치기 버튼
+  // 프리미엄 칼럼 배너 (칼럼 탭으로 연결)
   const columnEl = document.getElementById(`${tab}-column`);
   if (columnEl) {
     columnEl.innerHTML = `
-      <div style="margin:20px 0 14px;">
-        <button onclick="loadColumn('${tab}')"
-          id="${tab}-column-btn"
-          style="width:100%;background:linear-gradient(135deg, #0F172A 0%, #1E3A5F 50%, #1A365D 100%);border:none;border-radius:14px;padding:18px 20px;
-                 display:flex;align-items:center;justify-content:space-between;cursor:pointer;transition:all 0.2s;
-                 box-shadow:0 4px 20px rgba(15,23,42,0.25);">
-          <div style="display:flex;align-items:center;gap:12px;">
-            <div style="width:38px;height:38px;border-radius:10px;background:rgba(255,255,255,0.12);display:flex;align-items:center;justify-content:center;">
-              <span style="font-size:18px;">📰</span>
-            </div>
-            <div style="text-align:left;">
-              <div style="font-size:13px;font-weight:800;color:#fff;letter-spacing:-0.2px;">오늘의 ${TAB_LABEL[tab]} 칼럼</div>
-              <div style="font-size:10px;color:rgba(255,255,255,0.55);margin-top:3px;font-family:var(--font-mono);letter-spacing:0.5px;">by Shawn Kim · TAP TO READ</div>
-            </div>
+      <div onclick="openColumnTab('${tab}')"
+        style="margin:4px 0 14px;background:linear-gradient(135deg,#0F172A 0%,#1E3A5F 50%,#1A365D 100%);
+               border-radius:14px;padding:14px 18px;display:flex;align-items:center;justify-content:space-between;
+               cursor:pointer;box-shadow:0 4px 20px rgba(15,23,42,0.22);">
+        <div style="display:flex;align-items:center;gap:12px;">
+          <div style="width:34px;height:34px;border-radius:9px;background:rgba(255,255,255,0.10);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+            <span style="font-size:16px;">📰</span>
           </div>
-          <span style="font-size:14px;color:rgba(255,255,255,0.5);transition:transform 0.3s;">▼</span>
-        </button>
-        <div id="${tab}-column-body" style="display:none;"></div>
+          <div>
+            <div style="font-size:13px;font-weight:800;color:#fff;letter-spacing:-0.2px;">오늘의 ${TAB_LABEL[tab]} 칼럼</div>
+            <div style="font-size:10px;color:rgba(255,255,255,0.5);margin-top:2px;font-family:var(--font-mono);letter-spacing:0.3px;">by Shawn Kim · Daily Editorial</div>
+          </div>
+        </div>
+        <span style="font-size:11px;font-weight:700;color:#FCD34D;background:rgba(252,211,77,0.12);padding:4px 10px;border-radius:20px;letter-spacing:0.5px;white-space:nowrap;">💎 PREMIUM →</span>
       </div>`;
   }
   const newsEl = document.getElementById(`${tab}-summary-news`);
@@ -1083,6 +1080,73 @@ function renderInsightSection(tab, oneliner) {
 
 /* ═══════════ 칼럼 ═══════════ */
 const columnCache = {};
+let _columnForTab = 'economy';
+
+function openColumnTab(tab) {
+  _columnForTab = tab;
+  drawerNav('column');
+}
+
+async function loadColumnTab() {
+  const root = document.getElementById('column-tab-root');
+  if (!root) return;
+  const tab = _columnForTab;
+  const label = TAB_LABEL[tab] || '경제';
+
+  root.innerHTML = `
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 4px 14px;">
+      <div>
+        <div style="font-family:var(--font-serif);font-size:20px;font-weight:900;color:var(--text);letter-spacing:-0.3px;">📰 오늘의 ${label} 칼럼</div>
+        <div style="font-size:10px;font-family:var(--font-mono);color:var(--text-dim);margin-top:3px;letter-spacing:0.3px;">by Shawn Kim · Daily Editorial</div>
+      </div>
+      <span style="font-size:11px;font-weight:700;color:#B45309;background:#FFF7ED;padding:5px 12px;border-radius:20px;letter-spacing:0.8px;white-space:nowrap;">💎 PREMIUM</span>
+    </div>
+    <div id="column-tab-body">
+      <div class="status-card">
+        <div class="dots"><span></span><span></span><span></span></div>
+        <div class="status-card-desc" style="margin-top:12px;margin-bottom:0;">칼럼 작성 중...</div>
+      </div>
+    </div>`;
+
+  const bodyEl = document.getElementById('column-tab-body');
+
+  // 캐시 확인
+  if (columnCache[tab]) { renderColumn(tab, columnCache[tab], bodyEl); return; }
+  const savedCol = localStorage.getItem(`eco_column_${tab}`);
+  const savedColTime = localStorage.getItem(`eco_column_time_${tab}`);
+  if (savedCol && savedColTime && Number(savedColTime) >= getLastScheduleTime()) {
+    columnCache[tab] = savedCol;
+    renderColumn(tab, savedCol, bodyEl);
+    return;
+  }
+
+  // 브리핑 없으면 안내
+  const cached = summaryCache[tab];
+  if (!cached?.summary) {
+    bodyEl.innerHTML = `<div class="status-card"><div class="status-card-desc" style="color:var(--red);">먼저 ${label} 탭을 열어 브리핑을 생성해주세요.</div></div>`;
+    return;
+  }
+
+  try {
+    const res = await fetch('/api/column', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ summary: cached.summary, oneliner: cached.oneliner, label }),
+      signal: (() => { const c = new AbortController(); setTimeout(() => c.abort(), 55000); return c.signal; })()
+    });
+    const j = await res.json();
+    if (!res.ok) throw new Error(j.error || `오류 ${res.status}`);
+    columnCache[tab] = j.column;
+    localStorage.setItem(`eco_column_${tab}`, j.column);
+    localStorage.setItem(`eco_column_time_${tab}`, Date.now());
+    renderColumn(tab, j.column, bodyEl);
+  } catch(err) {
+    bodyEl.innerHTML = `<div class="status-card">
+      <div style="font-size:13px;color:var(--red);margin-bottom:12px;">⚠️ ${err.message}</div>
+      <button class="retry-btn" onclick="loadColumnTab()">🔄 다시 시도</button>
+    </div>`;
+  }
+}
 
 async function loadColumn(tab) {
   const body = document.getElementById(`${tab}-column-body`);
@@ -1158,8 +1222,8 @@ async function loadColumn(tab) {
   }
 }
 
-function renderColumn(tab, text) {
-  const body = document.getElementById(`${tab}-column-body`);
+function renderColumn(tab, text, bodyEl) {
+  const body = bodyEl || document.getElementById(`${tab}-column-body`);
   if (!body) return;
 
   // 마크다운 → HTML 변환

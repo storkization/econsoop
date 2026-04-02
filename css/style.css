@@ -735,6 +735,9 @@
       font-size:11px; color:var(--text-dim); font-family:var(--font-mono);
     }
     .drawer-item.active .drawer-arrow { color:var(--accent); }
+    .drawer-item .drawer-premium {
+      font-size:13px; margin-left:auto;
+    }
 
     .drawer-divider {
       height:1px; background:var(--border);

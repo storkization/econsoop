@@ -47,6 +47,9 @@
     <button class="drawer-item" data-drawer-tab="stocks" onclick="drawerNav('stocks')">
       📈 증권 <span class="drawer-arrow">∨</span>
     </button>
+    <button class="drawer-item" data-drawer-tab="column" onclick="drawerNav('column')">
+      📰 칼럼 <span class="drawer-premium">💎</span>
+    </button>
 
     <div class="drawer-divider"></div>
 
@@ -206,6 +209,11 @@
         <div class="fx-updated" id="fx-time"></div>
       </div>
       <div class="fx-grid" id="fx-grid"></div>
+    </div>
+
+    <!-- ▸ 칼럼 -->
+    <div class="tab-panel" id="tab-column">
+      <div id="column-tab-root"></div>
     </div>
 
     <!-- ▸ NEWSROOM -->
