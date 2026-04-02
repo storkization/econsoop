@@ -1,29 +1,6 @@
 /* ═══════════ DEV MODE ═══════════ */
 const DEV_MODE = new URLSearchParams(window.location.search).get('dev') === 'true';
 
-/* ═══════════ CATEGORY CONFIG ═══════════ */
-const CATEGORY_CHIPS = {
-  economy: [
-    { id:'policy',  label:'경제정책', queries:['경제정책 기준금리 한국은행 정부재정'] },
-    { id:'macro',   label:'거시경제', queries:['GDP 성장률 물가 소비자물가 무역수지'] },
-    { id:'fx-news', label:'외환·환율',queries:['원달러 환율 외환시장 달러 강세 약세'] },
-    { id:'welfare', label:'고용·복지',queries:['고용 실업률 임금 복지 노동시장'] },
-  ],
-  industry: [
-    { id:'semi',   label:'반도체·전자',  queries:['반도체 삼성전자 SK하이닉스 AI칩 HBM'] },
-    { id:'auto',   label:'자동차·배터리',queries:['자동차 현대차 기아 배터리 전기차'] },
-    { id:'bio',    label:'바이오·헬스',  queries:['바이오 제약 헬스케어 신약 임상'] },
-    { id:'realty', label:'건설·부동산',  queries:['건설 부동산 아파트 분양 주택'] },
-    { id:'biz',    label:'경영·재계',    queries:['재계 대기업 경영 M&A 실적'] },
-  ],
-  global: [
-    { id:'us',     label:'미국',       queries:['미국 연준 Fed 나스닥 관세 무역'] },
-    { id:'china',  label:'중국',       queries:['중국 경제 위안화 수출 무역분쟁'] },
-    { id:'japan',  label:'일본',       queries:['일본 엔화 닛케이 일본은행'] },
-    { id:'europe', label:'유럽',       queries:['유럽 ECB 유로 독일 영국 파운드'] },
-    { id:'em',     label:'중동·신흥국',queries:['중동 유가 OPEC 인도 신흥국'] },
-  ],
-};
 
 const SUMMARY_QUERIES = {
   economy: ['한국은행 금리', '원달러 환율 외환', '코스피 증시 금융시장', '물가 인플레이션 소비', '수출 무역 경상수지', '가계부채 대출', '경제 오늘 주요뉴스'],
@@ -78,7 +55,6 @@ const CACHE_VERSION = 'v106';
 let newsCache = {};       // key: "economy-policy" 등
 let summaryCache = {};    // key: "economy" | "industry" | "global"
 let currentTab = 'front';
-let currentChip = {};     // key: tab → chip id
 let fxRates = null;
 
 /* ═══════════ INIT ═══════════ */
@@ -232,50 +208,14 @@ function switchTab(id) {
   document.querySelectorAll('.tab-panel').forEach(p => p.classList.toggle('active', p.id==='tab-'+id));
   updateDrawerActive(id);
 
-  const chipsRow = document.getElementById('chips-row');
   const isNewsTab = ['economy','industry','global'].includes(id);
-  chipsRow.style.display = isNewsTab ? 'flex' : 'none';
-
-  if (isNewsTab) {
-    renderChips(id);
-    selectChip(id, currentChip[id] || 'summary');
-  }
+  if (isNewsTab && !summaryCache[id]) genTabSummary(id);
   if (id==='stocks') loadStocks();
   if (id==='fx' && !fxRates) loadFX();
   if (id==='breaking') loadBreaking();
   if (id==='newsroom') renderNewsroom();
 }
 
-/* ═══════════ CHIPS ═══════════ */
-function renderChips(tab) {
-  const chips = CATEGORY_CHIPS[tab];
-  const label = TAB_LABEL[tab];
-  const activeChip = currentChip[tab] || 'summary';
-  const row = document.getElementById('chips-row');
-  row.innerHTML =
-    `<button class="chip ${activeChip==='summary'?'active':''}" onclick="selectChip('${tab}','summary')">${label}종합</button>` +
-    chips.map(c =>
-      `<button class="chip ${c.id===activeChip?'active':''}" onclick="selectChip('${tab}','${c.id}')">${c.label}</button>`
-    ).join('');
-}
-
-function selectChip(tab, chipId) {
-  currentChip[tab] = chipId;
-  renderChips(tab);
-
-  const summaryView = document.getElementById(`${tab}-summary-view`);
-  const subView = document.getElementById(`${tab}-sub-view`);
-
-  if (chipId === 'summary') {
-    summaryView.style.display = 'block';
-    subView.style.display = 'none';
-    if (!summaryCache[tab]) genTabSummary(tab);
-  } else {
-    summaryView.style.display = 'none';
-    subView.style.display = 'block';
-    loadSubNews(tab, chipId);
-  }
-}
 
 /* ═══════════ 종합 생성 ═══════════ */
 const LOADING_MSGS = [
@@ -375,7 +315,7 @@ function setLoadingMsg(tab, phase, count = null) {
     _currentQuiz = QUIZ_LIST[Math.floor(Math.random() * QUIZ_LIST.length)];
   }
 
-  // phase='news' → step 0, phase='ai' → step 1부터 자동 전진
+  // phase='news' → step 0, phase='ai' → step 1부터 자동 전진, phase='fast' → 1초씩 5단계
   if (phase === 'news') {
     _aiStepIndex = 0;
   } else if (phase === 'ai') {
@@ -384,6 +324,12 @@ function setLoadingMsg(tab, phase, count = null) {
     _aiStepTimers.push(setTimeout(() => { _aiStepIndex = 2; renderLoading(); }, 4000));
     _aiStepTimers.push(setTimeout(() => { _aiStepIndex = 3; renderLoading(); }, 10000));
     _aiStepTimers.push(setTimeout(() => { _aiStepIndex = 4; renderLoading(); }, 18000));
+  } else if (phase === 'fast') {
+    _aiStepIndex = 0;
+    // 캐시 히트 시: 1초마다 한 단계씩 (총 5초)
+    [1, 2, 3, 4, 5].forEach(step => {
+      _aiStepTimers.push(setTimeout(() => { _aiStepIndex = step; renderLoading(); }, step * 1000));
+    });
   }
 
   const msgs = shuffled(LOADING_MSGS);
@@ -647,9 +593,13 @@ async function genTabSummary(tab) {
         summaryCache[tab] = result;
         localStorage.setItem(cacheKey, JSON.stringify(result));
         localStorage.setItem(cacheTimeKey, cf.created_at.toString());
-        renderTabSummary(tab, result);
-        updateFrontPreview(tab, result.summary);
-        // 뉴스 목록 백그라운드 로딩 (요약은 이미 표시됨)
+        // 로딩 애니메이션 5초 후 렌더링
+        setLoadingMsg(tab, 'fast');
+        setTimeout(() => {
+          renderTabSummary(tab, result);
+          updateFrontPreview(tab, result.summary);
+        }, 5500);
+        // 뉴스 목록 백그라운드 로딩 (요약 표시 후)
         (async () => {
           const allItems = [];
           for (const q of SUMMARY_QUERIES[tab]) {
@@ -1234,42 +1184,6 @@ function updateFrontPreview(tab, summary) {
 }
 
 /* ═══════════ 서브칩 뉴스 ═══════════ */
-async function loadSubNews(tab, chipId) {
-  const key = `${tab}-${chipId}`;
-  const subNewsEl = document.getElementById(`${tab}-sub-news`);
-
-  if (newsCache[key]) { renderNewsList(newsCache[key], subNewsEl); return; }
-
-  subNewsEl.innerHTML = `<div class="loading-wrap"><div class="dots"><span></span><span></span><span></span></div><p style="margin-top:14px">뉴스 불러오는 중...</p></div>`;
-
-  const chipConfig = CATEGORY_CHIPS[tab].find(c => c.id === chipId);
-  if (!chipConfig) return;
-
-  const allItems = [];
-  const subResults = await fetchInBatches(chipConfig.queries, async q => {
-    try {
-      const r = await fetch(`/api/news?query=${encodeURIComponent(q)}&display=15&type=general`,
-        { signal: (function(){ const c = new AbortController(); setTimeout(()=>c.abort(), 5000); return c.signal; })() });
-      const j = await r.json();
-      return j.items || [];
-    } catch(e) {
-      console.warn("[NEWS FETCH ERROR]", q, e.message);
-      return [];
-    }
-  }, 3, 250);
-  allItems.push(...subResults.flat());
-
-  const skipKw = ['구직','채용','취업','자립준비','희망디딤돌','주요기사','1부','2부'];
-  const seen = new Set();
-  const unique = allItems
-    .filter(it => !skipKw.some(kw => it.title.includes(kw)))
-    .filter(it => { const k=it.title.slice(0,15); if(seen.has(k)) return false; seen.add(k); return true; })
-    .sort((a,b) => new Date(b.date)-new Date(a.date))
-    .slice(0, 25);
-
-  newsCache[key] = unique;
-  renderNewsList(unique, subNewsEl);
-}
 
 function renderNewsList(items, el) {
   if (!items || !items.length) {

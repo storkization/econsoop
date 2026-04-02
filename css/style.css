@@ -239,30 +239,6 @@
     }
     .tab-btn.active:active { transform:translateY(0) scale(0.96); }
 
-    /* ── CHIPS ── */
-    .chips-wrap {
-      background:rgba(26,122,69,0.03); border-bottom:none;
-      padding:10px 14px; display:flex; gap:8px;
-      overflow-x:auto; -webkit-overflow-scrolling:touch;
-      scrollbar-width:none; flex-shrink:0;
-    }
-    .chips-wrap::-webkit-scrollbar { display:none; }
-    .chip {
-      flex-shrink:0; padding:7px 16px; border-radius:20px;
-      border:1px solid rgba(26,122,69,0.12); background:rgba(255,255,255,0.85);
-      color:#4B7A5A;
-      font-family:var(--font-sans);
-      font-size:11px; font-weight:var(--fw-medium);
-      cursor:pointer; white-space:nowrap; transition:all .3s cubic-bezier(0.34,1.02,0.68,0.98);
-      backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px);
-    }
-    .chip:active { transform:scale(0.95); }
-    .chip.active {
-      background:linear-gradient(135deg, #1A7A45, #22914F);
-      border-color:transparent; color:#fff; font-weight:var(--fw-bold);
-      box-shadow:0 2px 10px rgba(26,122,69,0.28), inset 0 1px 0 rgba(255,255,255,0.15);
-      backdrop-filter:none; -webkit-backdrop-filter:none;
-    }
 
     @keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
     @keyframes branchGrow { 0%{transform:scaleX(0);opacity:0} 100%{transform:scaleX(1);opacity:1} }
