@@ -1799,17 +1799,6 @@ async function genTabSummary(tab) {
     renderTabSummary(tab, result);
     updateFrontPreview(tab, result.summary);
 
-    // 2차: ONELINER 백그라운드 호출 (await 안 함)
-    const insightEl = document.getElementById(`${tab}-insight`);
-    if (insightEl) {
-      insightEl.innerHTML = `
-        <div class="insight-section-label">💡 쓰리포인트 요약 by Shawn</div>
-        <div style="background:#F7FBF8;border-radius:14px;padding:20px;text-align:center;">
-          <div class="dots" style="margin-bottom:10px;"><span></span><span></span><span></span></div>
-          <div style="font-size:12px;color:var(--text-muted);">인사이트 분석 중...</div>
-        </div>`;
-    }
-    fetchInsight(tab, result.summary, result.footnotes, label, unique);
 
   } catch(err) {
     console.error('[BRIEFING ERROR]', err.message, err);
@@ -1907,140 +1896,74 @@ function renderTabSummary(tab, result) {
       .replace(/^---+\s*/gm, '')
       .replace(/\[\/?(SUMMARY|ONELINER|FOOTNOTES|BRIEFING)\]/g, '')
       .trim();
-    const m1 = summaryClean.match(/줄1:\s*(.+?)(?=\s*줄2:|$)/s);
-    const m2 = summaryClean.match(/줄2:\s*(.+?)(?=\s*줄3:|$)/s);
-    const m3 = summaryClean.match(/줄3:\s*(.+?)(?=\s*\[|배경\(상황\)|$)/s);
-    const lines = [m1, m2, m3].map(m => m ? m[1].trim() : null).filter(Boolean);
-    
-    // 본문에 ※ 각주가 인라인으로 붙어있는 경우 분리
-    const inlineFootnotes = { 1: [], 2: [], 3: [] };
-    const cleanedLines = lines.map((line, i) => {
-      const fnIdx = line.indexOf('※');
-      if (fnIdx > 0 && line.slice(fnIdx).includes('—')) {
-        const body = line.slice(0, fnIdx).trim();
-        const fnPart = line.slice(fnIdx);
-        // ※ 여러 개일 수 있음
-        fnPart.split(/(?=※)/).filter(s => s.trim()).forEach(fn => {
-          inlineFootnotes[i + 1].push(fn.trim());
-        });
-        return body;
-      }
-      return line;
+    // 포인트1/2/3/4 파싱
+    const m1 = summaryClean.match(/포인트1:\s*(.+?)(?=\s*포인트2:|$)/s);
+    const m2 = summaryClean.match(/포인트2:\s*(.+?)(?=\s*포인트3:|$)/s);
+    const m3 = summaryClean.match(/포인트3:\s*(.+?)(?=\s*포인트4:|$)/s);
+    const m4 = summaryClean.match(/포인트4:\s*(.+?)(?=\s*\[|$)/s);
+    const lines = [m1, m2, m3, m4].map(m => m ? m[1].trim() : null).filter(Boolean);
+
+    // 각주 파싱
+    const footnotesRaw = (result.footnotes || '').replace(/\*\*/g, '').replace(/^#+\s*/gm, '');
+    const fnMap = { 1: [], 2: [], 3: [], 4: [] };
+    let lastFnLine = null;
+    footnotesRaw.split('\n').forEach(l => {
+      const m = l.match(/포인트([1234]):\s*(.*)/);
+      if (m) { lastFnLine = Number(m[1]); if (m[2].trim()) fnMap[lastFnLine].push(m[2].trim()); }
+      else if (lastFnLine && l.trim().startsWith('※')) fnMap[lastFnLine].push(l.trim());
     });
-    console.log('[PARSED LINES]', cleanedLines);
 
-    // 패턴 매칭 실패 시 한국어 문장 끝으로 분리 폴백
-    const finalLines = cleanedLines.length >= 2 ? cleanedLines :
-      summaryClean
-        .split(/(?<=다\.|했다\.|이다\.)\s+/)
-        .map(l => l.replace(/^줄\d+:\s*/, '').trim())
-        .filter(l => l.length > 10)
-        .slice(0, 3);
-
-    const tags = [
-      { cls:'tag-issue',  label:'핵심 이슈',   lineColor:'linear-gradient(180deg, #1A7A45, transparent)' },
-      { cls:'tag-market', label:'시장 흐름',   lineColor:'linear-gradient(180deg, #3730A3, transparent)' },
-      { cls:'tag-invest', label:'투자 포인트', lineColor:'linear-gradient(180deg, #B45309, transparent)' },
-    ];
-
-    // 날짜/시간 + 스케줄 기준 표시
+    // 날짜/시간
     const t = localStorage.getItem(`eco_summary_time_${tab}`);
     const d = t ? new Date(Number(t)) : new Date();
-    const schedules = [730, 1130, 1400, 1630, 2000, 2230];
-    const scheduleLabels = { 730:'07:30', 1130:'11:30', 1400:'14:00', 1630:'16:30', 2000:'20:00', 2230:'22:30' };
-    const kst = new Date(d.toLocaleString('en-US', { timeZone: 'Asia/Seoul' }));
-    const hm = kst.getHours() * 100 + kst.getMinutes();
+    const schedules = [730,1130,1400,1630,2000,2230];
+    const scheduleLabels = {730:'07:30',1130:'11:30',1400:'14:00',1630:'16:30',2000:'20:00',2230:'22:30'};
+    const kst = new Date(d.toLocaleString('en-US',{timeZone:'Asia/Seoul'}));
+    const hm = kst.getHours()*100+kst.getMinutes();
     let slotHm = null;
     for (const s of schedules) { if (hm >= s) slotHm = s; }
     const slotLabel = slotHm ? scheduleLabels[slotHm] : null;
     const dateStr = `${d.getMonth()+1}월 ${d.getDate()}일 · ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')} 기준`;
     const slotBadge = slotLabel
-      ? `<span style="margin-left:8px;font-family:var(--font-mono);font-size:9px;font-weight:700;color:#fff;background:#1A7A45;padding:2px 7px;border-radius:10px;letter-spacing:0.5px;">${slotLabel} 브리핑</span>`
+      ? `<span style="font-family:var(--font-mono);font-size:9px;font-weight:700;color:#fff;background:#1A7A45;padding:2px 7px;border-radius:10px;letter-spacing:0.5px;">${slotLabel} 브리핑</span>`
       : '';
-    const tabLabel = TAB_LABEL[tab];
 
-    // footnotes 줄별 파싱 — carry-forward 방식 (줄당 각주 2개 이상 지원)
-    const footnotesRaw = (result.footnotes || '').replace(/\*\*/g, '').replace(/^#+\s*/gm, '').replace(/^---+\s*/gm, '');
-    const fnMap = { 1: [], 2: [], 3: [] };
-    let lastFnLine = null;
-    footnotesRaw.split('\n').forEach(line => {
-      const m = line.match(/줄([123]):\s*(.*)/);
-      if (m) {
-        lastFnLine = Number(m[1]);
-        if (m[2].trim()) fnMap[lastFnLine].push(m[2].trim());
-      } else if (lastFnLine && line.trim().startsWith('※')) {
-        fnMap[lastFnLine].push(line.trim());
-      }
-    });
-    // 본문에서 분리된 인라인 각주 병합
-    [1,2,3].forEach(i => {
-      if (inlineFootnotes[i]) fnMap[i].push(...inlineFootnotes[i]);
-    });
-
-    // 용어 밑줄 헬퍼
-    function underlineTerms(text, fns) {
-      if (!fns.length) return text;
-      let result = text;
-      fns.forEach(fn => {
-        const raw = fn.split('—')[0].replace(/^※\s*/, '').trim();
-        if (!raw) return;
-        // 괄호 앞 핵심어만 추출 (예: "ECB(유럽중앙은행)" → "ECB")
-        const core = raw.split(/[(\[（【]/)[0].trim();
-        if (!core) return;
-        const escaped = core.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-        result = result.replace(
-          new RegExp(escaped, 'g'),
-          `<span style="text-decoration:underline;text-decoration-color:#1A7A45;text-underline-offset:3px;font-weight:600;">${core}</span>`
-        );
-      });
-      return result;
-    }
+    // 4포인트 그라데이션 카드
+    const CARDS = [
+      { label:'핵심 이슈', color:'#1A7A45', bg:'linear-gradient(135deg,#E8F5EE 0%,#F5FEFF 100%)', shadow:'rgba(26,122,69,0.10)' },
+      { label:'배경',      color:'#6B21A8', bg:'linear-gradient(135deg,#F3E8FF 0%,#FDF5FF 100%)', shadow:'rgba(107,33,168,0.08)' },
+      { label:'시장 영향', color:'#1D4ED8', bg:'linear-gradient(135deg,#EFF6FF 0%,#F0F8FF 100%)', shadow:'rgba(29,78,216,0.08)' },
+      { label:'투자 전략', color:'#B45309', bg:'linear-gradient(135deg,#FEF9EC 0%,#FFFDF5 100%)', shadow:'rgba(180,83,9,0.08)' },
+    ];
 
     card.innerHTML = `
-      <div class="summary-report-header">
-        <div class="summary-report-eyebrow">Shawn Kim's Daily Briefing</div>
-        <div class="summary-report-title">오늘의 <em>${tabLabel}</em></div>
-        <div class="summary-report-date">${dateStr}${slotBadge}</div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:6px;">
+        <div>
+          <div style="font-family:var(--font-serif);font-size:14px;font-weight:900;color:var(--text);letter-spacing:-0.3px;">Shawn Kim's Daily Briefing</div>
+          <div style="font-size:10px;color:var(--text-muted);margin-top:2px;font-family:var(--font-mono);">${dateStr}</div>
+        </div>
+        ${slotBadge}
       </div>
-      ${finalLines.map((line, i) => {
-        // 마크다운 잔재 제거
-        const cleaned = line
-          .replace(/\*\*/g, '')
-          .replace(/^---+\s*#*\s*/gm, '')
-          .replace(/#+\s/g, '')
-          .trim();
-        const fns = fnMap[i + 1] || [];
-        const isBullet = cleaned.includes('•');
-        const lineContent = isBullet
-          ? '<ul style="list-style:none;padding:0;margin:0;">' +
-            cleaned.split(/•/).map(l => l.trim()).filter(l => l.length > 0).map(l =>
-              `<li style="display:flex;gap:8px;margin-bottom:6px;"><span style="color:#111827;font-weight:700;flex-shrink:0;">•</span><span>${underlineTerms(l, fns)}</span></li>`
-            ).join('') + '</ul>'
-          : underlineTerms(cleaned, fns);
-        const fnHtml = fns.length
-          ? fns.map(fn => {
-              const parts = fn.split('—');
-              if (parts.length >= 2) {
-                const term = parts[0].replace(/^※\s*/, '').trim();
-                const desc = parts.slice(1).join('—').trim();
-                return `<div class="summary-footnote"><div class="summary-footnote-line" style="background:${tags[i] ? tags[i].lineColor : 'linear-gradient(180deg,#999,transparent)'};"></div><div class="summary-footnote-body"><span style="font-weight:700;color:#374151;">※</span> <span style="font-weight:600;color:#374151;">${term}</span> — ${desc}</div></div>`;
-              }
-              return `<div class="summary-footnote"><div class="summary-footnote-line" style="background:${tags[i] ? tags[i].lineColor : 'linear-gradient(180deg,#999,transparent)'};"></div><div class="summary-footnote-body">${fn}</div></div>`;
-            }).join('')
-          : '';
-        return `
-        <div class="summary-line-wrap">
-          <div class="summary-line-tag ${tags[i] ? tags[i].cls : 'tag-issue'}"><span style="width:5px;height:5px;border-radius:50%;background:rgba(255,255,255,0.45);flex-shrink:0;"></span>${tags[i] ? tags[i].label : ''}</div>
-          <div class="summary-line-text">${lineContent}</div>
+      ${lines.map((line, i) => {
+        const cfg = CARDS[i] || CARDS[0];
+        const fns = fnMap[i+1] || [];
+        const cleaned = line.replace(/\*\*/g,'').replace(/#+\s/g,'').trim();
+        const fnHtml = fns.length ? fns.map(fn => {
+          const parts = fn.split('—');
+          if (parts.length >= 2) {
+            const term = parts[0].replace(/^※\s*/,'').trim();
+            const desc = parts.slice(1).join('—').trim();
+            return `<div style="margin-top:10px;padding:8px 12px;background:rgba(255,255,255,0.65);border-radius:10px;font-size:11px;color:#6B7280;line-height:1.6;"><span style="font-weight:700;color:${cfg.color};">※ ${term}</span> — ${desc}</div>`;
+          }
+          return '';
+        }).join('') : '';
+        return `<div style="background:${cfg.bg};border-radius:20px;padding:18px 18px 16px;margin-bottom:10px;box-shadow:0 4px 20px ${cfg.shadow};">
+          <div style="display:inline-flex;align-items:center;gap:5px;background:${cfg.color};color:#fff;padding:4px 12px;border-radius:8px;font-size:11px;font-weight:700;margin-bottom:12px;letter-spacing:-0.1px;">${cfg.label}</div>
+          <div style="font-size:14px;line-height:1.85;color:#1F2937;font-family:var(--font-sans);">${cleaned}</div>
           ${fnHtml}
         </div>`;
       }).join('')}
     `;
-  }
-
-  // Shawn's Insight — oneliner가 있으면 바로 렌더, 없으면 (2차 호출 대기 중) 스킵
-  if (result.oneliner) {
-    renderInsightSection(tab, result.oneliner);
   }
 
   // 칼럼 펼치기 버튼
