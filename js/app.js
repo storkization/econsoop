@@ -566,15 +566,18 @@ async function genTabSummary(tab) {
   const cached = localStorage.getItem(cacheKey);
   const cachedTime = localStorage.getItem(cacheTimeKey);
 
-  // 스케줄 기반 캐시 체크 (08:30 / 11:30 / 16:00 / 22:30 KST)
+  // 스케줄 기반 캐시 체크 (07:00 / 17:00 KST)
   if (cached && cachedTime) {
     const lastSchedule = getLastScheduleTime();
     if (Number(cachedTime) >= lastSchedule) {
       const parsed = JSON.parse(cached);
       if (parsed.summary) {
         summaryCache[tab] = parsed;
-        renderTabSummary(tab, summaryCache[tab]);
-        updateFrontPreview(tab, parsed.summary);
+        setLoadingMsg(tab, 'fast');
+        setTimeout(() => {
+          renderTabSummary(tab, summaryCache[tab]);
+          updateFrontPreview(tab, parsed.summary);
+        }, 5500);
         return;
       }
     }
