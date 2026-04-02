@@ -53,7 +53,7 @@
     <div class="drawer-section-label">Econ.SOOP ∧</div>
     <button class="drawer-sub-item" data-drawer-tab="front" onclick="drawerNav('front')">서비스 소개</button>
     <button class="drawer-sub-item" data-drawer-tab="newsroom" onclick="drawerNav('newsroom')">뉴스룸</button>
-    <button class="drawer-sub-item" onclick="closeDrawer(); alert('구독 기능은 준비 중입니다. 곧 만나요! 🌱')">구독하기</button>
+    <button class="drawer-sub-item" data-drawer-tab="subscribe" onclick="drawerNav('subscribe')">구독하기</button>
     <button class="drawer-sub-item" data-drawer-tab="settings" onclick="drawerNav('settings')">설정</button>
   </nav>
 </div>
@@ -368,8 +368,11 @@
         </div>
       </div>
 
-      <!-- 후원 안내 -->
-      <div style="margin:8px 0 0;padding:0 0 40px;">
+    </div>
+
+    <!-- ▸ SUBSCRIBE -->
+    <div class="tab-panel" id="tab-subscribe">
+      <div style="padding:24px 16px 40px;">
         <div style="background:linear-gradient(145deg,#0D3320 0%,#1A5C35 50%,#164A2E 100%);border-radius:14px;padding:28px 22px;box-shadow:0 4px 20px rgba(13,51,32,0.2);">
           <div style="font-size:22px;margin-bottom:12px;">🌲</div>
           <div style="font-family:var(--font-serif);font-size:16px;font-weight:900;color:#fff;line-height:1.5;letter-spacing:-0.3px;margin-bottom:16px;">
