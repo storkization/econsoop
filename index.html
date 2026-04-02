@@ -1126,7 +1126,7 @@ const FX_LIST = [
 const TAB_LABEL = { economy:'경제', industry:'산업', global:'국제' };
 
 /* ═══════════ CACHE VERSION ═══════════ */
-const CACHE_VERSION = 'v103';
+const CACHE_VERSION = 'v104';
 (function clearOldCache() {
   const savedVersion = localStorage.getItem('eco_cache_version');
   if (savedVersion !== CACHE_VERSION) {
@@ -1700,6 +1700,50 @@ async function genTabSummary(tab) {
   }
 
   const label = TAB_LABEL[tab];
+
+  // Firestore 프리젠 캐시 체크 (크론이 07:00/16:00/20:00 KST에 미리 생성)
+  try {
+    const cfRes = await fetch(`/api/cached?tab=${tab}`);
+    if (cfRes.ok) {
+      const cf = await cfRes.json();
+      if (cf.fresh && cf.summary) {
+        console.log(`[CACHED] ${tab} 프리젠 데이터 사용 (created_at: ${new Date(cf.created_at).toLocaleTimeString()})`);
+        const result = { summary: cf.summary, oneliner: '', footnotes: cf.footnotes || '', topNews: [] };
+        summaryCache[tab] = result;
+        localStorage.setItem(cacheKey, JSON.stringify(result));
+        localStorage.setItem(cacheTimeKey, cf.created_at.toString());
+        renderTabSummary(tab, result);
+        updateFrontPreview(tab, result.summary);
+        // 뉴스 목록 백그라운드 로딩 (요약은 이미 표시됨)
+        (async () => {
+          const allItems = [];
+          for (const q of SUMMARY_QUERIES[tab]) {
+            try {
+              const r = await fetch(`/api/news?query=${encodeURIComponent(q)}&display=7`);
+              const j = await r.json();
+              if (j.items) allItems.push(...j.items);
+            } catch(e) {}
+          }
+          const seen2 = new Set();
+          const skipKw2 = ['구직','채용','취업','자립준비','희망디딤돌','주요기사'];
+          const unique2 = allItems
+            .filter(it => !skipKw2.some(kw => it.title.includes(kw)))
+            .filter(it => { const k = it.title.slice(0,15); if(seen2.has(k)) return false; seen2.add(k); return true; })
+            .slice(0, 15);
+          if (unique2.length) {
+            result.topNews = unique2;
+            newsCache[`${tab}-summary`] = unique2;
+            summaryCache[tab] = result;
+            localStorage.setItem(cacheKey, JSON.stringify(result));
+            renderTabSummary(tab, result);
+          }
+        })();
+        return;
+      }
+    }
+  } catch(e) {
+    console.log('[CACHED] Firestore 미사용, 직접 생성:', e.message);
+  }
 
   // 뉴스 수집 — 병렬 fetch (순차 시 최대 56초 → 병렬로 5초 이내)
   setLoadingMsg(tab, 'news');
