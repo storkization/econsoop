@@ -57,6 +57,15 @@ ${headlineText}
 최소 2문장, 최대 3문장.
 [/POINT1]
 
+[HEADING2]
+배경(왜 지금?) 섹션의 제목. 독자가 "어? 이게 왜지?" 하고 멈추게 만들 것.
+이모티콘 1개. 25자 이내. 예시: "🕰️ 3년 전부터 예고된 시한폭탄", "🌐 미국발 도미노, 한국이 첫 번째 도미노"
+[/HEADING2]
+
+[SUBHEADING2]
+HEADING2 아래 부연 한 줄. 구조적 원인을 한 문장으로. 30자 이내.
+[/SUBHEADING2]
+
 [POINT2]
 왜 지금 이 타이밍에 이런 일이 생겼는지.
 POINT1 내용 절대 반복 금지 — 독자는 이미 읽었다.
@@ -64,12 +73,30 @@ POINT1 내용 절대 반복 금지 — 독자는 이미 읽었다.
 최소 2문장, 최대 3문장.
 [/POINT2]
 
+[HEADING3]
+시장 영향 섹션의 제목. "내 돈이 어떻게 되는 거야?"라는 공포심 또는 기대감을 자극할 것.
+이모티콘 1개. 25자 이내. 예시: "📉 주식·부동산 동시 충격 오나?", "💸 환율 1,500원 시대, 이미 시작됐다"
+[/HEADING3]
+
+[SUBHEADING3]
+HEADING3 아래 부연 한 줄. 파급 흐름 핵심을 한 문장으로. 30자 이내.
+[/SUBHEADING3]
+
 [POINT3]
 즉각적인 시장 반응에서 시작해 2차·3차 파급 효과까지.
 주가·환율·채권의 직접 반응뿐 아니라, 다른 섹터·자산군·실물경제로 어떻게 번지는지 흐름을 짚어줄 것.
 POINT1·2 반복 금지.
 최소 2문장, 최대 3문장.
 [/POINT3]
+
+[HEADING4]
+투자 전략 섹션의 제목. "그래서 나는 뭘 해야 하지?"라는 실행 욕구를 자극할 것.
+이모티콘 1개. 25자 이내. 예시: "🎯 지금 당장 확인해야 할 딱 한 가지", "⚡ 이 시나리오면 전략을 바꿔야 한다"
+[/HEADING4]
+
+[SUBHEADING4]
+HEADING4 아래 부연 한 줄. 핵심 판단 기준을 한 문장으로. 30자 이내.
+[/SUBHEADING4]
 
 [POINT4]
 지금 투자자가 실제로 어디를 봐야 하는지.
@@ -123,11 +150,16 @@ POINT1·2·3 반복 금지.
     const fullText = data.content?.[0]?.text || '';
     console.log('[BRIEFING] fullText 길이:', fullText.length);
 
-    // Headline / Subheading 파싱
-    const headlineMatch = fullText.match(/\[HEADLINE\]([\s\S]*?)\[\/HEADLINE\]/);
-    const subheadingMatch = fullText.match(/\[SUBHEADING\]([\s\S]*?)\[\/SUBHEADING\]/);
-    const headline = headlineMatch ? headlineMatch[1].trim() : '';
-    const subheading = subheadingMatch ? subheadingMatch[1].trim() : '';
+    // 각 카드 헤딩/서브헤딩 파싱
+    const parse = (tag) => { const m = fullText.match(new RegExp(`\\[${tag}\\]([\\s\\S]*?)\\[\\/${tag}\\]`)); return m ? m[1].trim() : ''; };
+    const headline    = parse('HEADLINE');
+    const subheading  = parse('SUBHEADING');
+    const heading2    = parse('HEADING2');
+    const subheading2 = parse('SUBHEADING2');
+    const heading3    = parse('HEADING3');
+    const subheading3 = parse('SUBHEADING3');
+    const heading4    = parse('HEADING4');
+    const subheading4 = parse('SUBHEADING4');
 
     // 포인트 파싱
     const extractPoint = (n) => {
@@ -162,7 +194,7 @@ POINT1·2·3 반복 금지.
       console.error('[BRIEFING] 파싱 실패! fullText 앞 500자:', fullText.slice(0, 500));
     }
 
-    res.status(200).json({ summary, footnotes, headline, subheading, columnHook });
+    res.status(200).json({ summary, footnotes, headline, subheading, heading2, subheading2, heading3, subheading3, heading4, subheading4, columnHook });
 
   } catch (err) {
     res.status(500).json({ error: err.message });

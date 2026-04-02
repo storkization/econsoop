@@ -36,7 +36,7 @@ const FX_LIST = [
 const TAB_LABEL = { economy:'경제', industry:'산업', global:'국제' };
 
 /* ═══════════ CACHE VERSION ═══════════ */
-const CACHE_VERSION = 'v109';
+const CACHE_VERSION = 'v110';
 (function clearOldCache() {
   const savedVersion = localStorage.getItem('eco_cache_version');
   if (savedVersion !== CACHE_VERSION) {
@@ -593,7 +593,7 @@ async function genTabSummary(tab) {
       const cf = await cfRes.json();
       if (cf.fresh && cf.summary) {
         console.log(`[CACHED] ${tab} 프리젠 데이터 사용 (created_at: ${new Date(cf.created_at).toLocaleTimeString()})`);
-        const result = { summary: cf.summary, oneliner: '', footnotes: cf.footnotes || '', headline: cf.headline || '', subheading: cf.subheading || '', columnHook: cf.columnHook || '', topNews: [] };
+        const result = { summary: cf.summary, oneliner: '', footnotes: cf.footnotes || '', headline: cf.headline || '', subheading: cf.subheading || '', heading2: cf.heading2 || '', subheading2: cf.subheading2 || '', heading3: cf.heading3 || '', subheading3: cf.subheading3 || '', heading4: cf.heading4 || '', subheading4: cf.subheading4 || '', columnHook: cf.columnHook || '', topNews: [] };
         summaryCache[tab] = result;
         localStorage.setItem(cacheKey, JSON.stringify(result));
         localStorage.setItem(cacheTimeKey, cf.created_at.toString());
@@ -714,8 +714,10 @@ async function genTabSummary(tab) {
       summary: j.summary || '',
       oneliner: '',
       footnotes: j.footnotes || '',
-      headline: j.headline || '',
-      subheading: j.subheading || '',
+      headline: j.headline || '', subheading: j.subheading || '',
+      heading2: j.heading2 || '', subheading2: j.subheading2 || '',
+      heading3: j.heading3 || '', subheading3: j.subheading3 || '',
+      heading4: j.heading4 || '', subheading4: j.subheading4 || '',
       columnHook: j.columnHook || '',
       topNews: unique.slice(0, 15),
     };
@@ -914,9 +916,16 @@ function renderTabSummary(tab, result) {
           }
           return '';
         }).join('') : '';
-        const headlinePart = (i === 0 && result.headline) ? `
-          <div style="font-size:20px;font-weight:900;color:#111;line-height:1.35;margin-bottom:5px;font-family:var(--font-sans);">${result.headline}</div>
-          ${result.subheading ? `<div style="font-size:13px;color:#555;line-height:1.5;margin-bottom:12px;font-family:var(--font-sans);">${result.subheading}</div>` : ''}
+        const headings = [
+          { h: result.headline,  s: result.subheading  },
+          { h: result.heading2,  s: result.subheading2 },
+          { h: result.heading3,  s: result.subheading3 },
+          { h: result.heading4,  s: result.subheading4 },
+        ];
+        const hd = headings[i] || {};
+        const headlinePart = hd.h ? `
+          <div style="font-size:18px;font-weight:900;color:#111;line-height:1.35;margin-bottom:5px;font-family:var(--font-sans);letter-spacing:-0.3px;">${hd.h}</div>
+          ${hd.s ? `<div style="font-size:12px;font-weight:700;color:${cfg.color};line-height:1.5;margin-bottom:12px;font-family:var(--font-sans);">${hd.s}</div>` : ''}
         ` : '';
         return `<div style="background:${cfg.bg};border-radius:20px;padding:18px 18px 16px;margin-bottom:10px;box-shadow:0 4px 20px ${cfg.shadow};">
           <div style="display:inline-flex;align-items:center;gap:5px;background:${cfg.color};color:#fff;padding:4px 12px;border-radius:8px;font-size:11px;font-weight:700;margin-bottom:12px;letter-spacing:-0.1px;">${cfg.label}</div>
