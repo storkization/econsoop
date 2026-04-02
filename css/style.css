@@ -115,7 +115,7 @@
 
     /* ── HEADER ── */
     .header {
-      padding: calc(env(safe-area-inset-top, 44px) + 10px) 20px 12px;
+      padding: calc(env(safe-area-inset-top, 44px) + 4px) 20px 8px;
       background: linear-gradient(180deg, #FFFFFF 0%, #F5FAF7 60%, #EDF5F0 100%);
       border-bottom:none;
       flex-shrink:0;
@@ -145,19 +145,20 @@
     .header-top { display:flex; justify-content:space-between; align-items:flex-end; position:relative; z-index:1; }
     .app-logo {
       font-family:var(--font-serif);
-      font-size:30px; font-weight:var(--fw-black);
+      font-size:26px; font-weight:var(--fw-black);
       letter-spacing:-0.5px; color:var(--text);
       transition: font-size 0.3s ease;
+      display:flex; flex-direction:column; gap:1px;
     }
-    .header.shrunk .app-logo { font-size:22px; }
-    .app-logo em { color:var(--accent); font-style:normal; text-shadow:0 1px 8px rgba(26,122,69,0.15); }
+    .header.shrunk .app-logo { font-size:20px; }
+    .app-logo em { color:var(--accent); font-style:normal; }
     .app-logo span {
-      color:var(--text-muted); font-size:13px;
-      font-family:var(--font-sans); font-weight:var(--fw-semi);
-      letter-spacing:-0.2px; margin-left:5px; vertical-align:middle;
+      color:var(--text-dim); font-size:8.5px;
+      font-family:var(--font-mono); font-weight:600;
+      letter-spacing:1.8px;
       transition: font-size 0.3s ease;
     }
-    .header.shrunk .app-logo span { font-size:11px; }
+    .header.shrunk .app-logo span { font-size:7px; }
     .header-right { text-align:right; }
     .header-date {
       font-family:var(--font-mono);
