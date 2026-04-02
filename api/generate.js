@@ -1,46 +1,14 @@
-import crypto from 'crypto';
+import admin from 'firebase-admin';
 
-// ── Firebase 인증 ──────────────────────────────────────────
-async function getFirebaseToken(sa) {
-  const now = Math.floor(Date.now() / 1000);
-  const header  = Buffer.from(JSON.stringify({ alg: 'RS256', typ: 'JWT' })).toString('base64url');
-  const payload = Buffer.from(JSON.stringify({
-    iss: sa.client_email,
-    scope: 'https://www.googleapis.com/auth/datastore',
-    aud: 'https://oauth2.googleapis.com/token',
-    exp: now + 3600,
-    iat: now,
-  })).toString('base64url');
-  const unsigned = `${header}.${payload}`;
-  const sign = crypto.createSign('RSA-SHA256');
-  sign.update(unsigned);
-  const sig = sign.sign(sa.private_key, 'base64url');
-  const jwt = `${unsigned}.${sig}`;
-
-  const r = await fetch('https://oauth2.googleapis.com/token', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: `grant_type=urn%3Aietf%3Aparams%3Aoauth%3Agrant-type%3Ajwt-bearer&assertion=${jwt}`,
+// ── Firebase Admin 초기화 (중복 방지) ──────────────────────
+if (!admin.apps.length) {
+  admin.initializeApp({
+    credential: admin.credential.cert(
+      JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT)
+    ),
   });
-  const d = await r.json();
-  if (!d.access_token) throw new Error('Firebase token 발급 실패: ' + JSON.stringify(d));
-  return d.access_token;
 }
-
-// ── Firestore 쓰기 ─────────────────────────────────────────
-async function firestoreWrite(projectId, docPath, fields, token) {
-  const url = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/${docPath}`;
-  const r = await fetch(url, {
-    method: 'PATCH',
-    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-    body: JSON.stringify({
-      fields: Object.fromEntries(
-        Object.entries(fields).map(([k, v]) => [k, { stringValue: String(v) }])
-      ),
-    }),
-  });
-  if (!r.ok) throw new Error(`Firestore 쓰기 실패: ${await r.text()}`);
-}
+const db = admin.firestore();
 
 // ── 탭 설정 ────────────────────────────────────────────────
 const SUMMARY_QUERIES = {
@@ -52,16 +20,12 @@ const TAB_LABEL = { economy: '경제', industry: '산업', global: '국제' };
 
 // ── 메인 핸들러 ────────────────────────────────────────────
 export default async function handler(req, res) {
-  // Vercel Cron은 자동으로 Authorization: Bearer CRON_SECRET 헤더를 붙임
   const auth = req.headers['authorization'];
   if (!process.env.CRON_SECRET || auth !== `Bearer ${process.env.CRON_SECRET}`) {
     return res.status(401).json({ error: 'Unauthorized' });
   }
 
-  const sa = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
-  const token = await getFirebaseToken(sa);
   const host = req.headers.host;
-
   const results = [];
 
   for (const tab of ['economy', 'industry', 'global']) {
@@ -100,12 +64,12 @@ export default async function handler(req, res) {
       const { summary, footnotes } = await briefingRes.json();
       if (!summary) throw new Error('브리핑 파싱 실패');
 
-      // 3. Firestore 저장
-      await firestoreWrite(sa.project_id, `briefings/${tab}`, {
+      // 3. Firestore 저장 (Admin SDK — 보안 규칙 우회)
+      await db.collection('briefings').doc(tab).set({
         summary,
         footnotes: footnotes || '',
-        created_at: Date.now().toString(),
-      }, token);
+        created_at: Date.now(),
+      });
 
       results.push({ tab, ok: true, len: summary.length });
       console.log(`[GENERATE] ${tab} 완료 (${summary.length}자)`);
