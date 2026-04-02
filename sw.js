@@ -1,5 +1,10 @@
-const CACHE = 'econsoop-v20';
-const ASSETS = ['./manifest.json'];
+const CACHE = 'econsoop-v21';
+const ASSETS = [
+  './manifest.json',
+  './css/style.css',
+  './js/app.js',
+  './js/newsroom.js',
+];
 
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS)));
