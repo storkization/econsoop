@@ -79,25 +79,32 @@ export default async function handler(req, res) {
       };
       await db.collection('briefings').doc(tab).set(briefingData);
 
-      // 4. 아카이브 저장 (날짜별 누적)
+      // 4. 아카이브 저장 (예약 슬롯 시간에만 — 07:00±15분, 17:00±15분)
       try {
         const kst = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Seoul' }));
-        const dateStr = String(kst.getFullYear()) +
-          String(kst.getMonth() + 1).padStart(2, '0') +
-          String(kst.getDate()).padStart(2, '0');
-        const timeStr = String(kst.getHours()).padStart(2, '0') +
-          String(kst.getMinutes()).padStart(2, '0');
-        const archiveId = `${tab}_${dateStr}_${timeStr}`;
-        const month = `${kst.getFullYear()}-${String(kst.getMonth() + 1).padStart(2, '0')}`;
-        await db.collection('archive').doc(archiveId).set({
-          ...briefingData,
-          tab,
-          date: dateStr,
-          slot: `${timeStr.slice(0, 2)}:${timeStr.slice(2)}`,
-          month,
-          year: String(kst.getFullYear()),
-        });
-        console.log(`[GENERATE] ${tab} 아카이브 저장: ${archiveId}`);
+        const hm = kst.getHours() * 100 + kst.getMinutes();
+        const SLOTS = [{ hm: 700, label: '0700' }, { hm: 1700, label: '1700' }];
+        const matchedSlot = SLOTS.find(s => Math.abs(hm - s.hm) <= 15);
+
+        if (matchedSlot) {
+          const dateStr = String(kst.getFullYear()) +
+            String(kst.getMonth() + 1).padStart(2, '0') +
+            String(kst.getDate()).padStart(2, '0');
+          const archiveId = `${tab}_${dateStr}_${matchedSlot.label}`;
+          const month = `${kst.getFullYear()}-${String(kst.getMonth() + 1).padStart(2, '0')}`;
+          const slotDisplay = `${matchedSlot.label.slice(0, 2)}:${matchedSlot.label.slice(2)}`;
+          await db.collection('archive').doc(archiveId).set({
+            ...briefingData,
+            tab,
+            date: dateStr,
+            slot: slotDisplay,
+            month,
+            year: String(kst.getFullYear()),
+          });
+          console.log(`[GENERATE] ${tab} 아카이브 저장: ${archiveId}`);
+        } else {
+          console.log(`[GENERATE] ${tab} 아카이브 건너뜀 (슬롯 외 시간: ${hm})`);
+        }
       } catch (archiveErr) {
         console.error(`[GENERATE] ${tab} 아카이브 저장 실패:`, archiveErr.message);
       }
