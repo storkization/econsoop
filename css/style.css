@@ -96,13 +96,14 @@
     .header::after { display:none; }
     .header.shrunk { padding-top: calc(env(safe-area-inset-top, 44px) + 6px); padding-bottom:10px; }
     .header-top { display:flex; justify-content:space-between; align-items:center; position:relative; z-index:1; }
+    .header-left { display:flex; align-items:center; gap:6px; }
     .app-logo {
-      font-family: var(--font-display);
-      display:flex; flex-direction:column; gap:3px;
+      font-family: var(--font-sans);
+      display:flex; flex-direction:column; gap:1px;
     }
     .logo-kr {
-      font-size:26px; font-weight:900;
-      letter-spacing:-1px; color:#FFFFFF;
+      font-size:22px; font-weight:800;
+      letter-spacing:-0.5px; color:#FFFFFF;
       transition: all 0.3s ease;
       overflow:hidden; max-height:40px; opacity:1;
     }

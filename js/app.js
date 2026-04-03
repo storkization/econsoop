@@ -36,7 +36,7 @@ const FX_LIST = [
 const TAB_LABEL = { economy:'경제', industry:'산업', global:'국제' };
 
 /* ═══════════ CACHE VERSION ═══════════ */
-const CACHE_VERSION = 'v113';
+const CACHE_VERSION = 'v114';
 (function clearOldCache() {
   const savedVersion = localStorage.getItem('eco_cache_version');
   if (savedVersion !== CACHE_VERSION) {
