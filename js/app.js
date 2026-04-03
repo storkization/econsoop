@@ -44,7 +44,7 @@ const TAB_COLORS = {
 };
 
 /* ═══════════ CACHE VERSION ═══════════ */
-const CACHE_VERSION = 'v127';
+const CACHE_VERSION = 'v128';
 (function clearOldCache() {
   const savedVersion = localStorage.getItem('eco_cache_version');
   if (savedVersion !== CACHE_VERSION) {
@@ -944,13 +944,13 @@ function renderTabSummary(tab, result) {
         ];
         const hd = headings[i] || {};
         const headlinePart = hd.h ? `
-          <div style="font-size:18px;font-weight:900;color:#111;line-height:1.35;margin-bottom:5px;font-family:var(--font-sans);letter-spacing:-0.3px;">${hd.h}</div>
-          ${hd.s ? `<div style="font-size:12px;font-weight:700;color:${cfg.color};line-height:1.5;margin-bottom:12px;font-family:var(--font-sans);">${hd.s}</div>` : ''}
+          <div style="font-size:20px;font-weight:900;color:#000000;line-height:1.3;margin-bottom:6px;font-family:var(--font-sans);letter-spacing:-0.4px;">${hd.h}</div>
+          ${hd.s ? `<div style="font-size:15px;font-weight:800;color:${cfg.color};line-height:1.5;margin-bottom:14px;font-family:var(--font-sans);letter-spacing:-0.2px;">${hd.s}</div>` : ''}
         ` : '';
         return `<div style="background:${cfg.bg};border-radius:20px;padding:18px 18px 16px;margin-bottom:10px;box-shadow:0 4px 20px ${cfg.shadow};">
           <div style="display:inline-flex;align-items:center;gap:5px;background:${cfg.color};color:#fff;padding:4px 12px;border-radius:8px;font-size:11px;font-weight:700;margin-bottom:12px;letter-spacing:-0.1px;">${cfg.label}</div>
           ${headlinePart}
-          <div style="font-size:14px;line-height:1.85;color:#111111;font-family:var(--font-sans);">${bodyHtml}</div>
+          <div style="font-size:16px;line-height:2.1;color:#000000;font-family:var(--font-sans);">${bodyHtml}</div>
           ${fnHtml}
         </div>`;
       }).join('')}
@@ -1791,13 +1791,13 @@ function renderArchiveDetail(data) {
     const hd = headings[i] || {};
     const cleaned = line.replace(/^포인트\d+:\s*/,'').replace(/\*\*/g,'').trim();
     const headlinePart = hd.h ? `
-      <div style="font-size:18px;font-weight:900;color:#111;line-height:1.35;margin-bottom:5px;font-family:var(--font-sans);letter-spacing:-0.3px;">${hd.h}</div>
-      ${hd.s ? `<div style="font-size:12px;font-weight:700;color:${cfg.color};line-height:1.5;margin-bottom:12px;font-family:var(--font-sans);">${hd.s}</div>` : ''}
+      <div style="font-size:20px;font-weight:900;color:#000000;line-height:1.3;margin-bottom:5px;font-family:var(--font-sans);letter-spacing:-0.4px;">${hd.h}</div>
+      ${hd.s ? `<div style="font-size:15px;font-weight:800;color:${cfg.color};line-height:1.5;margin-bottom:12px;font-family:var(--font-sans);letter-spacing:-0.2px;">${hd.s}</div>` : ''}
     ` : '';
     return `<div style="background:${cfg.bg};border-radius:20px;padding:18px 18px 16px;margin-bottom:10px;box-shadow:0 4px 20px ${cfg.shadow};">
       <div style="display:inline-flex;align-items:center;gap:5px;background:${cfg.color};color:#fff;padding:4px 12px;border-radius:8px;font-size:11px;font-weight:700;margin-bottom:12px;">${cfg.label}</div>
       ${headlinePart}
-      <div style="font-size:14px;line-height:1.85;color:#111;font-family:var(--font-sans);">${cleaned}</div>
+      <div style="font-size:16px;line-height:2.1;color:#000000;font-family:var(--font-sans);">${cleaned}</div>
     </div>`;
   }).join('');
 
