@@ -865,6 +865,144 @@
       line-height:1.4;
     }
 
+    /* ── 랜딩페이지 ── */
+    #tab-front { padding:0; background:#fff; }
+
+    /* Hero */
+    .lp-hero {
+      background:linear-gradient(160deg, #E8F5EE 0%, #F5FBF7 55%, #fff 100%);
+      padding:44px 24px 40px;
+      text-align:center;
+    }
+    .lp-eyebrow {
+      font-family:var(--font-mono); font-size:10px; font-weight:600;
+      letter-spacing:1.5px; color:var(--accent); text-transform:uppercase;
+      margin-bottom:16px;
+    }
+    .lp-headline {
+      font-family:var(--font-sans); font-size:28px; font-weight:900;
+      color:var(--text); line-height:1.35; letter-spacing:-0.8px;
+      margin:0 0 14px;
+    }
+    .lp-sub {
+      font-size:14px; color:var(--text-muted); line-height:1.75;
+      margin:0 0 28px; font-weight:400;
+    }
+    .lp-cta {
+      display:inline-block; background:var(--accent); color:#fff;
+      font-family:var(--font-sans); font-size:15px; font-weight:800;
+      padding:14px 32px; border-radius:50px; border:none; cursor:pointer;
+      letter-spacing:-0.3px; box-shadow:0 4px 20px rgba(26,122,69,0.3);
+      transition:transform 0.15s, box-shadow 0.15s;
+    }
+    .lp-cta:active { transform:scale(0.97); box-shadow:0 2px 10px rgba(26,122,69,0.2); }
+    .lp-pills {
+      display:flex; flex-wrap:wrap; gap:8px;
+      justify-content:center; margin-top:20px;
+    }
+    .lp-pill {
+      font-size:11px; font-weight:600; color:var(--accent);
+      background:rgba(26,122,69,0.08); padding:5px 12px;
+      border-radius:20px; font-family:var(--font-sans);
+    }
+
+    /* 공통 섹션 */
+    .lp-section { padding:36px 20px; }
+    .lp-section-tinted { background:var(--bg); }
+    .lp-section-head { margin-bottom:20px; }
+    .lp-section-title {
+      font-family:var(--font-sans); font-size:20px; font-weight:900;
+      color:var(--text); letter-spacing:-0.5px; margin-bottom:4px;
+    }
+    .lp-section-sub { font-size:12px; color:var(--text-muted); }
+
+    /* 브리핑 미리보기 카드 */
+    .lp-briefs { display:flex; flex-direction:column; gap:10px; }
+    .lp-brief-card {
+      background:#fff; border-radius:16px; padding:16px 18px;
+      border:1px solid var(--border); border-left:3px solid var(--accent);
+      box-shadow:var(--shadow-sm); cursor:pointer;
+      transition:box-shadow 0.15s;
+    }
+    .lp-brief-card:active { box-shadow:0 1px 4px rgba(0,0,0,0.08); }
+    .lp-brief-tab {
+      font-size:10px; font-weight:700; font-family:var(--font-mono);
+      letter-spacing:0.5px; margin-bottom:8px;
+    }
+    .lp-brief-headline {
+      font-size:16px; font-weight:800; color:var(--text);
+      line-height:1.4; letter-spacing:-0.3px; margin-bottom:5px;
+    }
+    .lp-brief-sub {
+      font-size:12px; color:var(--text-muted); line-height:1.5; margin-bottom:10px;
+    }
+    .lp-brief-arrow { font-size:12px; font-weight:700; font-family:var(--font-sans); }
+    .lp-brief-loading { border-left-color:var(--border) !important; }
+    .lp-brief-placeholder { font-size:13px; color:var(--text-dim); padding:8px 0; }
+    .lp-brief-skeleton {
+      height:88px; background:linear-gradient(90deg,#f0f0f0 25%,#e8e8e8 50%,#f0f0f0 75%);
+      background-size:200% 100%; border-radius:16px; margin-bottom:10px;
+      animation:shimmer 1.4s infinite;
+    }
+    @keyframes shimmer {
+      0% { background-position:200% 0; }
+      100% { background-position:-200% 0; }
+    }
+
+    /* 서비스 특징 */
+    .lp-features { display:flex; flex-direction:column; gap:14px; }
+    .lp-feature {
+      background:#fff; border-radius:16px; padding:20px 18px;
+      border:1px solid var(--border); box-shadow:var(--shadow-sm);
+    }
+    .lp-feature-icon { font-size:24px; margin-bottom:10px; }
+    .lp-feature-title {
+      font-size:15px; font-weight:800; color:var(--text);
+      letter-spacing:-0.3px; margin-bottom:6px;
+    }
+    .lp-feature-desc { font-size:13px; color:var(--text-muted); line-height:1.7; }
+
+    /* 페르소나 */
+    .lp-personas { display:flex; flex-direction:column; gap:12px; }
+    .lp-persona {
+      display:flex; align-items:center; gap:14px;
+      background:#fff; border-radius:14px; padding:14px 16px;
+      border:1px solid var(--border); box-shadow:var(--shadow-sm);
+    }
+    .lp-persona-emoji { font-size:22px; flex-shrink:0; }
+    .lp-persona-text { font-size:14px; font-weight:600; color:var(--text); line-height:1.5; }
+
+    /* 이용 방법 */
+    .lp-steps { display:flex; flex-direction:column; gap:0; }
+    .lp-step {
+      display:flex; gap:16px; align-items:flex-start;
+      padding:16px 0; border-bottom:1px solid var(--border);
+    }
+    .lp-step:last-child { border-bottom:none; }
+    .lp-step-num {
+      font-family:var(--font-mono); font-size:20px; font-weight:700;
+      color:var(--accent); opacity:0.5; flex-shrink:0; width:32px; padding-top:2px;
+    }
+    .lp-step-title {
+      font-size:15px; font-weight:800; color:var(--text);
+      letter-spacing:-0.3px; margin-bottom:4px;
+    }
+    .lp-step-desc { font-size:13px; color:var(--text-muted); line-height:1.6; }
+
+    /* 하단 CTA */
+    .lp-footer-cta {
+      background:linear-gradient(145deg, #0D3320, #1A5C35);
+      padding:44px 24px 48px; text-align:center;
+    }
+    .lp-footer-title {
+      font-family:var(--font-sans); font-size:22px; font-weight:900;
+      color:#fff; line-height:1.45; letter-spacing:-0.5px; margin-bottom:24px;
+    }
+    .lp-footer-cta .lp-cta {
+      background:#fff; color:var(--accent);
+      box-shadow:0 4px 20px rgba(0,0,0,0.2);
+    }
+
     /* ── 아카이브 ── */
     .archive-wrap { padding:20px 16px 40px; }
     .archive-header { text-align:center; margin-bottom:20px; }

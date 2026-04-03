@@ -115,34 +115,129 @@
       </div>
     </div>
 
-    <!-- ▸ 1면 -->
+    <!-- ▸ 랜딩 (front) -->
     <div class="tab-panel" id="tab-front">
-      <div style="text-align:center;padding:24px 20px 16px;">
-        <div style="font-family:var(--font-serif);font-size:18px;font-weight:900;color:var(--text);letter-spacing:-0.3px;">🗞 오늘의 1면</div>
-        <div style="font-size:11px;color:var(--text-dim);margin-top:4px;">각 탭 브리핑 요약을 한눈에</div>
-      </div>
 
-      <!-- 미리보기 카드들 (클릭하면 해당 탭으로) -->
-      <div class="front-section" onclick="switchTab('economy')" style="cursor:pointer;">
-        <div class="front-section-label">🏦 경제 종합</div>
-        <div class="front-section-summary" id="front-economy-preview">
-          <span style="color:var(--text-dim);font-size:13px;">탭해서 경제 브리핑 보기 →</span>
+      <!-- HERO -->
+      <div class="lp-hero">
+        <div class="lp-eyebrow">AI 경제 브리핑 · 무료</div>
+        <h1 class="lp-headline">오늘 꼭 알아야 할 것을<br>정리해드려요</h1>
+        <p class="lp-sub">경제·산업·국제 뉴스를 AI가 분석해<br>핵심만 3분에 읽을 수 있게 만들었어요.</p>
+        <button class="lp-cta" onclick="switchTab('economy')">무료로 읽기 시작 →</button>
+        <div class="lp-pills">
+          <span class="lp-pill">📅 매일 07:00 · 17:00</span>
+          <span class="lp-pill">🤖 Claude AI 분석</span>
+          <span class="lp-pill">✅ 완전 무료</span>
         </div>
       </div>
 
-      <div class="front-section" onclick="switchTab('industry')" style="cursor:pointer; border-image:linear-gradient(180deg, #2DA55E, #86EFAC) 1;">
-        <div class="front-section-label">🏭 산업 종합</div>
-        <div class="front-section-summary" id="front-industry-preview">
-          <span style="color:var(--text-dim);font-size:13px;">탭해서 산업 브리핑 보기 →</span>
+      <!-- 오늘의 브리핑 미리보기 -->
+      <div class="lp-section">
+        <div class="lp-section-head">
+          <div class="lp-section-title">오늘의 브리핑</div>
+          <div class="lp-section-sub">AI가 분석한 오늘의 핵심 이슈</div>
+        </div>
+        <div id="landing-briefs" class="lp-briefs">
+          <!-- JS로 채워짐 -->
+          <div class="lp-brief-skeleton"></div>
+          <div class="lp-brief-skeleton"></div>
+          <div class="lp-brief-skeleton"></div>
         </div>
       </div>
 
-      <div class="front-section" onclick="switchTab('global')" style="cursor:pointer; border-image:linear-gradient(180deg, #4ADE80, #A7F3D0) 1;">
-        <div class="front-section-label">🌐 국제 종합</div>
-        <div class="front-section-summary" id="front-global-preview">
-          <span style="color:var(--text-dim);font-size:13px;">탭해서 국제 브리핑 보기 →</span>
+      <!-- 서비스 특징 -->
+      <div class="lp-section lp-section-tinted">
+        <div class="lp-section-head">
+          <div class="lp-section-title">이런 서비스예요</div>
+        </div>
+        <div class="lp-features">
+          <div class="lp-feature">
+            <div class="lp-feature-icon">🤖</div>
+            <div class="lp-feature-title">AI가 대신 읽어줘요</div>
+            <div class="lp-feature-desc">수십 개 뉴스를 Claude AI가 분석해 핵심이슈·배경·시장영향·투자전략 4가지로 정리해드려요.</div>
+          </div>
+          <div class="lp-feature">
+            <div class="lp-feature-icon">⚡</div>
+            <div class="lp-feature-title">하루 두 번 자동 업데이트</div>
+            <div class="lp-feature-desc">오전 7시, 오후 5시. 최신 뉴스를 자동으로 분석해 항상 오늘의 흐름을 파악할 수 있어요.</div>
+          </div>
+          <div class="lp-feature">
+            <div class="lp-feature-icon">📚</div>
+            <div class="lp-feature-title">지난 브리핑도 쌓여요</div>
+            <div class="lp-feature-desc">아카이브에서 날짜별 브리핑을 다시 찾아볼 수 있어요. 경제 흐름을 길게 읽는 데 도움이 돼요.</div>
+          </div>
         </div>
       </div>
+
+      <!-- 이런 분들에게 -->
+      <div class="lp-section">
+        <div class="lp-section-head">
+          <div class="lp-section-title">이런 분들에게 딱이에요</div>
+        </div>
+        <div class="lp-personas">
+          <div class="lp-persona">
+            <span class="lp-persona-emoji">⏰</span>
+            <span class="lp-persona-text">바빠서 뉴스 볼 시간이 없는 직장인</span>
+          </div>
+          <div class="lp-persona">
+            <span class="lp-persona-emoji">📈</span>
+            <span class="lp-persona-text">경제 공부를 시작했는데 어디서부터 봐야 할지 모르는 분</span>
+          </div>
+          <div class="lp-persona">
+            <span class="lp-persona-emoji">💼</span>
+            <span class="lp-persona-text">투자는 하고 있는데 큰 흐름을 놓치는 것 같은 분</span>
+          </div>
+          <div class="lp-persona">
+            <span class="lp-persona-emoji">🌏</span>
+            <span class="lp-persona-text">미국·중국 이슈가 한국 경제에 왜 영향을 주는지 궁금한 분</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 이용 방법 -->
+      <div class="lp-section lp-section-tinted">
+        <div class="lp-section-head">
+          <div class="lp-section-title">이렇게 이용하세요</div>
+        </div>
+        <div class="lp-steps">
+          <div class="lp-step">
+            <div class="lp-step-num">01</div>
+            <div class="lp-step-body">
+              <div class="lp-step-title">분야 선택</div>
+              <div class="lp-step-desc">경제 · 산업 · 국제 중 오늘 관심 있는 분야를 골라요</div>
+            </div>
+          </div>
+          <div class="lp-step">
+            <div class="lp-step-num">02</div>
+            <div class="lp-step-body">
+              <div class="lp-step-title">브리핑 읽기</div>
+              <div class="lp-step-desc">4가지 포인트로 정리된 핵심 분석을 3분 안에 읽어요</div>
+            </div>
+          </div>
+          <div class="lp-step">
+            <div class="lp-step-num">03</div>
+            <div class="lp-step-body">
+              <div class="lp-step-title">흐름 파악</div>
+              <div class="lp-step-desc">아카이브에서 지난 브리핑과 비교하며 트렌드를 읽어요</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 하단 CTA -->
+      <div class="lp-footer-cta">
+        <div class="lp-footer-title">오늘의 경제 뉴스,<br>지금 바로 확인해요 🌲</div>
+        <button class="lp-cta" onclick="switchTab('economy')">무료로 읽기 시작 →</button>
+        <div style="font-size:11px;color:rgba(255,255,255,0.6);margin-top:14px;font-family:var(--font-mono);">© 2025 경제숲 · Money Forest</div>
+      </div>
+
+      <!-- 숨김 (JS 호환성 유지) -->
+      <div style="display:none;">
+        <div id="front-economy-preview"></div>
+        <div id="front-industry-preview"></div>
+        <div id="front-global-preview"></div>
+      </div>
+
     </div>
 
     <!-- ▸ 경제 탭 -->

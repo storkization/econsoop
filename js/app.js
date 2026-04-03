@@ -213,6 +213,7 @@ function switchTab(id) {
   if (id==='stocks') loadStocks();
   if (id==='fx' && !fxRates) loadFX();
   if (id==='breaking') loadBreaking();
+  if (id==='front') renderLandingBriefs();
   if (id==='newsroom') renderNewsroom();
   if (id==='column') loadColumnTab();
   if (id==='archive') loadArchive();
@@ -1272,9 +1273,45 @@ function renderColumn(tab, text, bodyEl) {
 
 function updateFrontPreview(tab, summary) {
   const el = document.getElementById(`front-${tab}-preview`);
-  if (!el || !summary) return;
-  const firstLine = summary.split('\n').map(l=>l.replace(/^줄\d+:\s*/,'').trim()).find(l=>l.length>0) || '';
-  el.innerHTML = `<span style="font-size:14px;color:var(--text);line-height:1.6;">${firstLine} →</span>`;
+  if (el && summary) {
+    const firstLine = summary.split('\n').map(l=>l.replace(/^줄\d+:\s*/,'').trim()).find(l=>l.length>0) || '';
+    el.innerHTML = `<span style="font-size:14px;color:var(--text);line-height:1.6;">${firstLine} →</span>`;
+  }
+  renderLandingBriefs();
+}
+
+function renderLandingBriefs() {
+  const root = document.getElementById('landing-briefs');
+  if (!root) return;
+
+  const TABS = [
+    { key: 'economy',  label: '경제', icon: '🏦', color: '#1A7A45' },
+    { key: 'industry', label: '산업', icon: '🏭', color: '#1D4ED8' },
+    { key: 'global',   label: '국제', icon: '🌐', color: '#B45309' },
+  ];
+
+  const html = TABS.map(t => {
+    const result = summaryCache[t.key];
+    const headline = result?.headline;
+    const subheading = result?.subheading;
+
+    if (!headline) {
+      return `<div class="lp-brief-card lp-brief-loading" onclick="switchTab('${t.key}')">
+        <div class="lp-brief-tab" style="color:${t.color};">${t.icon} ${t.label}</div>
+        <div class="lp-brief-placeholder">브리핑 불러오는 중...</div>
+        <div class="lp-brief-arrow" style="color:${t.color};">→</div>
+      </div>`;
+    }
+
+    return `<div class="lp-brief-card" onclick="switchTab('${t.key}')" style="border-left-color:${t.color};">
+      <div class="lp-brief-tab" style="color:${t.color};">${t.icon} ${t.label}</div>
+      <div class="lp-brief-headline">${headline}</div>
+      ${subheading ? `<div class="lp-brief-sub">${subheading}</div>` : ''}
+      <div class="lp-brief-arrow" style="color:${t.color};">브리핑 보기 →</div>
+    </div>`;
+  }).join('');
+
+  root.innerHTML = html;
 }
 
 /* ═══════════ 서브칩 뉴스 ═══════════ */
