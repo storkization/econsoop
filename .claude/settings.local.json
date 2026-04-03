@@ -26,7 +26,8 @@
       "Bash(npm init:*)",
       "Bash(npm install:*)",
       "Bash(git rm:*)",
-      "Bash(gh workflow:*)"
+      "Bash(gh workflow:*)",
+      "WebFetch(domain:winterstarryrain.tistory.com)"
     ]
   }
 }

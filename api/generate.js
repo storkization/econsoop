@@ -64,8 +64,9 @@ export default async function handler(req, res) {
       const { summary, footnotes, headline, subheading, heading2, subheading2, heading3, subheading3, heading4, subheading4, columnHook } = await briefingRes.json();
       if (!summary) throw new Error('브리핑 파싱 실패');
 
-      // 3. Firestore 저장 (Admin SDK — 보안 규칙 우회)
-      await db.collection('briefings').doc(tab).set({
+      // 3. Firestore 저장 (최신 캐시 — 덮어쓰기)
+      const now = Date.now();
+      const briefingData = {
         summary,
         footnotes: footnotes || '',
         headline: headline || '',
@@ -74,8 +75,32 @@ export default async function handler(req, res) {
         heading3: heading3 || '', subheading3: subheading3 || '',
         heading4: heading4 || '', subheading4: subheading4 || '',
         columnHook: columnHook || '',
-        created_at: Date.now(),
-      });
+        created_at: now,
+      };
+      await db.collection('briefings').doc(tab).set(briefingData);
+
+      // 4. 아카이브 저장 (날짜별 누적)
+      try {
+        const kst = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Seoul' }));
+        const dateStr = String(kst.getFullYear()) +
+          String(kst.getMonth() + 1).padStart(2, '0') +
+          String(kst.getDate()).padStart(2, '0');
+        const timeStr = String(kst.getHours()).padStart(2, '0') +
+          String(kst.getMinutes()).padStart(2, '0');
+        const archiveId = `${tab}_${dateStr}_${timeStr}`;
+        const month = `${kst.getFullYear()}-${String(kst.getMonth() + 1).padStart(2, '0')}`;
+        await db.collection('archive').doc(archiveId).set({
+          ...briefingData,
+          tab,
+          date: dateStr,
+          slot: `${timeStr.slice(0, 2)}:${timeStr.slice(2)}`,
+          month,
+          year: String(kst.getFullYear()),
+        });
+        console.log(`[GENERATE] ${tab} 아카이브 저장: ${archiveId}`);
+      } catch (archiveErr) {
+        console.error(`[GENERATE] ${tab} 아카이브 저장 실패:`, archiveErr.message);
+      }
 
       results.push({ tab, ok: true, len: summary.length });
       console.log(`[GENERATE] ${tab} 완료 (${summary.length}자)`);

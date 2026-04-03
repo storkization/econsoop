@@ -215,6 +215,7 @@ function switchTab(id) {
   if (id==='breaking') loadBreaking();
   if (id==='newsroom') renderNewsroom();
   if (id==='column') loadColumnTab();
+  if (id==='archive') loadArchive();
 }
 
 
@@ -1575,6 +1576,184 @@ function openDrawer() {
 function closeDrawer() {
   document.getElementById('drawer').classList.remove('open');
   document.getElementById('drawer-overlay').classList.remove('open');
+}
+
+/* ═══════════ ARCHIVE ═══════════ */
+const TAB_META = {
+  economy:  { label: '경제', icon: '🏦', color: '#1A7A45' },
+  industry: { label: '산업', icon: '🏭', color: '#1D4ED8' },
+  global:   { label: '국제', icon: '🌐', color: '#B45309' },
+};
+let archiveFilter = 'all';
+let archiveItems = null;
+
+async function loadArchive() {
+  const root = document.getElementById('archive-root');
+  if (!root) return;
+
+  // 이미 로드된 경우 필터만 다시 렌더
+  if (archiveItems) { renderArchiveList(archiveItems); return; }
+
+  root.innerHTML = `<div class="loading-wrap"><div class="dots"><span></span><span></span><span></span></div><p style="margin-top:14px">아카이브를 불러오는 중...</p></div>`;
+
+  try {
+    const r = await fetch('/api/archive?action=list');
+    const j = await r.json();
+    archiveItems = j.items || [];
+    renderArchiveList(archiveItems);
+  } catch (e) {
+    root.innerHTML = `<div class="loading-wrap"><p>아카이브를 불러올 수 없습니다.</p></div>`;
+  }
+}
+
+function renderArchiveList(items) {
+  const root = document.getElementById('archive-root');
+  if (!root) return;
+
+  const filtered = archiveFilter === 'all' ? items : items.filter(it => it.tab === archiveFilter);
+
+  // 날짜별 그룹핑
+  const groups = {};
+  filtered.forEach(it => {
+    const key = it.date; // YYYYMMDD
+    if (!groups[key]) groups[key] = [];
+    groups[key].push(it);
+  });
+
+  const filterHtml = `
+    <div class="archive-filter-row">
+      ${['all','economy','industry','global'].map(f => {
+        const meta = f === 'all' ? { label: '전체', icon: '📋' } : TAB_META[f];
+        return `<button class="archive-chip${archiveFilter===f?' active':''}"
+          onclick="setArchiveFilter('${f}')"
+          ${f !== 'all' ? `style="${archiveFilter===f?`background:${TAB_META[f].color};color:#fff;border-color:${TAB_META[f].color};`:''}"` : ''}>
+          ${meta.icon} ${meta.label}
+        </button>`;
+      }).join('')}
+    </div>`;
+
+  if (!filtered.length) {
+    root.innerHTML = `
+      <div class="archive-wrap">
+        <div class="archive-header">
+          <div class="archive-eyebrow">Money Forest Archive</div>
+          <div class="archive-title">브리핑 아카이브</div>
+        </div>
+        ${filterHtml}
+        <div class="loading-wrap" style="padding:40px 0;">
+          <p style="color:var(--text-dim);">아직 쌓인 데이터가 없습니다.<br>매일 07:00 · 17:00에 자동 저장됩니다.</p>
+        </div>
+      </div>`;
+    return;
+  }
+
+  const groupsHtml = Object.keys(groups).sort((a,b)=>b-a).map(dateKey => {
+    const y = dateKey.slice(0,4), mo = dateKey.slice(4,6), d = dateKey.slice(6,8);
+    const label = `${parseInt(mo)}월 ${parseInt(d)}일`;
+    const rowsHtml = groups[dateKey].map(it => {
+      const meta = TAB_META[it.tab] || TAB_META.economy;
+      return `<div class="archive-row" onclick="loadArchiveDetail('${it.id}')">
+        <div class="archive-row-left">
+          <span class="archive-slot">${it.slot}</span>
+          <span class="archive-tab-badge" style="background:${meta.color}15;color:${meta.color};">${meta.icon} ${meta.label}</span>
+        </div>
+        <div class="archive-headline">${it.headline || '브리핑 보기 →'}</div>
+        <div class="archive-arrow">›</div>
+      </div>`;
+    }).join('');
+    return `<div class="archive-group">
+      <div class="archive-date-label">${label}</div>
+      ${rowsHtml}
+    </div>`;
+  }).join('');
+
+  root.innerHTML = `
+    <div class="archive-wrap">
+      <div class="archive-header">
+        <div class="archive-eyebrow">Money Forest Archive</div>
+        <div class="archive-title">브리핑 아카이브</div>
+        <div class="archive-desc">매일 07:00 · 17:00 자동 저장 · ${items.length}건</div>
+      </div>
+      ${filterHtml}
+      <div class="archive-list">${groupsHtml}</div>
+    </div>`;
+}
+
+function setArchiveFilter(f) {
+  archiveFilter = f;
+  if (archiveItems) renderArchiveList(archiveItems);
+}
+
+async function loadArchiveDetail(id) {
+  const root = document.getElementById('archive-root');
+  root.innerHTML = `<div class="loading-wrap"><div class="dots"><span></span><span></span><span></span></div><p style="margin-top:14px">불러오는 중...</p></div>`;
+
+  try {
+    const r = await fetch(`/api/archive?action=get&id=${encodeURIComponent(id)}`);
+    const data = await r.json();
+    renderArchiveDetail(data);
+  } catch (e) {
+    root.innerHTML = `<div class="loading-wrap"><p>불러올 수 없습니다.</p></div>`;
+  }
+}
+
+function renderArchiveDetail(data) {
+  const root = document.getElementById('archive-root');
+  const meta = TAB_META[data.tab] || TAB_META.economy;
+  const mo = data.date ? parseInt(data.date.slice(4,6)) : '';
+  const d  = data.date ? parseInt(data.date.slice(6,8)) : '';
+  const dateLabel = data.date ? `${mo}월 ${d}일 ${data.slot} · ${meta.label}` : '';
+
+  // 포인트 파싱 (메인과 동일)
+  const summaryClean = (data.summary || '').replace(/\*\*/g,'').replace(/^#+\s*/gm,'').trim();
+  const m1 = summaryClean.match(/포인트1:\s*(.+?)(?=\s*포인트2:|$)/s);
+  const m2 = summaryClean.match(/포인트2:\s*(.+?)(?=\s*포인트3:|$)/s);
+  const m3 = summaryClean.match(/포인트3:\s*(.+?)(?=\s*포인트4:|$)/s);
+  const m4 = summaryClean.match(/포인트4:\s*(.+?)(?=\s*\[|$)/s);
+  const lines = [m1,m2,m3,m4].map(m => m ? m[1].trim() : null).filter(Boolean);
+
+  const CARDS = [
+    { label:'핵심 이슈', color:'#1A7A45', bg:'linear-gradient(135deg,#F0FAF5,#FAFFFD)', shadow:'rgba(26,122,69,0.07)' },
+    { label:'배경',      color:'#6B21A8', bg:'linear-gradient(135deg,#F9F0FF,#FEF8FF)', shadow:'rgba(107,33,168,0.06)' },
+    { label:'시장 영향', color:'#1D4ED8', bg:'linear-gradient(135deg,#F3F8FF,#F8FBFF)', shadow:'rgba(29,78,216,0.06)' },
+    { label:'투자 전략', color:'#B45309', bg:'linear-gradient(135deg,#FFFCF3,#FFFEF9)', shadow:'rgba(180,83,9,0.06)' },
+  ];
+  const headings = [
+    { h: data.headline,  s: data.subheading  },
+    { h: data.heading2,  s: data.subheading2 },
+    { h: data.heading3,  s: data.subheading3 },
+    { h: data.heading4,  s: data.subheading4 },
+  ];
+
+  const cardsHtml = lines.map((line, i) => {
+    const cfg = CARDS[i] || CARDS[0];
+    const hd = headings[i] || {};
+    const cleaned = line.replace(/^포인트\d+:\s*/,'').replace(/\*\*/g,'').trim();
+    const headlinePart = hd.h ? `
+      <div style="font-size:18px;font-weight:900;color:#111;line-height:1.35;margin-bottom:5px;font-family:var(--font-sans);letter-spacing:-0.3px;">${hd.h}</div>
+      ${hd.s ? `<div style="font-size:12px;font-weight:700;color:${cfg.color};line-height:1.5;margin-bottom:12px;font-family:var(--font-sans);">${hd.s}</div>` : ''}
+    ` : '';
+    return `<div style="background:${cfg.bg};border-radius:20px;padding:18px 18px 16px;margin-bottom:10px;box-shadow:0 4px 20px ${cfg.shadow};">
+      <div style="display:inline-flex;align-items:center;gap:5px;background:${cfg.color};color:#fff;padding:4px 12px;border-radius:8px;font-size:11px;font-weight:700;margin-bottom:12px;">${cfg.label}</div>
+      ${headlinePart}
+      <div style="font-size:14px;line-height:1.85;color:#111;font-family:var(--font-sans);">${cleaned}</div>
+    </div>`;
+  }).join('');
+
+  root.innerHTML = `
+    <div class="archive-detail-wrap">
+      <button class="archive-back-btn" onclick="renderArchiveList(archiveItems)">← 목록으로</button>
+      <div class="archive-detail-header">
+        <span class="archive-tab-badge" style="background:${meta.color}15;color:${meta.color};font-size:12px;padding:4px 10px;">${meta.icon} ${meta.label}</span>
+        <div class="archive-detail-date">${dateLabel}</div>
+      </div>
+      <div style="padding:0 2px;">${cardsHtml}</div>
+      ${data.columnHook ? `
+        <div style="margin:8px 0 16px;background:linear-gradient(135deg,#0F172A,#1E3A5F);border-radius:14px;padding:16px 18px;">
+          <div style="font-size:10px;font-weight:700;color:rgba(255,255,255,0.5);font-family:var(--font-mono);letter-spacing:0.5px;margin-bottom:8px;">📰 오늘의 칼럼 예고</div>
+          <div style="font-size:14px;font-weight:800;color:#fff;line-height:1.45;">${data.columnHook}</div>
+        </div>` : ''}
+    </div>`;
 }
 
 function drawerNav(tab) {

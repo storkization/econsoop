@@ -865,3 +865,71 @@
       font-size:10px; color:var(--text-dim);
       line-height:1.4;
     }
+
+    /* ── 아카이브 ── */
+    .archive-wrap { padding:20px 16px 40px; }
+    .archive-header { text-align:center; margin-bottom:20px; }
+    .archive-eyebrow {
+      font-family:var(--font-mono); font-size:10px; font-weight:600;
+      letter-spacing:1.2px; color:var(--accent); text-transform:uppercase; margin-bottom:6px;
+    }
+    .archive-title {
+      font-family:var(--font-serif); font-size:24px; font-weight:900;
+      color:var(--text); letter-spacing:-0.5px; margin-bottom:4px;
+    }
+    .archive-desc { font-size:12px; color:var(--text-muted); }
+
+    .archive-filter-row {
+      display:flex; gap:8px; flex-wrap:wrap; margin-bottom:20px;
+    }
+    .archive-chip {
+      padding:6px 14px; border-radius:20px; border:1.5px solid var(--border);
+      background:#fff; font-size:12px; font-weight:600; color:var(--text-muted);
+      font-family:var(--font-sans); cursor:pointer; transition:all 0.15s;
+    }
+    .archive-chip.active { background:var(--accent); color:#fff; border-color:var(--accent); }
+
+    .archive-list { display:flex; flex-direction:column; gap:16px; }
+    .archive-group {}
+    .archive-date-label {
+      font-family:var(--font-mono); font-size:10px; font-weight:700;
+      color:var(--text-dim); letter-spacing:0.5px; text-transform:uppercase;
+      margin-bottom:8px; padding-left:2px;
+    }
+    .archive-row {
+      display:flex; align-items:center; gap:10px;
+      background:#fff; border-radius:14px; padding:14px 14px;
+      border:1px solid var(--border); box-shadow:var(--shadow-sm);
+      cursor:pointer; transition:box-shadow 0.15s;
+      margin-bottom:8px;
+    }
+    .archive-row:active { box-shadow:0 1px 4px rgba(0,0,0,0.1); }
+    .archive-row-left { display:flex; flex-direction:column; align-items:center; gap:4px; flex-shrink:0; }
+    .archive-slot {
+      font-family:var(--font-mono); font-size:11px; font-weight:700;
+      color:var(--text); white-space:nowrap;
+    }
+    .archive-tab-badge {
+      font-size:9px; font-weight:700; padding:2px 7px;
+      border-radius:10px; white-space:nowrap; font-family:var(--font-sans);
+    }
+    .archive-headline {
+      flex:1; font-size:13px; font-weight:600; color:var(--text);
+      line-height:1.4; letter-spacing:-0.2px;
+    }
+    .archive-arrow {
+      font-size:18px; color:var(--text-dim); flex-shrink:0;
+    }
+
+    .archive-detail-wrap { padding:16px 16px 40px; }
+    .archive-back-btn {
+      background:none; border:1.5px solid var(--border); border-radius:10px;
+      padding:7px 14px; font-size:12px; font-weight:600;
+      color:var(--text-muted); font-family:var(--font-sans);
+      cursor:pointer; margin-bottom:16px;
+    }
+    .archive-detail-header { margin-bottom:16px; }
+    .archive-detail-date {
+      font-family:var(--font-mono); font-size:12px; font-weight:700;
+      color:var(--text); margin-top:6px; letter-spacing:-0.2px;
+    }
