@@ -102,23 +102,23 @@
       display:flex; flex-direction:column; gap:1px;
       cursor:pointer;
     }
-    .logo-kr {
+    .logo-en {
       font-size:22px; font-weight:800;
       letter-spacing:-0.5px; color:#FFFFFF;
+      font-family:var(--font-sans);
       transition: all 0.3s ease;
-      overflow:hidden; max-height:40px; opacity:1;
     }
-    .header.shrunk .logo-kr { max-height:0; opacity:0; margin-bottom:0; }
-    .logo-en {
-      font-size:9px; font-weight:600;
-      font-family:var(--font-mono);
-      letter-spacing:3px; text-transform:uppercase;
+    .logo-kr {
+      font-size:10px; font-weight:500;
+      font-family:var(--font-sans);
+      letter-spacing:0.2px;
       color:rgba(255,255,255,0.5);
+      overflow:hidden; max-height:20px; opacity:1;
       transition: all 0.3s ease;
     }
+    .header.shrunk .logo-kr { max-height:0; opacity:0; }
     .header.shrunk .logo-en {
-      font-size:13px; font-weight:700;
-      letter-spacing:2px;
+      font-size:18px;
       color:rgba(255,255,255,0.9);
     }
     .header-right { text-align:right; }
