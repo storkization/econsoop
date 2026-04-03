@@ -56,7 +56,12 @@
       "Bash(sed -i 's|linear-gradient\\(145deg, #0D3320, #1A5C35\\)|linear-gradient\\(145deg, var\\(--viva-deep\\), var\\(--viva-ink\\)\\)|g' css/style.css)",
       "Bash(sed -i 's|content=\"#1A7A45\"|content=\"#0C1931\"|g' index.html)",
       "Bash(sed -i 's|background:linear-gradient\\(145deg,#0D3320 0%,#1A5C35 50%,#164A2E 100%\\)|background:linear-gradient\\(145deg,#071020 0%,#0C1931 50%,#1B3A6B 100%\\)|g' index.html)",
-      "Bash(sed -i 's|background:#fff;color:#0D3320;|background:#fff;color:#0C1931;|g' index.html)"
+      "Bash(sed -i 's|background:#fff;color:#0D3320;|background:#fff;color:#0C1931;|g' index.html)",
+      "Bash(sed -i 's|linear-gradient\\(145deg, var\\(--viva-deep\\) 0%, var\\(--viva-ink\\) 50%, var\\(--viva-mid\\) 100%\\)|linear-gradient\\(145deg, var\\(--viva-deep\\) 0%, var\\(--viva-ink\\) 60%, var\\(--viva-mid\\) 100%\\)|g' css/style.css)",
+      "Bash(sed -i 's|linear-gradient\\(135deg, var\\(--viva-deep\\) 0%, var\\(--viva-ink\\) 100%\\)|linear-gradient\\(135deg, var\\(--viva-deep\\) 0%, var\\(--viva-ink\\) 100%\\)|g' css/style.css)",
+      "Bash(sed -i 's|background:linear-gradient\\(145deg,#071020 0%,#0C1931 50%,#1B3A6B 100%\\)|background:linear-gradient\\(145deg,#4A0A12 0%,#6B0F1A 60%,#A51C30 100%\\)|g' index.html)",
+      "Bash(sed -i 's|background:#fff;color:#0C1931;|background:#fff;color:#A51C30;|g' index.html)",
+      "Bash(sed -i 's|content=\"#0C1931\"|content=\"#6B0F1A\"|g' index.html)"
     ]
   }
 }
