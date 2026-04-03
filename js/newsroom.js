@@ -24,10 +24,10 @@ const NEWSROOM_TEAM = [
 ];
 
 const TEAM_SECTIONS = [
-  { key: 'Economy',  label: '경제',  color: '#1A7A45', bg: 'linear-gradient(135deg,#F0FAF5,#FAFFFD)', border: 'rgba(26,122,69,0.15)',  icon: '🏦' },
-  { key: 'Industry', label: '산업',  color: '#1D4ED8', bg: 'linear-gradient(135deg,#F3F8FF,#F8FBFF)', border: 'rgba(29,78,216,0.15)',  icon: '🏭' },
-  { key: 'Global',   label: '국제',  color: '#B45309', bg: 'linear-gradient(135deg,#FFFCF3,#FFFEF9)', border: 'rgba(180,83,9,0.15)',   icon: '🌐' },
-  { key: 'Markets',  label: '증권',  color: '#6B21A8', bg: 'linear-gradient(135deg,#F9F0FF,#FEF8FF)', border: 'rgba(107,33,168,0.15)', icon: '📈' },
+  { key: 'Economy',  label: '경제',  color: '#1A7A45', bg: 'linear-gradient(135deg,#F0FAF5,#FAFFFD)', border: 'rgba(26,122,69,0.15)',  icon: '' },
+  { key: 'Industry', label: '산업',  color: '#1D4ED8', bg: 'linear-gradient(135deg,#F3F8FF,#F8FBFF)', border: 'rgba(29,78,216,0.15)',  icon: '' },
+  { key: 'Global',   label: '국제',  color: '#B45309', bg: 'linear-gradient(135deg,#FFFCF3,#FFFEF9)', border: 'rgba(180,83,9,0.15)',   icon: '' },
+  { key: 'Markets',  label: '증권',  color: '#6B21A8', bg: 'linear-gradient(135deg,#F9F0FF,#FEF8FF)', border: 'rgba(107,33,168,0.15)', icon: '' },
 ];
 
 // ── 뉴스룸 렌더링 ──────────────────────────────────────────
