@@ -48,12 +48,28 @@
     <button class="drawer-item" data-drawer-tab="stocks" onclick="drawerNav('stocks')">
       📈 증권 <span class="drawer-arrow">∨</span>
     </button>
-    <button class="drawer-item" data-drawer-tab="column" onclick="drawerNav('column')">
-      📰 칼럼 <span class="drawer-premium">💎</span>
-    </button>
-    <button class="drawer-item" data-drawer-tab="archive" onclick="drawerNav('archive')">
-      📅 아카이브 <span class="drawer-premium">💎</span>
-    </button>
+    <div class="drawer-premium-group">
+      <button class="drawer-premium-item" data-drawer-tab="column" onclick="drawerNav('column')">
+        <div class="dpi-left">
+          <span class="dpi-icon">📰</span>
+          <div>
+            <div class="dpi-title">칼럼</div>
+            <div class="dpi-sub">AI 심층 분석 · Shawn Kim</div>
+          </div>
+        </div>
+        <span class="dpi-badge">💎 PREMIUM</span>
+      </button>
+      <button class="drawer-premium-item" data-drawer-tab="archive" onclick="drawerNav('archive')">
+        <div class="dpi-left">
+          <span class="dpi-icon">📅</span>
+          <div>
+            <div class="dpi-title">아카이브</div>
+            <div class="dpi-sub">날짜별 브리핑 전체 열람</div>
+          </div>
+        </div>
+        <span class="dpi-badge">💎 PREMIUM</span>
+      </button>
+    </div>
 
     <div class="drawer-divider"></div>
 

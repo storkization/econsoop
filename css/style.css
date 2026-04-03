@@ -729,6 +729,44 @@
       font-size:13px; margin-left:auto;
     }
 
+    /* 프리미엄 메뉴 그룹 */
+    .drawer-premium-group {
+      margin:8px 12px 4px;
+      display:flex; flex-direction:column; gap:6px;
+    }
+    .drawer-premium-item {
+      display:flex; align-items:center; justify-content:space-between;
+      padding:12px 14px;
+      background:linear-gradient(135deg, #0D1F13 0%, #1A3A22 100%);
+      border-radius:14px; border:none; cursor:pointer;
+      width:100%; text-align:left;
+      transition:opacity 0.15s;
+    }
+    .drawer-premium-item:active { opacity:0.85; }
+    .drawer-premium-item.active {
+      background:linear-gradient(135deg, #0D2B19 0%, #1E4A2A 100%);
+      box-shadow:0 0 0 2px rgba(74,222,128,0.35);
+    }
+    .dpi-left {
+      display:flex; align-items:center; gap:10px;
+    }
+    .dpi-icon { font-size:20px; }
+    .dpi-title {
+      font-family:var(--font-sans); font-size:14px; font-weight:800;
+      color:#fff; letter-spacing:-0.2px; line-height:1.2; margin-bottom:3px;
+    }
+    .dpi-sub {
+      font-family:var(--font-mono); font-size:9px; font-weight:500;
+      color:rgba(255,255,255,0.45); letter-spacing:0.3px;
+    }
+    .dpi-badge {
+      font-family:var(--font-mono); font-size:9px; font-weight:700;
+      color:#F5C842; background:rgba(245,200,66,0.12);
+      padding:3px 8px; border-radius:20px; letter-spacing:0.5px;
+      border:1px solid rgba(245,200,66,0.25); white-space:nowrap;
+      flex-shrink:0;
+    }
+
     .drawer-divider {
       height:1px; background:var(--border);
       margin:10px 20px;
