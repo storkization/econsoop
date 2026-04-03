@@ -44,7 +44,7 @@ const TAB_COLORS = {
 };
 
 /* ═══════════ CACHE VERSION ═══════════ */
-const CACHE_VERSION = 'v123';
+const CACHE_VERSION = 'v124';
 (function clearOldCache() {
   const savedVersion = localStorage.getItem('eco_cache_version');
   if (savedVersion !== CACHE_VERSION) {
