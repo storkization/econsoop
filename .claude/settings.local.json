@@ -50,7 +50,13 @@
       "Bash(sed -i 's|오늘 꼭 알아야 할 것을<br>정리해드려요|경제를 읽는 법,<br>더 생생하고 더 깊이 있게|g' index.html)",
       "Bash(sed -i 's|The Newsroom|Today'\\\\''s Biz Bite|g' js/newsroom.js)",
       "Bash(sed -i 's|오늘의 경제에<br>활기를 불어넣습니다\\\\.|더 깊은 통찰을 위해,<br>비바의 발행인을 응원해 주세요.|g' index.html)",
-      "Bash(sed -i 's|<span>앱 이름</span><span>VIVA Economy</span>|<span>앱 이름</span><span>The Viva Company<\\\\/span>|g' index.html)"
+      "Bash(sed -i 's|<span>앱 이름</span><span>VIVA Economy</span>|<span>앱 이름</span><span>The Viva Company<\\\\/span>|g' index.html)",
+      "Bash(sed -i 's|linear-gradient\\(145deg,#0D3320 0%,#1A5C35 50%,#164A2E 100%\\)|linear-gradient\\(145deg, var\\(--viva-deep\\) 0%, var\\(--viva-ink\\) 50%, var\\(--viva-mid\\) 100%\\)|g' css/style.css)",
+      "Bash(sed -i 's|linear-gradient\\(135deg, #0D1F13 0%, #1A3A22 100%\\)|linear-gradient\\(135deg, var\\(--viva-deep\\) 0%, var\\(--viva-ink\\) 100%\\)|g' css/style.css)",
+      "Bash(sed -i 's|linear-gradient\\(145deg, #0D3320, #1A5C35\\)|linear-gradient\\(145deg, var\\(--viva-deep\\), var\\(--viva-ink\\)\\)|g' css/style.css)",
+      "Bash(sed -i 's|content=\"#1A7A45\"|content=\"#0C1931\"|g' index.html)",
+      "Bash(sed -i 's|background:linear-gradient\\(145deg,#0D3320 0%,#1A5C35 50%,#164A2E 100%\\)|background:linear-gradient\\(145deg,#071020 0%,#0C1931 50%,#1B3A6B 100%\\)|g' index.html)",
+      "Bash(sed -i 's|background:#fff;color:#0D3320;|background:#fff;color:#0C1931;|g' index.html)"
     ]
   }
 }
