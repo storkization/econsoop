@@ -157,6 +157,25 @@
     }
     @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
 
+    /* ── TAB SECTION HEADER ── */
+    .tab-section-header {
+      display:flex; flex-direction:column; align-items:center;
+      padding:20px 0 12px;
+      border-bottom:2px solid var(--accent);
+      margin:0 16px 0;
+    }
+    .tab-section-label {
+      font-family:var(--font-display);
+      font-size:22px; font-weight:900;
+      color:var(--accent); letter-spacing:-0.3px; line-height:1.2;
+    }
+    .tab-section-sub {
+      font-family:var(--font-mono);
+      font-size:9px; font-weight:600;
+      color:var(--text-dim); letter-spacing:2px;
+      text-transform:uppercase; margin-top:2px;
+    }
+
     /* ── TABS ── */
     .tabs-container {
       position:relative; flex-shrink:0;
