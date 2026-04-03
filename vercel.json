@@ -3,7 +3,9 @@
     "api/briefing.js":  { "maxDuration": 60 },
     "api/column.js":    { "maxDuration": 60 },
     "api/insight.js":   { "maxDuration": 60 },
-    "api/generate.js":  { "maxDuration": 300 }
+    "api/generate.js":  { "maxDuration": 300 },
+    "api/archive.js":   { "maxDuration": 30 },
+    "api/cached.js":    { "maxDuration": 30 }
   },
   "crons": [
     { "path": "/api/generate", "schedule": "0 22 * * *" },

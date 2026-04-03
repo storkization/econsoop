@@ -1691,9 +1691,14 @@ async function loadArchiveDetail(id) {
   try {
     const r = await fetch(`/api/archive?action=get&id=${encodeURIComponent(id)}`);
     const data = await r.json();
+    if (!r.ok || data.error) throw new Error(data.error || '불러오기 실패');
     renderArchiveDetail(data);
   } catch (e) {
-    root.innerHTML = `<div class="loading-wrap"><p>불러올 수 없습니다.</p></div>`;
+    root.innerHTML = `<div class="loading-wrap"><p style="color:var(--text-dim);">브리핑을 불러올 수 없습니다.</p>
+      <button onclick="renderArchiveList(archiveItems)"
+        style="margin-top:16px;padding:8px 18px;border-radius:10px;border:1.5px solid var(--border);background:#fff;font-size:13px;font-weight:600;cursor:pointer;">
+        ← 목록으로
+      </button></div>`;
   }
 }
 
