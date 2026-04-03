@@ -344,7 +344,7 @@ function setLoadingMsg(tab, phase, count = null) {
     { label:'줄기 성장',   icon:'🌿', desc:'핵심 이슈를 분석하는 중이에요' },
     { label:'가지 뻗기',   icon:'🪵', desc:'시장 흐름을 파악하는 중이에요' },
     { label:'잎 피우기',   icon:'🍃', desc:'투자 포인트를 정리하는 중이에요' },
-    { label:'경제숲 완성', icon:'🌲', desc:'브리핑을 마무리하는 중이에요' },
+    { label:'Biz Bite 준비 완료', icon:'🌲', desc:'Biz Bite를 마무리하는 중이에요' },
   ];
 
   function renderLoading() {
@@ -406,13 +406,13 @@ function setLoadingMsg(tab, phase, count = null) {
     const quizCard = _currentQuiz ? `
       <div style="background:linear-gradient(135deg,#F0FDF4 0%,#FAFFFD 100%);border:1.5px solid rgba(26,122,69,0.2);border-radius:12px;padding:14px 16px;margin:0 0 16px;text-align:left;position:relative;">
         <div style="position:absolute;top:-6px;right:8px;font-size:12px;opacity:0.5;">🌿</div>
-        <div style="font-size:10px;font-weight:700;color:#16A34A;letter-spacing:0.5px;margin-bottom:6px;">🌱 오늘의 퀴즈 — 경제숲 완성 시 정답 공개!</div>
+        <div style="font-size:10px;font-weight:700;color:#16A34A;letter-spacing:0.5px;margin-bottom:6px;">🌱 오늘의 퀴즈 — Biz Bite 준비 완료 시 정답 공개!</div>
         <div style="font-size:13px;font-weight:700;color:#111827;line-height:1.5;">${_currentQuiz.q}</div>
       </div>` : '';
 
     card.innerHTML = `
       <div style="padding:24px 20px;background:#FFFFFF;border-radius:16px;box-shadow:0 2px 16px rgba(13,51,32,0.06);">
-        <div style="font-family:var(--font-serif);font-size:15px;font-weight:900;color:var(--text);letter-spacing:-0.3px;margin-bottom:4px;text-align:center;">Money Forest 데일리 브리핑</div>
+        <div style="font-family:var(--font-serif);font-size:15px;font-weight:900;color:var(--text);letter-spacing:-0.3px;margin-bottom:4px;text-align:center;">VIVA Economy 데일리 브리핑</div>
         ${treeViz}
         ${quizCard}
         <div style="text-align:center;">
@@ -460,7 +460,7 @@ function showQuizAnswer() {
   `;
   card.innerHTML = `
     <div style="font-size:32px;margin-bottom:12px;">🌲</div>
-    <div style="font-size:10px;font-weight:700;color:#16A34A;letter-spacing:0.5px;margin-bottom:10px;">경제숲 퀴즈 정답!</div>
+    <div style="font-size:10px;font-weight:700;color:#16A34A;letter-spacing:0.5px;margin-bottom:10px;">오늘의 퀴즈 정답!</div>
     <div style="font-size:12px;color:var(--text-muted);margin-bottom:8px;line-height:1.5;">${quiz.q}</div>
     <div style="font-size:15px;font-weight:800;color:var(--accent);margin-bottom:6px;">→ ${quiz.a}</div>
     <div style="font-size:11px;color:var(--text-muted);margin-bottom:18px;line-height:1.5;">${quiz.hint}</div>
@@ -752,7 +752,7 @@ async function genTabSummary(tab) {
     if (card) card.innerHTML = `
       <div class="status-card">
         <div class="status-card-icon">🌲</div>
-        <div class="status-card-title">잠시 점검 중입니다</div>
+        <div class="status-card-title">브리핑 준비 중입니다</div>
         <div class="status-card-desc">더 나은 브리핑을 위해 숲을 정비하고 있어요.<br>잠시 후 다시 확인해 주세요.</div>
         <button class="retry-btn" onclick="summaryCache['${tab}']=null;genTabSummary('${tab}')">🔄 다시 시도</button>
       </div>`;
@@ -905,7 +905,7 @@ function renderTabSummary(tab, result) {
     card.innerHTML = `
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:6px;">
         <div>
-          <div style="font-family:var(--font-serif);font-size:14px;font-weight:900;color:var(--text);letter-spacing:-0.3px;">Money Forest 데일리 브리핑</div>
+          <div style="font-family:var(--font-serif);font-size:14px;font-weight:900;color:var(--text);letter-spacing:-0.3px;">VIVA Economy 데일리 브리핑</div>
           <div style="font-size:10px;color:var(--text-muted);margin-top:2px;font-family:var(--font-mono);">${dateStr}</div>
         </div>
         ${slotBadge}
@@ -1673,7 +1673,7 @@ function renderArchiveList(items) {
     root.innerHTML = `
       <div class="archive-wrap">
         <div class="archive-header">
-          <div class="archive-eyebrow">Money Forest Archive</div>
+          <div class="archive-eyebrow">VIVA Economy Archive</div>
           <div class="archive-title">브리핑 아카이브</div>
         </div>
         ${filterHtml}
@@ -1707,7 +1707,7 @@ function renderArchiveList(items) {
   root.innerHTML = `
     <div class="archive-wrap">
       <div class="archive-header">
-        <div class="archive-eyebrow">Money Forest Archive</div>
+        <div class="archive-eyebrow">VIVA Economy Archive</div>
         <div class="archive-title">브리핑 아카이브</div>
         <div class="archive-desc">매일 07:00 · 17:00 자동 저장 · ${items.length}건</div>
       </div>

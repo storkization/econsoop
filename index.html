@@ -3,13 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>Econ.SOOP</title>
+  <title>VIVA Economy</title>
 
   <!-- PWA -->
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="Econ.SOOP">
+  <meta name="apple-mobile-web-app-title" content="VIVA Economy">
   <meta name="theme-color" content="#1A7A45">
   <link rel="manifest" href="manifest.json">
   <link rel="icon" type="image/png" sizes="192x192" href="img/econ_soop192.png">
@@ -31,7 +31,7 @@
 <!-- 사이드 드로어 -->
 <div class="drawer" id="drawer">
   <div class="drawer-header">
-    <div class="drawer-logo">Econ.<em>SOOP</em></div>
+    <div class="drawer-logo">VIVA<em> Economy</em></div>
     <button class="drawer-close" onclick="closeDrawer()">✕</button>
   </div>
   <nav class="drawer-nav">
@@ -71,7 +71,7 @@
 
     <div class="drawer-divider"></div>
 
-    <div class="drawer-section-label">Econ.SOOP ∧</div>
+    <div class="drawer-section-label">The Viva Company ∧</div>
     <button class="drawer-sub-item" data-drawer-tab="front" onclick="drawerNav('front')">서비스 소개</button>
     <button class="drawer-sub-item" data-drawer-tab="newsroom" onclick="drawerNav('newsroom')">뉴스룸</button>
     <button class="drawer-sub-item" data-drawer-tab="subscribe" onclick="drawerNav('subscribe')">구독하기</button>
@@ -86,8 +86,8 @@
     <div class="header-top">
       <button class="hamburger-btn" onclick="openDrawer()">☰</button>
       <div class="app-logo">
-        <span class="logo-kr">경제숲</span>
-        <span class="logo-en">Money Forest</span>
+        <span class="logo-kr">비바 이코노미</span>
+        <span class="logo-en">VIVA Economy</span>
       </div>
       <div class="header-right">
         <div class="live-dot">LIVE</div>
@@ -228,7 +228,7 @@
       <div class="lp-footer-cta">
         <div class="lp-footer-title">오늘의 경제 뉴스,<br>지금 바로 확인해요 🌲</div>
         <button class="lp-cta" onclick="switchTab('economy')">무료로 읽기 시작 →</button>
-        <div style="font-size:11px;color:rgba(255,255,255,0.6);margin-top:14px;font-family:var(--font-mono);">© 2025 경제숲 · Money Forest</div>
+        <div style="font-size:11px;color:rgba(255,255,255,0.6);margin-top:14px;font-family:var(--font-mono);">© 2025 The Viva Company</div>
       </div>
 
       <!-- 숨김 (JS 호환성 유지) -->
@@ -350,7 +350,7 @@
       <div class="settings-card">
         <div class="settings-label">ℹ️ 앱 정보</div>
         <div class="settings-info">
-          <div class="settings-info-row"><span>앱 이름</span><span>Econ.SOOP 경제숲</span></div>
+          <div class="settings-info-row"><span>앱 이름</span><span>VIVA Economy</span></div>
           <div class="settings-info-row"><span>버전</span><span id="settings-version">v1.5</span></div>
           <div class="settings-info-row"><span>개발자</span><span>Shawn Kim (김도훈)</span></div>
           <div class="settings-info-row"><span>AI 엔진</span><span>Claude Sonnet</span></div>
@@ -437,7 +437,7 @@
               <li>AI 브리핑 — Anthropic API 연동 (SUMMARY + ONELINER)</li>
               <li>네이버 뉴스 API 실시간 수집</li>
               <li>Vercel 서버리스 배포 + PWA 지원</li>
-              <li>Service Worker 캐시 + 앱 아이콘 Econ.SOOP PNG</li>
+              <li>Service Worker 캐시 + PWA 지원</li>
             </ul>
           </div>
         </div>
@@ -449,39 +449,35 @@
     <div class="tab-panel" id="tab-subscribe">
       <div style="padding:24px 16px 40px;">
         <div style="background:linear-gradient(145deg,#0D3320 0%,#1A5C35 50%,#164A2E 100%);border-radius:14px;padding:28px 22px;box-shadow:0 4px 20px rgba(13,51,32,0.2);">
-          <div style="font-size:22px;margin-bottom:12px;">🌲</div>
-          <div style="font-family:var(--font-serif);font-size:16px;font-weight:900;color:#fff;line-height:1.5;letter-spacing:-0.3px;margin-bottom:16px;">
-            더욱 푸른 경제숲이 될 수 있도록<br>소중한 물을 보태 주세요.
+          <div style="font-family:var(--font-mono);font-size:10px;font-weight:700;color:rgba(255,255,255,0.5);letter-spacing:2px;text-transform:uppercase;margin-bottom:14px;">The Viva Company</div>
+          <div style="font-family:var(--font-serif);font-size:18px;font-weight:900;color:#fff;line-height:1.45;letter-spacing:-0.4px;margin-bottom:16px;">
+            노이즈는 걷어내고,<br>전략만 남깁니다.
           </div>
-          <div style="font-family:var(--font-sans);font-size:12.5px;font-weight:400;color:rgba(255,255,255,0.88);line-height:1.9;letter-spacing:-0.1px;">
-            경제숲, Econ.SOOP 앱은 저의 작은 프로젝트로 시작되었습니다. 대기업 전략기획 경력을 통해 쌓은 문제 구조화 노하우를 AI 프롬프팅 기술에 응용하였습니다. 누구나 쉽게 경제 이슈를 파악하고, 변화에 한 발자국 더 빨리 대응할 수 있는 정보 전달 앱을 기획하였습니다.
+          <div style="font-family:var(--font-sans);font-size:12.5px;font-weight:400;color:rgba(255,255,255,0.8);line-height:1.9;letter-spacing:-0.1px;">
+            VIVA Economy는 자본 시장의 복잡한 신호를 해독해, 의사결정권자에게 필요한 비즈니스 로직만을 한입(Bite)으로 전달합니다. 7년 전략기획 경력의 발행인이 직접 큐레이션하고, AI가 정밀하게 가공합니다.
           </div>
-          <div style="font-family:var(--font-sans);font-size:12.5px;font-weight:400;color:rgba(255,255,255,0.88);line-height:1.9;letter-spacing:-0.1px;margin-top:14px;">
-            저는 앱을 통해 정보 수집과 논리적 추론을 생성하는 고성능 AI 모델을 사용하여 인사이트 있는 경제 정보를 제공하고자 합니다. 높은 사양의 AI 엔진을 사용하고 사이트를 유지하는 데는 적지 않은 비용과 시간이 소요됩니다. 더욱 양질의 정보를 제공할 수 있도록, 관심과 응원을 보태주신다면 대단히 감사하겠습니다.
+          <div style="font-family:var(--font-sans);font-size:12.5px;font-weight:400;color:rgba(255,255,255,0.8);line-height:1.9;letter-spacing:-0.1px;margin-top:12px;">
+            고성능 AI 엔진 운용과 플랫폼 유지에는 실질적인 비용이 수반됩니다. 브리핑의 질을 높이고 서비스를 지속하는 데 응원을 보태주신다면 감사하겠습니다.
           </div>
           <div style="display:flex;gap:10px;margin-top:22px;">
-            <button onclick="alert('정기 구독 기능은 준비 중입니다. 곧 만나요! 🌱')"
+            <button onclick="alert('구독 기능을 준비 중입니다.')"
               style="flex:1;padding:13px 0;border-radius:10px;border:none;
                      background:#fff;color:#0D3320;
                      font-family:var(--font-sans);font-size:13px;font-weight:800;
                      cursor:pointer;transition:opacity 0.2s;letter-spacing:-0.2px;">
-              🌱 숲에 물 주기
+              구독 시작하기
             </button>
-            <button onclick="alert('사이트 후원 기능은 준비 중입니다. 감사합니다! 🌲')"
+            <button onclick="alert('후원 기능을 준비 중입니다.')"
               style="flex:1;padding:13px 0;border-radius:10px;
                      border:1.5px solid rgba(255,255,255,0.35);background:transparent;color:#fff;
                      font-family:var(--font-sans);font-size:13px;font-weight:700;
                      cursor:pointer;transition:opacity 0.2s;letter-spacing:-0.2px;">
-              🌲 경제숲 키우기
+              후원하기
             </button>
           </div>
-          <div style="display:flex;gap:14px;margin-top:14px;justify-content:center;">
-            <span style="font-size:10px;color:rgba(255,255,255,0.45);font-family:var(--font-mono);">정기 구독</span>
-            <span style="font-size:10px;color:rgba(255,255,255,0.45);font-family:var(--font-mono);">사이트 후원</span>
-          </div>
           <div style="margin-top:20px;padding-top:14px;border-top:1px solid rgba(255,255,255,0.12);">
-            <div style="font-family:var(--font-serif);font-size:12px;color:rgba(255,255,255,0.6);letter-spacing:0.3px;">나무가 아닌 숲을 보라</div>
-            <div style="font-family:var(--font-mono);font-size:11px;color:rgba(255,255,255,0.4);margin-top:4px;">— Shawn Kim, 경제숲 개발자</div>
+            <div style="font-family:var(--font-serif);font-size:12px;color:rgba(255,255,255,0.5);letter-spacing:0.3px;">노이즈를 걷어내면, 전략이 보인다.</div>
+            <div style="font-family:var(--font-mono);font-size:11px;color:rgba(255,255,255,0.35);margin-top:4px;">— Shawn Kim, VIVA Economy 발행인</div>
           </div>
         </div>
         <div style="text-align:center;margin-top:16px;">

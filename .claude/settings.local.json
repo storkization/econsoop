@@ -30,7 +30,22 @@
       "WebFetch(domain:winterstarryrain.tistory.com)",
       "Bash(grep -n \"ENV\\\\|process.env\\\\|localStorage\\\\|sessionStorage\" \"C:/Users/dodoh/Downloads/ShawnDev/Project1/ecobrief/api\"/*.js)",
       "WebFetch(domain:moneybrief-vip.vercel.app)",
-      "WebFetch(domain:newneek.co)"
+      "WebFetch(domain:newneek.co)",
+      "Bash(sed -i 's|<title>Econ\\\\.SOOP</title>|<title>VIVA Economy</title>|g' index.html)",
+      "Bash(sed -i 's|content=\"Econ\\\\.SOOP\"|content=\"VIVA Economy\"|g' index.html)",
+      "Bash(sed -i 's|Econ\\\\.<em>SOOP</em>|VIVA<em> Economy</em>|g' index.html)",
+      "Bash(sed -i 's|Econ\\\\.SOOP ∧|The Viva Company ∧|g' index.html)",
+      "Bash(sed -i 's|<span class=\"logo-kr\">경제숲</span>|<span class=\"logo-kr\">비바 이코노미</span>|g' index.html)",
+      "Bash(sed -i \"s|경제숲 완성|Biz Bite 준비 완료|g\" js/app.js)",
+      "Bash(sed -i \"s|경제숲 완성 시 정답 공개|Biz Bite 완성 시 정답 공개|g\" js/app.js)",
+      "Bash(sed -i \"s|브리핑을 마무리하는 중이에요|Biz Bite를 마무리하는 중이에요|g\" js/app.js)",
+      "Bash(sed -i \"s|경제숲 퀴즈 정답!|오늘의 퀴즈 정답!|g\" js/app.js)",
+      "Bash(sed -i \"s|Money Forest 데일리 브리핑|VIVA Economy 데일리 브리핑|g\" js/app.js)",
+      "Bash(sed -i 's|경제숲 개발기|VIVA Economy 개발기|g' devstory/index.html)",
+      "Bash(sed -i 's|경제숲, 이렇게 만들었습니다|VIVA Economy, 이렇게 만들었습니다|g' devstory/index.html)",
+      "Bash(sed -i 's|경제숲은 이런 앱입니다|VIVA Economy는 이런 앱입니다|g' devstory/index.html)",
+      "Bash(sed -i 's|경제숲은 AI가|VIVA Economy는 AI가|g' devstory/index.html)",
+      "Bash(sed -i 's|경제숲이 Claude에게|VIVA Economy가 Claude에게|g' devstory/index.html)"
     ]
   }
 }

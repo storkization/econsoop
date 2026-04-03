@@ -4,7 +4,7 @@ const NEWSROOM_CEO = {
   name: 'Shawn Kim',
   flag: '',
   role: 'CEO · Founder',
-  bio: '경제 뉴스는 왜 항상 어렵게 쓰여 있을까. 10년간 대기업 전략기획실에서 수천 장의 리포트를 읽으며 내린 결론은 하나였다. 복잡한 건 숨기기 위함이 아니라, 제대로 정리한 사람이 없어서다. Money Forest는 그 질문에서 시작됐다.',
+  bio: '경제 뉴스는 왜 항상 어렵게 쓰여 있을까. 10년간 대기업 전략기획실에서 수천 장의 리포트를 읽으며 내린 결론은 하나였다. 복잡한 건 숨기기 위함이 아니라, 제대로 정리한 사람이 없어서다. VIVA Economy는 그 질문에서 시작됐다.',
   photo: '/img/team/shawn1.png',
 };
 
@@ -82,9 +82,9 @@ function renderNewsroom() {
   root.innerHTML = `
     <div class="newsroom-wrap">
       <div class="newsroom-header">
-        <div class="newsroom-eyebrow">Money Forest Newsroom</div>
-        <div class="newsroom-title">우리 팀을 소개합니다</div>
-        <div class="newsroom-desc">경제숲을 만드는 사람들</div>
+        <div class="newsroom-eyebrow">VIVA Economy Intelligence</div>
+        <div class="newsroom-title">The Newsroom</div>
+        <div class="newsroom-desc">비즈니스 로직을 해석하는 사람들</div>
       </div>
       ${sectionsHtml}
       ${ceoHtml}

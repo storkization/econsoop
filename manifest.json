@@ -1,6 +1,6 @@
 {
-  "name": "Econ.SOOP",
-  "short_name": "Econ.SOOP",
+  "name": "VIVA Economy",
+  "short_name": "VIVA",
   "description": "AI 경제 뉴스 브리핑 앱",
   "start_url": "./index.html",
   "display": "standalone",

@@ -1,4 +1,4 @@
-const CACHE = 'econsoop-v21';
+const CACHE = 'viva-economy-v1';
 const ASSETS = [
   './manifest.json',
   './css/style.css',
