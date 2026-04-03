@@ -5,7 +5,7 @@ const NEWSROOM_CEO = {
   flag: '🇰🇷',
   role: 'CEO · Founder',
   bio: '경제 뉴스는 왜 항상 어렵게 쓰여 있을까. 10년간 대기업 전략기획실에서 수천 장의 리포트를 읽으며 내린 결론은 하나였다. 복잡한 건 숨기기 위함이 아니라, 제대로 정리한 사람이 없어서다. Money Forest는 그 질문에서 시작됐다.',
-  photo: '/img/team/shawn1.jpg',
+  photo: '/img/team/shawn1.png',
 };
 
 const NEWSROOM_TEAM = [
