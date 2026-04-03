@@ -5,8 +5,8 @@ on:
     - cron: '0 22 * * *'   # 07:00 KST
     - cron: '0 8 * * *'    # 17:00 KST
   workflow_dispatch:        # 수동 실행 가능
-  # push:
-  #   branches: [main]      # 배포 시 자동 실행 (비용 절감을 위해 비활성화 — 필요시 주석 해제)
+  push:
+    branches: [main]      # 배포 시 자동 실행
 
 jobs:
   generate:
