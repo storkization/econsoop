@@ -16,6 +16,31 @@ export default async function handler(req, res) {
   const { action, id, tab } = req.query;
 
   try {
+    // ── 에디션 목록 (카드 아카이브) ──────────────────
+    if (action === 'editions') {
+      const snap = await db.collection('editions').orderBy('created_at', 'desc').limit(60).get();
+      const items = snap.docs.map(doc => {
+        const d = doc.data();
+        return {
+          id: doc.id,
+          date: d.date,
+          slot: d.slot,
+          period: d.period,
+          month: d.month,
+          year: d.year,
+          created_at: d.created_at,
+          tabs: {
+            economy:  d.tabs?.economy  ? { teaser: d.tabs.economy.teaser  || '' } : null,
+            industry: d.tabs?.industry ? { teaser: d.tabs.industry.teaser || '' } : null,
+            global:   d.tabs?.global   ? { teaser: d.tabs.global.teaser   || '' } : null,
+            stocks:   d.tabs?.stocks   ? { teaser: d.tabs.stocks.teaser   || '' } : null,
+          },
+          columnTeaser: d.column?.teaser || '',
+        };
+      });
+      return res.status(200).json({ items });
+    }
+
     // ── 목록 조회 ─────────────────────────────────
     if (action === 'list') {
       let query = db.collection('archive').orderBy('created_at', 'desc').limit(90);

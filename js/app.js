@@ -1639,181 +1639,87 @@ const TAB_META = {
   global:   { label: '국제', icon: '🌐', color: '#B45309' },
   stocks:   { label: '증권', icon: '📈', color: '#047857' },
 };
-let archiveFilter = 'all';
-let archiveItems = null;
+let archiveEditions = null;
 
 async function loadArchive() {
   const root = document.getElementById('archive-root');
   if (!root) return;
-
-  // 이미 로드된 경우 필터만 다시 렌더
-  if (archiveItems) { renderArchiveList(archiveItems); return; }
+  if (archiveEditions) { renderEditionCards(archiveEditions); return; }
 
   root.innerHTML = `<div class="loading-wrap"><div class="dots"><span></span><span></span><span></span></div><p style="margin-top:14px">아카이브를 불러오는 중...</p></div>`;
 
   try {
-    const r = await fetch('/api/archive?action=list');
+    const r = await fetch('/api/archive?action=editions');
     const j = await r.json();
-    archiveItems = j.items || [];
-    renderArchiveList(archiveItems);
+    archiveEditions = j.items || [];
+    renderEditionCards(archiveEditions);
   } catch (e) {
-    root.innerHTML = `<div class="loading-wrap"><p>아카이브를 불러올 수 없습니다.</p></div>`;
+    root.innerHTML = `<div class="loading-wrap"><p style="color:var(--text-dim);">아카이브를 불러올 수 없습니다.</p></div>`;
   }
 }
 
-function renderArchiveList(items) {
+function renderEditionCards(items) {
   const root = document.getElementById('archive-root');
   if (!root) return;
 
-  const filtered = archiveFilter === 'all' ? items : items.filter(it => it.tab === archiveFilter);
-
-  // 날짜별 그룹핑
-  const groups = {};
-  filtered.forEach(it => {
-    const key = it.date; // YYYYMMDD
-    if (!groups[key]) groups[key] = [];
-    groups[key].push(it);
-  });
-
-  const filterHtml = `
-    <div class="archive-filter-row">
-      ${['all','economy','industry','global'].map(f => {
-        const meta = f === 'all' ? { label: '전체', icon: '📋' } : TAB_META[f];
-        return `<button class="archive-chip${archiveFilter===f?' active':''}"
-          onclick="setArchiveFilter('${f}')"
-          ${f !== 'all' ? `style="${archiveFilter===f?`background:${TAB_META[f].color};color:#fff;border-color:${TAB_META[f].color};`:''}"` : ''}>
-          ${meta.icon} ${meta.label}
-        </button>`;
-      }).join('')}
-    </div>`;
-
-  if (!filtered.length) {
+  if (!items.length) {
     root.innerHTML = `
-      <div class="archive-wrap">
-        <div class="archive-header">
-          <div class="archive-eyebrow">VIVA Economy Archive</div>
-          <div class="archive-title">브리핑 아카이브</div>
+      <div class="edition-wrap">
+        <div class="edition-page-header">
+          <div class="edition-page-eyebrow">VIVA Economy Archive</div>
+          <div class="edition-page-title">브리핑 아카이브</div>
         </div>
-        ${filterHtml}
-        <div class="loading-wrap" style="padding:40px 0;">
-          <p style="color:var(--text-dim);">아직 쌓인 데이터가 없습니다.<br>매일 07:00 · 17:00에 자동 저장됩니다.</p>
+        <div class="loading-wrap" style="padding:48px 0;">
+          <p style="color:var(--text-dim);font-size:13px;line-height:1.8;">아직 쌓인 에디션이 없습니다.<br>매일 07:00 · 17:00에 자동 저장됩니다.</p>
         </div>
       </div>`;
     return;
   }
 
-  const groupsHtml = Object.keys(groups).sort((a,b)=>b-a).map(dateKey => {
-    const y = dateKey.slice(0,4), mo = dateKey.slice(4,6), d = dateKey.slice(6,8);
-    const label = `${parseInt(mo)}월 ${parseInt(d)}일`;
-    const rowsHtml = groups[dateKey].map(it => {
-      const meta = TAB_META[it.tab] || TAB_META.economy;
-      return `<div class="archive-row" onclick="loadArchiveDetail('${it.id}')">
-        <div class="archive-row-left">
-          <span class="archive-slot">${it.slot}</span>
-          <span class="archive-tab-badge" style="background:${meta.color}15;color:${meta.color};">${meta.icon} ${meta.label}</span>
-        </div>
-        <div class="archive-headline">${it.headline || '브리핑 보기 →'}</div>
-        <div class="archive-arrow">›</div>
+  const TAB_ORDER = ['economy','industry','global','stocks'];
+  const TAB_LABEL_MAP = { economy:'경제', industry:'산업', global:'국제', stocks:'증권' };
+  const TAB_ICON_MAP  = { economy:'🏦', industry:'🏭', global:'🌐', stocks:'📈' };
+
+  const cardsHtml = items.map(ed => {
+    const mo = ed.date ? parseInt(ed.date.slice(4,6)) : '';
+    const d  = ed.date ? parseInt(ed.date.slice(6,8)) : '';
+    const dateLabel = ed.date ? `${parseInt(ed.date.slice(0,4))}년 ${mo}월 ${d}일` : '';
+
+    const tabRows = TAB_ORDER.map(tab => {
+      const t = ed.tabs?.[tab];
+      if (!t) return '';
+      const teaser = (t.teaser || '').replace(/포인트\d+:\s*/g,'').trim();
+      return `<div class="edition-tab-row">
+        <span class="edition-tab-icon">${TAB_ICON_MAP[tab]}</span>
+        <span class="edition-tab-name">${TAB_LABEL_MAP[tab]}</span>
+        <span class="edition-tab-teaser">${teaser || '—'}</span>
       </div>`;
     }).join('');
-    return `<div class="archive-group">
-      <div class="archive-date-label">${label}</div>
-      ${rowsHtml}
+
+    const columnRow = ed.columnTeaser ? `
+      <div class="edition-column-row">
+        <span class="edition-column-label">칼럼</span>
+        <span class="edition-column-teaser">"${ed.columnTeaser}"</span>
+      </div>` : '';
+
+    return `<div class="edition-card">
+      <div class="edition-card-header">
+        <div class="edition-card-date">${dateLabel}</div>
+        <div class="edition-card-badge">${ed.period || ed.slot}판</div>
+      </div>
+      <div class="edition-tab-list">${tabRows}</div>
+      ${columnRow ? `<div class="edition-divider"></div>${columnRow}` : ''}
     </div>`;
   }).join('');
 
   root.innerHTML = `
-    <div class="archive-wrap">
-      <div class="archive-header">
-        <div class="archive-eyebrow">VIVA Economy Archive</div>
-        <div class="archive-title">브리핑 아카이브</div>
-        <div class="archive-desc">매일 07:00 · 17:00 자동 저장 · ${items.length}건</div>
+    <div class="edition-wrap">
+      <div class="edition-page-header">
+        <div class="edition-page-eyebrow">VIVA Economy Archive</div>
+        <div class="edition-page-title">브리핑 아카이브</div>
+        <div class="edition-page-desc">매일 07:00 · 17:00 자동 저장 · ${items.length}개 에디션</div>
       </div>
-      ${filterHtml}
-      <div class="archive-list">${groupsHtml}</div>
-    </div>`;
-}
-
-function setArchiveFilter(f) {
-  archiveFilter = f;
-  if (archiveItems) renderArchiveList(archiveItems);
-}
-
-async function loadArchiveDetail(id) {
-  const root = document.getElementById('archive-root');
-  root.innerHTML = `<div class="loading-wrap"><div class="dots"><span></span><span></span><span></span></div><p style="margin-top:14px">불러오는 중...</p></div>`;
-
-  try {
-    const r = await fetch(`/api/archive?action=get&id=${encodeURIComponent(id)}`);
-    const data = await r.json();
-    if (!r.ok || data.error) throw new Error(data.error || '불러오기 실패');
-    renderArchiveDetail(data);
-  } catch (e) {
-    root.innerHTML = `<div class="loading-wrap"><p style="color:var(--text-dim);">브리핑을 불러올 수 없습니다.</p>
-      <button onclick="renderArchiveList(archiveItems)"
-        style="margin-top:16px;padding:8px 18px;border-radius:10px;border:1.5px solid var(--border);background:#fff;font-size:13px;font-weight:600;cursor:pointer;">
-        ← 목록으로
-      </button></div>`;
-  }
-}
-
-function renderArchiveDetail(data) {
-  const root = document.getElementById('archive-root');
-  const meta = TAB_META[data.tab] || TAB_META.economy;
-  const mo = data.date ? parseInt(data.date.slice(4,6)) : '';
-  const d  = data.date ? parseInt(data.date.slice(6,8)) : '';
-  const dateLabel = data.date ? `${mo}월 ${d}일 ${data.slot} · ${meta.label}` : '';
-
-  // 포인트 파싱 (메인과 동일)
-  const summaryClean = (data.summary || '').replace(/\*\*/g,'').replace(/^#+\s*/gm,'').trim();
-  const m1 = summaryClean.match(/포인트1:\s*(.+?)(?=\s*포인트2:|$)/s);
-  const m2 = summaryClean.match(/포인트2:\s*(.+?)(?=\s*포인트3:|$)/s);
-  const m3 = summaryClean.match(/포인트3:\s*(.+?)(?=\s*포인트4:|$)/s);
-  const m4 = summaryClean.match(/포인트4:\s*(.+?)(?=\s*\[|$)/s);
-  const lines = [m1,m2,m3,m4].map(m => m ? m[1].trim() : null).filter(Boolean);
-
-  const atc = TAB_COLORS[data.tab] || TAB_COLORS.economy;
-  const CARDS = [
-    { label:'핵심 이슈', color:atc.main, bg:`linear-gradient(135deg,${atc.bg1},${atc.bg2})`, shadow:atc.shadow },
-    { label:'배경',      color:atc.main, bg:`linear-gradient(135deg,${atc.bg1},${atc.bg2})`, shadow:atc.shadow },
-    { label:'시장 영향', color:atc.main, bg:`linear-gradient(135deg,${atc.bg1},${atc.bg2})`, shadow:atc.shadow },
-    { label:'투자 전략', color:atc.main, bg:`linear-gradient(135deg,${atc.bg1},${atc.bg2})`, shadow:atc.shadow },
-  ];
-  const headings = [
-    { h: data.headline,  s: data.subheading  },
-    { h: data.heading2,  s: data.subheading2 },
-    { h: data.heading3,  s: data.subheading3 },
-    { h: data.heading4,  s: data.subheading4 },
-  ];
-
-  const cardsHtml = lines.map((line, i) => {
-    const cfg = CARDS[i] || CARDS[0];
-    const hd = headings[i] || {};
-    const cleaned = line.replace(/^포인트\d+:\s*/,'').replace(/\*\*/g,'').trim();
-    const headlinePart = hd.h ? `
-      <div style="font-size:20px;font-weight:900;color:#000000;line-height:1.3;margin-bottom:5px;font-family:var(--font-sans);letter-spacing:-0.4px;">${hd.h}</div>
-      ${hd.s ? `<div style="font-size:15px;font-weight:800;color:${cfg.color};line-height:1.5;margin-bottom:12px;font-family:var(--font-sans);letter-spacing:-0.2px;">${hd.s}</div>` : ''}
-    ` : '';
-    return `<div style="background:${cfg.bg};border-radius:20px;padding:18px 18px 16px;margin-bottom:10px;box-shadow:0 4px 20px ${cfg.shadow};">
-      <div style="display:inline-flex;align-items:center;gap:5px;background:${cfg.color};color:#fff;padding:4px 12px;border-radius:8px;font-size:11px;font-weight:700;margin-bottom:12px;">${cfg.label}</div>
-      ${headlinePart}
-      <div style="font-size:16px;line-height:2.1;color:#000000;font-family:var(--font-sans);">${cleaned}</div>
-    </div>`;
-  }).join('');
-
-  root.innerHTML = `
-    <div class="archive-detail-wrap">
-      <button class="archive-back-btn" onclick="renderArchiveList(archiveItems)">← 목록으로</button>
-      <div class="archive-detail-header">
-        <span class="archive-tab-badge" style="background:${meta.color}15;color:${meta.color};font-size:12px;padding:4px 10px;">${meta.icon} ${meta.label}</span>
-        <div class="archive-detail-date">${dateLabel}</div>
-      </div>
-      <div style="padding:0 2px;">${cardsHtml}</div>
-      ${data.columnHook ? `
-        <div style="margin:8px 0 16px;background:linear-gradient(135deg,#0F172A,#1E3A5F);border-radius:14px;padding:16px 18px;">
-          <div style="font-size:10px;font-weight:700;color:rgba(255,255,255,0.5);font-family:var(--font-mono);letter-spacing:0.5px;margin-bottom:8px;">📰 오늘의 칼럼 예고</div>
-          <div style="font-size:14px;font-weight:800;color:#fff;line-height:1.45;">${data.columnHook}</div>
-        </div>` : ''}
+      <div class="edition-list">${cardsHtml}</div>
     </div>`;
 }
 

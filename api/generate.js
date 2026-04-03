@@ -110,12 +110,87 @@ export default async function handler(req, res) {
         console.error(`[GENERATE] ${tab} 아카이브 저장 실패:`, archiveErr.message);
       }
 
-      results.push({ tab, ok: true, len: summary.length });
+      results.push({ tab, ok: true, len: summary.length, summary });
       console.log(`[GENERATE] ${tab} 완료 (${summary.length}자)`);
     } catch(err) {
       console.error(`[GENERATE] ${tab} 실패:`, err.message);
       results.push({ tab, ok: false, error: err.message });
     }
+  }
+
+  // ── 에디션 저장 (슬롯 시간에만) ───────────────────────────
+  try {
+    const kst = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Seoul' }));
+    const hm = kst.getHours() * 100 + kst.getMinutes();
+    const SLOTS = [
+      { hm: 700,  label: '0700', period: '오전' },
+      { hm: 1700, label: '1700', period: '오후' },
+    ];
+    const matchedSlot = SLOTS.find(s => Math.abs(hm - s.hm) <= 15);
+
+    if (matchedSlot) {
+      const dateStr = String(kst.getFullYear()) +
+        String(kst.getMonth() + 1).padStart(2, '0') +
+        String(kst.getDate()).padStart(2, '0');
+      const editionId = `${dateStr}_${matchedSlot.label}`;
+      const month = `${kst.getFullYear()}-${String(kst.getMonth() + 1).padStart(2, '0')}`;
+
+      // 탭별 티저 추출 (포인트1 첫 문장)
+      function extractTeaser(summary) {
+        if (!summary) return '';
+        const m = summary.match(/포인트1:\s*(.+?)(?=\s*포인트2:|$)/s);
+        const raw = m ? m[1].trim() : summary.split('\n').find(l => l.trim().length > 10) || summary;
+        return raw.replace(/\*\*/g, '').trim().slice(0, 80);
+      }
+
+      const tabs = {};
+      for (const r of results) {
+        if (r.ok && r.summary) {
+          tabs[r.tab] = { summary: r.summary, teaser: extractTeaser(r.summary) };
+        }
+      }
+
+      // 칼럼 생성 (경제 탭 기반)
+      let columnText = '';
+      let columnTeaser = '';
+      const econResult = results.find(r => r.ok && r.tab === 'economy');
+      if (econResult?.summary) {
+        try {
+          const colRes = await fetch(`https://${host}/api/column`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ summary: econResult.summary, oneliner: '', label: '경제' }),
+          });
+          if (colRes.ok) {
+            const colData = await colRes.json();
+            if (colData.column) {
+              columnText = colData.column;
+              const firstLine = columnText.split('\n')
+                .find(l => l.trim().length > 5 && !l.startsWith('---') && !l.startsWith('by.') && !l.startsWith('###'));
+              columnTeaser = (firstLine || '').replace(/^#+\s*/, '').replace(/[📈🚨💡📉⚠️🔥💰🏦]/g, '').trim().slice(0, 70);
+            }
+          }
+        } catch(e) {
+          console.error('[GENERATE] 칼럼 생성 실패:', e.message);
+        }
+      }
+
+      await db.collection('editions').doc(editionId).set({
+        date: dateStr,
+        slot: `${matchedSlot.label.slice(0, 2)}:${matchedSlot.label.slice(2)}`,
+        period: matchedSlot.period,
+        month,
+        year: String(kst.getFullYear()),
+        created_at: Date.now(),
+        tabs,
+        column: { text: columnText, teaser: columnTeaser },
+      });
+      console.log(`[GENERATE] 에디션 저장: ${editionId}`);
+    } else {
+      console.log(`[GENERATE] 에디션 건너뜀 (슬롯 외 시간: ${hm})`);
+    }
+  } catch(e) {
+    console.error('[GENERATE] 에디션 저장 실패:', e.message);
   }
 
   res.status(200).json({ done: true, results, ts: new Date().toISOString() });
