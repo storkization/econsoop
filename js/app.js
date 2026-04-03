@@ -36,7 +36,7 @@ const FX_LIST = [
 const TAB_LABEL = { economy:'경제', industry:'산업', global:'국제' };
 
 /* ═══════════ CACHE VERSION ═══════════ */
-const CACHE_VERSION = 'v114';
+const CACHE_VERSION = 'v115';
 (function clearOldCache() {
   const savedVersion = localStorage.getItem('eco_cache_version');
   if (savedVersion !== CACHE_VERSION) {
@@ -1613,6 +1613,12 @@ function openDrawer() {
 function closeDrawer() {
   document.getElementById('drawer').classList.remove('open');
   document.getElementById('drawer-overlay').classList.remove('open');
+}
+
+/* ═══════════ HOME ═══════════ */
+function goHome() {
+  // TODO: 랜딩 페이지 완성 후 → window.location.href = '/landing'
+  window.location.href = '/';
 }
 
 /* ═══════════ ARCHIVE ═══════════ */
