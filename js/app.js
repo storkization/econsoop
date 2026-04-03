@@ -44,7 +44,7 @@ const TAB_COLORS = {
 };
 
 /* ═══════════ CACHE VERSION ═══════════ */
-const CACHE_VERSION = 'v120';
+const CACHE_VERSION = 'v121';
 (function clearOldCache() {
   const savedVersion = localStorage.getItem('eco_cache_version');
   if (savedVersion !== CACHE_VERSION) {
@@ -133,7 +133,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const days = ['일','월','화','수','목','금','토'];
   const months = ['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'];
   document.getElementById('headerDate').innerHTML =
-    `<span style="color:#1A7A45;font-weight:700;font-size:11px;">${days[d.getDay()]}요일</span> · <span style="font-size:11px;">${months[d.getMonth()]} ${d.getDate()}일, ${d.getFullYear()}</span>`;
+    `<span style="color:#C9963B;font-weight:700;font-size:11px;">${days[d.getDay()]}요일</span> · <span style="font-size:11px;">${months[d.getMonth()]} ${d.getDate()}일, ${d.getFullYear()}</span>`;
 
   document.querySelectorAll('.tab-btn').forEach(btn => {
     btn.addEventListener('click', () => switchTab(btn.dataset.tab));
@@ -420,7 +420,7 @@ function setLoadingMsg(tab, phase, count = null) {
 
     card.innerHTML = `
       <div style="padding:24px 20px;background:#FFFFFF;border-radius:16px;box-shadow:0 2px 16px rgba(13,51,32,0.06);">
-        <div style="font-family:var(--font-serif);font-size:15px;font-weight:900;color:var(--text);letter-spacing:-0.3px;margin-bottom:4px;text-align:center;">Biz Bite! 오늘의 한 입</div>
+        <div style="font-family:var(--font-serif);font-size:18px;font-weight:700;font-style:italic;color:var(--text);letter-spacing:0.2px;margin-bottom:4px;text-align:center;">Biz Bite! 오늘의 한 입</div>
         ${treeViz}
         ${quizCard}
         <div style="text-align:center;">
@@ -914,7 +914,7 @@ function renderTabSummary(tab, result) {
     card.innerHTML = `
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:6px;">
         <div>
-          <div style="font-family:var(--font-serif);font-size:14px;font-weight:900;color:var(--text);letter-spacing:-0.3px;">Biz Bite! 오늘의 한 입</div>
+          <div style="font-family:var(--font-serif);font-size:18px;font-weight:700;font-style:italic;color:var(--text);letter-spacing:0.2px;">Biz Bite! 오늘의 한 입</div>
           <div style="font-size:10px;color:var(--text-muted);margin-top:2px;font-family:var(--font-mono);">${dateStr}</div>
         </div>
         ${slotBadge}

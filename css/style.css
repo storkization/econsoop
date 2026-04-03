@@ -27,7 +27,7 @@
 
       /* ── Typography ── */
       --font-display: 'Black Han Sans', 'Noto Sans KR', sans-serif;
-      --font-serif:   'Bebas Neue', sans-serif;
+      --font-serif:   'Cormorant Garamond', Georgia, serif;
       --font-sans:    'Pretendard', 'Noto Sans KR', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', sans-serif;
       --font-mono:    'IBM Plex Mono', 'SF Mono', Menlo, Consolas, monospace;
       --font-emoji:   'Segoe UI Emoji', 'Apple Color Emoji', 'Noto Color Emoji', sans-serif;
@@ -103,12 +103,17 @@
       cursor:pointer;
     }
     .logo-en {
-      font-size:26px; font-weight:400;
+      font-size:28px; font-weight:700;
       font-family:var(--font-serif);
-      letter-spacing:4px; color:#FFFFFF;
+      letter-spacing:1px; color:#FFFFFF;
       text-transform:uppercase;
       line-height:1;
       transition: all 0.3s ease;
+    }
+    .logo-en em {
+      font-style:italic;
+      color:var(--viva-gold);
+      margin-right:3px;
     }
     .logo-kr {
       font-size:10px; font-weight:500;
@@ -175,9 +180,10 @@
     }
     .tab-section-sub {
       font-family:var(--font-serif);
-      font-size:12px; font-weight:400;
-      color:var(--text-dim); letter-spacing:3px;
-      text-transform:uppercase; margin-top:2px;
+      font-size:14px; font-weight:600;
+      font-style:italic;
+      color:var(--text-dim); letter-spacing:1px;
+      margin-top:2px;
     }
 
     /* ── TABS ── */
