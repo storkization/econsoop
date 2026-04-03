@@ -4,7 +4,7 @@ const NEWSROOM_CEO = {
   name: 'Shawn Kim (김도훈)',
   flag: '🇰🇷',
   role: 'CEO · Founder',
-  bio: '대기업 전략기획 출신. 경제 정보의 민주화를 꿈꾸며 경제숲을 창업.',
+  bio: '경제 뉴스는 왜 항상 어렵게 쓰여 있을까. 10년간 대기업 전략기획실에서 수천 장의 리포트를 읽으며 내린 결론은 하나였다. 복잡한 건 숨기기 위함이 아니라, 제대로 정리한 사람이 없어서다. Money Forest는 그 질문에서 시작됐다.',
   photo: '/img/team/shawn.jpg',
 };
 
@@ -57,7 +57,7 @@ function renderNewsroom() {
     const members = NEWSROOM_TEAM.filter(m => m.team === sec.key);
     if (!members.length) return '';
 
-    const cardsHtml = members.map(m => `
+    const makeCard = m => `
       <div class="team-card" style="background:${sec.bg};border-color:${sec.border};">
         <div class="team-photo" style="border-color:${sec.color}33;">
           <img src="${m.photo}" alt="${m.name}"
@@ -67,7 +67,10 @@ function renderNewsroom() {
         <div class="team-role" style="color:${sec.color};">${m.role}</div>
         <div class="team-spec">${m.spec}</div>
       </div>
-    `).join('');
+    `;
+
+    const chief = members[0];
+    const rest = members.slice(1);
 
     return `
       <div class="team-section">
@@ -76,7 +79,8 @@ function renderNewsroom() {
           <span class="team-section-label-text">${sec.label}</span>
           <span class="team-section-count" style="background:${sec.color};">${members.length}명</span>
         </div>
-        <div class="team-grid">${cardsHtml}</div>
+        <div class="team-chief-row">${makeCard(chief)}</div>
+        ${rest.length ? `<div class="team-rest-row">${rest.map(makeCard).join('')}</div>` : ''}
       </div>
     `;
   }).join('');

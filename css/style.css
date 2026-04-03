@@ -867,7 +867,14 @@
       color:#fff; padding:2px 8px;
       border-radius:20px; letter-spacing:0.3px;
     }
-    .team-grid {
+    .team-chief-row {
+      display:flex; justify-content:center;
+      margin-bottom:8px;
+    }
+    .team-chief-row .team-card {
+      width:160px;
+    }
+    .team-rest-row {
       display:grid;
       grid-template-columns:1fr 1fr;
       gap:10px;
