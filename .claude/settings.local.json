@@ -45,7 +45,12 @@
       "Bash(sed -i 's|경제숲, 이렇게 만들었습니다|VIVA Economy, 이렇게 만들었습니다|g' devstory/index.html)",
       "Bash(sed -i 's|경제숲은 이런 앱입니다|VIVA Economy는 이런 앱입니다|g' devstory/index.html)",
       "Bash(sed -i 's|경제숲은 AI가|VIVA Economy는 AI가|g' devstory/index.html)",
-      "Bash(sed -i 's|경제숲이 Claude에게|VIVA Economy가 Claude에게|g' devstory/index.html)"
+      "Bash(sed -i 's|경제숲이 Claude에게|VIVA Economy가 Claude에게|g' devstory/index.html)",
+      "Bash(sed -i 's|VIVA Economy 데일리 브리핑|VIVA: Biz Bite!|g' js/app.js)",
+      "Bash(sed -i 's|오늘 꼭 알아야 할 것을<br>정리해드려요|경제를 읽는 법,<br>더 생생하고 더 깊이 있게|g' index.html)",
+      "Bash(sed -i 's|The Newsroom|Today'\\\\''s Biz Bite|g' js/newsroom.js)",
+      "Bash(sed -i 's|오늘의 경제에<br>활기를 불어넣습니다\\\\.|더 깊은 통찰을 위해,<br>비바의 발행인을 응원해 주세요.|g' index.html)",
+      "Bash(sed -i 's|<span>앱 이름</span><span>VIVA Economy</span>|<span>앱 이름</span><span>The Viva Company<\\\\/span>|g' index.html)"
     ]
   }
 }

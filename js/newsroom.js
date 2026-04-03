@@ -83,7 +83,7 @@ function renderNewsroom() {
     <div class="newsroom-wrap">
       <div class="newsroom-header">
         <div class="newsroom-eyebrow">VIVA Economy Intelligence</div>
-        <div class="newsroom-title">The Newsroom</div>
+        <div class="newsroom-title">Today's Biz Bite</div>
         <div class="newsroom-desc">비즈니스 로직을 해석하는 사람들</div>
       </div>
       ${sectionsHtml}
