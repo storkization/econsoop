@@ -27,7 +27,8 @@
       "Bash(npm install:*)",
       "Bash(git rm:*)",
       "Bash(gh workflow:*)",
-      "WebFetch(domain:winterstarryrain.tistory.com)"
+      "WebFetch(domain:winterstarryrain.tistory.com)",
+      "Bash(grep -n \"ENV\\\\|process.env\\\\|localStorage\\\\|sessionStorage\" \"C:/Users/dodoh/Downloads/ShawnDev/Project1/ecobrief/api\"/*.js)"
     ]
   }
 }

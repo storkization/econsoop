@@ -36,7 +36,7 @@ const FX_LIST = [
 const TAB_LABEL = { economy:'경제', industry:'산업', global:'국제' };
 
 /* ═══════════ CACHE VERSION ═══════════ */
-const CACHE_VERSION = 'v111';
+const CACHE_VERSION = 'v112';
 (function clearOldCache() {
   const savedVersion = localStorage.getItem('eco_cache_version');
   if (savedVersion !== CACHE_VERSION) {
@@ -1470,7 +1470,7 @@ async function loadFX(){
     const krw = d.rates.KRW;
     document.getElementById('usdkrw').textContent = krw ? krw.toFixed(1) : '—';
     document.getElementById('usdkrw-sub').textContent = `1 USD = ${krw?.toFixed(1)||'—'} KRW`;
-    document.getElementById('fx-time').textContent = '업데이트: '+new Date(d.time_last_update_utc).toLocaleString('ko-KR');
+    document.getElementById('fx-time').textContent = d.time_last_update_utc ? '업데이트: '+new Date(d.time_last_update_utc).toLocaleString('ko-KR') : '';
 
     document.getElementById('fx-grid').innerHTML = FX_LIST.map(f=>{
       const base = d.rates[f.base];

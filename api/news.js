@@ -28,7 +28,7 @@ export default async function handler(req, res) {
 
     // 제목/설명 HTML 태그 제거
     const items = data.items.map(item => ({
-      title: item.title.replace(/<[^>]+>/g, '').replace(/&quot;/g, '"').replace(/&amp;/g, '&'),
+      title: item.title.replace(/<[^>]+>/g, '').replace(/&quot;/g, '"').replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&#39;/g, "'").replace(/&nbsp;/g, ' '),
       link: item.originallink || item.link,
       source: extractSource(item.originallink || item.link),
       date: new Date(item.pubDate),

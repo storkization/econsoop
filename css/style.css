@@ -407,7 +407,6 @@
       background:#FFFFFF; border-radius:16px;
       box-shadow:0 2px 16px rgba(0,0,0,0.06);
     }
-    }
     .init-card-eyebrow {
       font-family:var(--font-mono);
       font-size:9px; color:var(--accent);
