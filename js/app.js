@@ -36,8 +36,15 @@ const FX_LIST = [
 
 const TAB_LABEL = { economy:'경제', industry:'산업', global:'국제', stocks:'증권' };
 
+const TAB_COLORS = {
+  economy:  { main:'#A51C30', bg1:'#FDF0F2', bg2:'#FFF8F9', shadow:'rgba(165,28,48,0.07)' },
+  industry: { main:'#1D4ED8', bg1:'#EEF3FE', bg2:'#F6F9FF', shadow:'rgba(29,78,216,0.07)' },
+  global:   { main:'#B45309', bg1:'#FFF8ED', bg2:'#FFFDF6', shadow:'rgba(180,83,9,0.07)'  },
+  stocks:   { main:'#047857', bg1:'#EDFAF5', bg2:'#F5FDF9', shadow:'rgba(4,120,87,0.07)'  },
+};
+
 /* ═══════════ CACHE VERSION ═══════════ */
-const CACHE_VERSION = 'v119';
+const CACHE_VERSION = 'v120';
 (function clearOldCache() {
   const savedVersion = localStorage.getItem('eco_cache_version');
   if (savedVersion !== CACHE_VERSION) {
@@ -875,16 +882,17 @@ function renderTabSummary(tab, result) {
     for (const s of schedules) { if (hm >= s) slotHm = s; }
     const slotLabel = slotHm ? scheduleLabels[slotHm] : null;
     const dateStr = `${d.getMonth()+1}월 ${d.getDate()}일 · ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')} 기준`;
+    const tc = TAB_COLORS[tab] || TAB_COLORS.economy;
     const slotBadge = slotLabel
-      ? `<span style="font-family:var(--font-mono);font-size:9px;font-weight:700;color:#fff;background:#1A7A45;padding:2px 7px;border-radius:10px;letter-spacing:0.5px;">${slotLabel} 브리핑</span>`
+      ? `<span style="font-family:var(--font-mono);font-size:9px;font-weight:700;color:#fff;background:${tc.main};padding:2px 7px;border-radius:10px;letter-spacing:0.5px;">${slotLabel} 브리핑</span>`
       : '';
 
-    // 4포인트 그라데이션 카드 (배경 더 연하게)
+    // 4포인트 그라데이션 카드 — 탭별 색상 통일
     const CARDS = [
-      { label:'핵심 이슈', color:'#1A7A45', bg:'linear-gradient(135deg,#F0FAF5 0%,#FAFFFD 100%)', shadow:'rgba(26,122,69,0.07)' },
-      { label:'배경',      color:'#6B21A8', bg:'linear-gradient(135deg,#F9F0FF 0%,#FEF8FF 100%)', shadow:'rgba(107,33,168,0.06)' },
-      { label:'시장 영향', color:'#1D4ED8', bg:'linear-gradient(135deg,#F3F8FF 0%,#F8FBFF 100%)', shadow:'rgba(29,78,216,0.06)' },
-      { label:'투자 전략', color:'#B45309', bg:'linear-gradient(135deg,#FFFCF3 0%,#FFFEF9 100%)', shadow:'rgba(180,83,9,0.06)' },
+      { label:'핵심 이슈', color:tc.main, bg:`linear-gradient(135deg,${tc.bg1} 0%,${tc.bg2} 100%)`, shadow:tc.shadow },
+      { label:'배경',      color:tc.main, bg:`linear-gradient(135deg,${tc.bg1} 0%,${tc.bg2} 100%)`, shadow:tc.shadow },
+      { label:'시장 영향', color:tc.main, bg:`linear-gradient(135deg,${tc.bg1} 0%,${tc.bg2} 100%)`, shadow:tc.shadow },
+      { label:'투자 전략', color:tc.main, bg:`linear-gradient(135deg,${tc.bg1} 0%,${tc.bg2} 100%)`, shadow:tc.shadow },
     ];
 
     // 각주 용어 밑줄 헬퍼
@@ -976,20 +984,20 @@ function renderTabSummary(tab, result) {
       let h = `
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
           <div style="display:flex;align-items:center;gap:8px;">
-            <span style="font-size:11px;font-weight:800;letter-spacing:0.8px;color:#1A7A45;font-family:var(--font-mono);">AI PICK</span>
+            <span style="font-size:11px;font-weight:800;letter-spacing:0.8px;color:${tc.main};font-family:var(--font-mono);">AI PICK</span>
             <span style="font-size:11px;color:#6B7280;font-family:var(--font-sans);">오늘의 핵심 뉴스</span>
           </div>
           <span style="font-size:10px;color:#9CA3AF;font-family:var(--font-mono);">${timeStr} 기준 · ${result.topNews.length}건</span>
         </div>
-        <div style="border-radius:var(--radius);overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,0.07);border:1px solid rgba(26,122,69,0.1);">`;
+        <div style="border-radius:var(--radius);overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,0.07);border:1px solid ${tc.shadow.replace('0.07','0.12')}">`;
       result.topNews.forEach((it, i) => {
         const isLast = i === result.topNews.length - 1;
         h += `<div class="news-item" style="${!isLast ? 'border-bottom:1px solid rgba(0,0,0,0.05);' : ''}">
-          <div class="news-num" style="color:#1A7A45;font-weight:800;">${pad(i+1)}</div>
+          <div class="news-num" style="color:${tc.main};font-weight:800;">${pad(i+1)}</div>
           <div class="news-body" onclick="openLink('${esc(it.link)}')">
             <div class="news-title">${it.title}</div>
             <div class="news-meta">
-              <span style="background:#E8F5EE;color:#1A7A45;padding:1px 6px;border-radius:4px;font-weight:600;">${it.source}</span>
+              <span style="background:${tc.bg1};color:${tc.main};padding:1px 6px;border-radius:4px;font-weight:600;">${it.source}</span>
               <span>${ago(it.date)}</span>
             </div>
           </div>
@@ -1286,7 +1294,7 @@ function renderLandingBriefs() {
   if (!root) return;
 
   const TABS = [
-    { key: 'economy',  label: '경제', icon: '🏦', color: '#1A7A45' },
+    { key: 'economy',  label: '경제', icon: '🏦', color: '#A51C30' },
     { key: 'industry', label: '산업', icon: '🏭', color: '#1D4ED8' },
     { key: 'global',   label: '국제', icon: '🌐', color: '#B45309' },
   ];
@@ -1624,9 +1632,10 @@ function goHome() {
 
 /* ═══════════ ARCHIVE ═══════════ */
 const TAB_META = {
-  economy:  { label: '경제', icon: '🏦', color: '#1A7A45' },
+  economy:  { label: '경제', icon: '🏦', color: '#A51C30' },
   industry: { label: '산업', icon: '🏭', color: '#1D4ED8' },
   global:   { label: '국제', icon: '🌐', color: '#B45309' },
+  stocks:   { label: '증권', icon: '📈', color: '#047857' },
 };
 let archiveFilter = 'all';
 let archiveItems = null;
@@ -1761,11 +1770,12 @@ function renderArchiveDetail(data) {
   const m4 = summaryClean.match(/포인트4:\s*(.+?)(?=\s*\[|$)/s);
   const lines = [m1,m2,m3,m4].map(m => m ? m[1].trim() : null).filter(Boolean);
 
+  const atc = TAB_COLORS[data.tab] || TAB_COLORS.economy;
   const CARDS = [
-    { label:'핵심 이슈', color:'#1A7A45', bg:'linear-gradient(135deg,#F0FAF5,#FAFFFD)', shadow:'rgba(26,122,69,0.07)' },
-    { label:'배경',      color:'#6B21A8', bg:'linear-gradient(135deg,#F9F0FF,#FEF8FF)', shadow:'rgba(107,33,168,0.06)' },
-    { label:'시장 영향', color:'#1D4ED8', bg:'linear-gradient(135deg,#F3F8FF,#F8FBFF)', shadow:'rgba(29,78,216,0.06)' },
-    { label:'투자 전략', color:'#B45309', bg:'linear-gradient(135deg,#FFFCF3,#FFFEF9)', shadow:'rgba(180,83,9,0.06)' },
+    { label:'핵심 이슈', color:atc.main, bg:`linear-gradient(135deg,${atc.bg1},${atc.bg2})`, shadow:atc.shadow },
+    { label:'배경',      color:atc.main, bg:`linear-gradient(135deg,${atc.bg1},${atc.bg2})`, shadow:atc.shadow },
+    { label:'시장 영향', color:atc.main, bg:`linear-gradient(135deg,${atc.bg1},${atc.bg2})`, shadow:atc.shadow },
+    { label:'투자 전략', color:atc.main, bg:`linear-gradient(135deg,${atc.bg1},${atc.bg2})`, shadow:atc.shadow },
   ];
   const headings = [
     { h: data.headline,  s: data.subheading  },
