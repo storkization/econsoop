@@ -44,7 +44,7 @@ const TAB_COLORS = {
 };
 
 /* ═══════════ CACHE VERSION ═══════════ */
-const CACHE_VERSION = 'v126';
+const CACHE_VERSION = 'v127';
 (function clearOldCache() {
   const savedVersion = localStorage.getItem('eco_cache_version');
   if (savedVersion !== CACHE_VERSION) {
@@ -215,6 +215,12 @@ function switchTab(id) {
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab===id));
   document.querySelectorAll('.tab-panel').forEach(p => p.classList.toggle('active', p.id==='tab-'+id));
   updateDrawerActive(id);
+
+  // 탭 전환 시 스크롤 초기화 + 헤더 shrunk 해제
+  const contentEl = document.querySelector('.content');
+  const headerEl  = document.querySelector('.header');
+  if (contentEl) contentEl.scrollTop = 0;
+  if (headerEl)  headerEl.classList.remove('shrunk');
 
   const isNewsTab = ['economy','industry','global','stocks'].includes(id);
   if (isNewsTab && !summaryCache[id]) genTabSummary(id);
@@ -1622,8 +1628,8 @@ function closeDrawer() {
 
 /* ═══════════ HOME ═══════════ */
 function goHome() {
-  // TODO: 랜딩 페이지 완성 후 → window.location.href = '/landing'
-  window.location.href = '/';
+  // TODO: 랜딩 페이지 완성 후 → 별도 URL로 변경
+  switchTab('front');
 }
 
 /* ═══════════ ARCHIVE ═══════════ */
