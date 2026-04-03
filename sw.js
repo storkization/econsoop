@@ -1,4 +1,4 @@
-const CACHE = 'viva-economy-v1';
+const CACHE = 'viva-economy-v2';
 const ASSETS = [
   './manifest.json',
   './css/style.css',
@@ -19,17 +19,18 @@ self.addEventListener('activate', e => {
 });
 
 self.addEventListener('fetch', e => {
-  // index.html은 항상 네트워크 우선 (최신 배포 즉시 반영)
-  if (e.request.mode === 'navigate') {
-    e.respondWith(fetch(e.request).catch(() => caches.match(e.request)));
-    return;
-  }
   // API 호출은 네트워크만
   if (e.request.url.includes('/api/')) {
     return;
   }
-  // 나머지(manifest 등)는 캐시 우선
+  // 모든 리소스: 네트워크 우선, 실패 시 캐시 폴백 (항상 최신 배포 반영)
   e.respondWith(
-    caches.match(e.request).then(cached => cached || fetch(e.request))
+    fetch(e.request)
+      .then(response => {
+        const clone = response.clone();
+        caches.open(CACHE).then(c => c.put(e.request, clone));
+        return response;
+      })
+      .catch(() => caches.match(e.request))
   );
 });
