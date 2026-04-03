@@ -48,6 +48,9 @@
     <button class="drawer-item" data-drawer-tab="stocks" onclick="drawerNav('stocks')">
       <span class="emoji">📈</span> 증권 <span class="drawer-arrow">∨</span>
     </button>
+    <button class="drawer-item" data-drawer-tab="market" onclick="drawerNav('market')">
+      <span class="emoji">📊</span> 증시 <span class="drawer-arrow">∨</span>
+    </button>
     <div class="drawer-premium-group">
       <button class="drawer-premium-item" data-drawer-tab="column" onclick="drawerNav('column')">
         <div class="dpi-left">
@@ -286,8 +289,22 @@
       </div>
     </div>
 
-    <!-- ▸ STOCKS -->
+    <!-- ▸ 증권 탭 (AI 브리핑) -->
     <div class="tab-panel" id="tab-stocks">
+      <div class="tab-section-header">
+        <span class="tab-section-label">증권</span>
+        <span class="tab-section-sub">Securities</span>
+      </div>
+      <div id="stocks-summary-view">
+        <div class="summary-card" id="stocks-summary-card"></div>
+        <div id="stocks-insight"></div>
+        <div id="stocks-column"></div>
+        <div id="stocks-summary-news"></div>
+      </div>
+    </div>
+
+    <!-- ▸ 증시 탭 (지수/종목) -->
+    <div class="tab-panel" id="tab-market">
       <div class="market-grid" id="market-indices">
         <!-- skeleton x4 -->
         <div class="idx-card"><div class="idx-name">KOSPI</div><div class="idx-val skeleton" style="height:26px;width:90px;margin-bottom:6px"></div><div class="idx-chg skeleton" style="height:12px;width:60px"></div></div>

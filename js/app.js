@@ -6,6 +6,7 @@ const SUMMARY_QUERIES = {
   economy: ['한국은행 금리', '원달러 환율 외환', '코스피 증시 금융시장', '물가 인플레이션 소비', '수출 무역 경상수지', '가계부채 대출', '경제 오늘 주요뉴스'],
   industry:['반도체 전자', '자동차 배터리 전기차', '바이오 헬스 제약', '건설 부동산', '경영 재계 M&A'],
   global:  ['미국 연준 Fed 관세 무역', '중국 경제 위안화 무역분쟁', '일본 엔화 닛케이 일본은행', '유럽 ECB 유로존 독일', '국제유가 OPEC 중동 에너지', '국제경제 오늘 주요뉴스'],
+  stocks:  ['삼성전자 SK하이닉스 주가 전망', '코스피 코스닥 증시 오늘', '미국주식 나스닥 S&P500', '증권사 투자 리포트 목표주가', '공모주 IPO 상장', '외국인 기관 수급 매수매도'],
 };
 
 const INDICES = [
@@ -33,10 +34,10 @@ const FX_LIST = [
   { base:'GBP', flag:'🇬🇧', label:'GBP/KRW' },
 ];
 
-const TAB_LABEL = { economy:'경제', industry:'산업', global:'국제' };
+const TAB_LABEL = { economy:'경제', industry:'산업', global:'국제', stocks:'증권' };
 
 /* ═══════════ CACHE VERSION ═══════════ */
-const CACHE_VERSION = 'v118';
+const CACHE_VERSION = 'v119';
 (function clearOldCache() {
   const savedVersion = localStorage.getItem('eco_cache_version');
   if (savedVersion !== CACHE_VERSION) {
@@ -208,9 +209,9 @@ function switchTab(id) {
   document.querySelectorAll('.tab-panel').forEach(p => p.classList.toggle('active', p.id==='tab-'+id));
   updateDrawerActive(id);
 
-  const isNewsTab = ['economy','industry','global'].includes(id);
+  const isNewsTab = ['economy','industry','global','stocks'].includes(id);
   if (isNewsTab && !summaryCache[id]) genTabSummary(id);
-  if (id==='stocks') loadStocks();
+  if (id==='market') loadStocks();
   if (id==='fx' && !fxRates) loadFX();
   if (id==='breaking') loadBreaking();
   if (id==='front') renderLandingBriefs();
