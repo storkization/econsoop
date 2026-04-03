@@ -47,7 +47,6 @@ function renderNewsroom() {
         <div class="ceo-badge">CEO · Founder ${NEWSROOM_CEO.flag}</div>
         <div class="ceo-name">${NEWSROOM_CEO.name}</div>
         <div class="ceo-role">${NEWSROOM_CEO.role}</div>
-        <div class="ceo-bio">${NEWSROOM_CEO.bio}</div>
       </div>
     </div>
   `;
