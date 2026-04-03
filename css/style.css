@@ -105,7 +105,7 @@
     .logo-en {
       font-size:26px; font-weight:400;
       font-family:var(--font-serif);
-      letter-spacing:2px; color:#FFFFFF;
+      letter-spacing:4px; color:#FFFFFF;
       text-transform:uppercase;
       line-height:1;
       transition: all 0.3s ease;
