@@ -68,9 +68,6 @@ function renderNewsroom() {
       </div>
     `;
 
-    const chief = members[0];
-    const rest = members.slice(1);
-
     return `
       <div class="team-section">
         <div class="team-section-header" style="color:${sec.color};border-left-color:${sec.color};">
@@ -78,8 +75,7 @@ function renderNewsroom() {
           <span class="team-section-label-text">${sec.label}</span>
           <span class="team-section-count" style="background:${sec.color};">${members.length}명</span>
         </div>
-        <div class="team-chief-row">${makeCard(chief)}</div>
-        ${rest.length ? `<div class="team-rest-row">${rest.map(makeCard).join('')}</div>` : ''}
+        <div class="team-grid">${members.map(makeCard).join('')}</div>
       </div>
     `;
   }).join('');
@@ -91,8 +87,8 @@ function renderNewsroom() {
         <div class="newsroom-title">우리 팀을 소개합니다</div>
         <div class="newsroom-desc">경제숲을 만드는 사람들</div>
       </div>
-      ${ceoHtml}
       ${sectionsHtml}
+      ${ceoHtml}
     </div>
   `;
 }
