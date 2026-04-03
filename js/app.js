@@ -37,14 +37,14 @@ const FX_LIST = [
 const TAB_LABEL = { economy:'경제', industry:'산업', global:'국제', stocks:'증권' };
 
 const TAB_COLORS = {
-  economy:  { main:'#A51C30', bg1:'#FDF0F2', bg2:'#FFF8F9', shadow:'rgba(165,28,48,0.07)' },
-  industry: { main:'#1D4ED8', bg1:'#EEF3FE', bg2:'#F6F9FF', shadow:'rgba(29,78,216,0.07)' },
-  global:   { main:'#B45309', bg1:'#FFF8ED', bg2:'#FFFDF6', shadow:'rgba(180,83,9,0.07)'  },
-  stocks:   { main:'#047857', bg1:'#EDFAF5', bg2:'#F5FDF9', shadow:'rgba(4,120,87,0.07)'  },
+  economy:  { main:'#A51C30', bg1:'#FEF8F9', bg2:'#FFFCFD', shadow:'rgba(165,28,48,0.04)' },
+  industry: { main:'#1D4ED8', bg1:'#F8FBFF', bg2:'#FCFEFF', shadow:'rgba(29,78,216,0.04)' },
+  global:   { main:'#B45309', bg1:'#FFFDF8', bg2:'#FFFEFC', shadow:'rgba(180,83,9,0.04)'  },
+  stocks:   { main:'#047857', bg1:'#F5FCF9', bg2:'#FAFFFD', shadow:'rgba(4,120,87,0.04)'  },
 };
 
 /* ═══════════ CACHE VERSION ═══════════ */
-const CACHE_VERSION = 'v122';
+const CACHE_VERSION = 'v123';
 (function clearOldCache() {
   const savedVersion = localStorage.getItem('eco_cache_version');
   if (savedVersion !== CACHE_VERSION) {
