@@ -61,6 +61,21 @@ export default async function handler(req, res) {
       tab: 'global', date: '20260403', slot: '07:00', month: '2026-04', year: '2026',
       created_at: Date.now(),
     },
+    stocks: {
+      headline: '💥 삼성전자 HBM4 납품 확정 — 코스피 반등 신호탄?',
+      subheading: '외국인 순매수 전환, 반도체 수급 모멘텀 가시화',
+      heading2: '📊 코스피 2,600 회복 — 기술적 반등인가 추세 전환인가',
+      subheading2: '외국인·기관 동반 매수에 거래량 급증',
+      heading3: '🇺🇸 미국 증시 나스닥 사상 최고치 — 국내 ETF 수혜 주목',
+      subheading3: '빅테크 실적 서프라이즈, S&P500 5,200 돌파',
+      heading4: '🎯 공모주 시장 과열 경보 — 묻지마 청약 위험',
+      subheading4: 'IPO 경쟁률 500:1 초과, 수요예측 실패 사례도',
+      summary: '포인트1: 삼성전자 HBM4 엔비디아 공급 계약 확정, 주가 +4.2% 급등\n\n포인트2: 외국인 코스피 3거래일 연속 순매수, 2,580→2,615 회복\n\n포인트3: 나스닥 종합 18,200 돌파, 반도체·AI 테마 국내 ETF 동반 강세\n\n포인트4: 이번 주 IPO 3건 경쟁률 평균 480:1, 증거금 쏠림 경고',
+      footnotes: '포인트1: ※ HBM(High Bandwidth Memory) — 인공지능 연산에 쓰이는 고대역폭 메모리 반도체\n포인트4: ※ 수요예측 — IPO 전 기관투자자 대상으로 공모가·물량을 사전 확인하는 절차',
+      columnHook: '🔥 HBM 전쟁 2라운드 — 삼성의 반격, SK하이닉스는 버틸 수 있나',
+      tab: 'stocks', date: '20260403', slot: '07:00', month: '2026-04', year: '2026',
+      created_at: Date.now(),
+    },
   };
 
   const saved = [];

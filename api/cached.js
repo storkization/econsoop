@@ -38,7 +38,7 @@ export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Methods', 'GET');
 
   const { tab } = req.query;
-  if (!tab || !['economy', 'industry', 'global'].includes(tab)) {
+  if (!tab || !['economy', 'industry', 'global', 'stocks'].includes(tab)) {
     return res.status(400).json({ error: 'Invalid tab' });
   }
 
