@@ -62,7 +62,7 @@ function renderNewsroom() {
           <img src="${m.photo}" alt="${m.name}"
                onerror="this.parentElement.textContent='${m.flag}'">
         </div>
-        <div class="team-name">${m.name} ${m.flag}</div>
+        <div class="team-name">${m.name}</div>
         <div class="team-role" style="color:${sec.color};">${m.role}</div>
         <div class="team-spec">${m.spec}</div>
       </div>
@@ -73,7 +73,6 @@ function renderNewsroom() {
         <div class="team-section-header" style="color:${sec.color};border-left-color:${sec.color};">
           <span class="team-section-icon">${sec.icon}</span>
           <span class="team-section-label-text">${sec.label}</span>
-          <span class="team-section-count" style="background:${sec.color};">${members.length}명</span>
         </div>
         <div class="team-grid">${members.map(makeCard).join('')}</div>
       </div>
