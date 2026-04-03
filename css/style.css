@@ -28,6 +28,7 @@
       --font-serif:   'Pretendard', 'Noto Sans KR', -apple-system, sans-serif;
       --font-sans:    'Pretendard', 'Noto Sans KR', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', sans-serif;
       --font-mono:    'IBM Plex Mono', 'SF Mono', Menlo, Consolas, monospace;
+      --font-emoji:   'Segoe UI Emoji', 'Apple Color Emoji', 'Noto Color Emoji', sans-serif;
 
       /* Size */
       --fs-section:     18px;   /* 오늘의 경제, 카드 대제목 */
@@ -52,6 +53,7 @@
     }
 
     *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+    .emoji { font-family: var(--font-emoji); }
 
     html { height:100%; }
 
