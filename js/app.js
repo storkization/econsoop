@@ -750,9 +750,9 @@ async function genTabSummary(tab) {
     const card = document.getElementById(`${tab}-summary-card`);
     if (card) card.innerHTML = `
       <div class="status-card">
-        <div class="status-card-icon">⚠️</div>
-        <div class="status-card-title">브리핑 생성 실패</div>
-        <div class="status-card-desc">${err.message}</div>
+        <div class="status-card-icon">🌲</div>
+        <div class="status-card-title">잠시 점검 중입니다</div>
+        <div class="status-card-desc">더 나은 브리핑을 위해 숲을 정비하고 있어요.<br>잠시 후 다시 확인해 주세요.</div>
         <button class="retry-btn" onclick="summaryCache['${tab}']=null;genTabSummary('${tab}')">🔄 다시 시도</button>
       </div>`;
   }
