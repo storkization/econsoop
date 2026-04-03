@@ -23,7 +23,7 @@
       --viva-mid:   #A51C30;   /* Harvard Red */
       --viva-light: #F9E8EB;   /* 연한 크림슨 틴트 */
       --viva-navy:  #0C1931;   /* 딥 네이비 — 포인트 전용 */
-      --viva-gold:  #C9963B;   /* 골드 — 프리미엄 배지 */
+      --viva-gold:  #D4A84B;   /* 골드 — 프리미엄 배지 */
 
       /* ── Typography ── */
       --font-display: 'Black Han Sans', 'Noto Sans KR', sans-serif;
@@ -157,11 +157,11 @@
     .live-dot {
       display:inline-flex; align-items:center; gap:4px;
       font-family:var(--font-mono);
-      font-size:var(--fs-micro); color:rgba(255,255,255,0.75);
+      font-size:var(--fs-micro); color:var(--viva-gold);
     }
     .live-dot::before {
       content:''; width:5px; height:5px;
-      background:rgba(255,255,255,0.75); border-radius:50%;
+      background:var(--viva-gold); border-radius:50%;
       animation:blink 2s ease-in-out infinite;
     }
     @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
@@ -699,11 +699,16 @@
     .drawer-nav { flex:1; padding:12px 0; }
 
     .drawer-section-label {
-      font-family:var(--font-mono);
-      font-size:10px; font-weight:600; letter-spacing:0.8px;
-      color:var(--text-dim); text-transform:uppercase;
+      font-family:var(--font-serif);
+      font-size:13px; font-weight:600; font-style:italic;
+      letter-spacing:0.3px;
+      color:var(--text-muted);
       padding:16px 20px 6px;
     }
+
+    .drawer-item-left { display:flex; align-items:baseline; gap:6px; }
+    .drawer-kr { font-family:var(--font-sans); letter-spacing:3px; }
+    .drawer-en { font-family:var(--font-serif); font-style:italic; font-size:11px; font-weight:600; color:var(--text-dim); }
 
     .drawer-item {
       display:flex; align-items:center; justify-content:space-between;
