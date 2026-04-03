@@ -874,7 +874,7 @@
       text-align:center; gap:6px;
     }
     .team-photo {
-      width:80px; height:80px; border-radius:50%;
+      width:96px; height:96px; border-radius:18px;
       background:var(--green-light);
       display:flex; align-items:center; justify-content:center;
       font-size:30px; overflow:hidden;
