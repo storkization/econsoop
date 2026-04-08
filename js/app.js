@@ -248,10 +248,10 @@ const LOADING_MSGS = [
   '전문가 관점으로 뉴스를 해석 중입니다...',
   '오늘 꼭 알아야 할 이슈를 추리는 중입니다...',
   '뉴스의 행간을 읽고 있습니다...',
-  'Shawn의 눈으로 시장을 훑고 있어요...',
-  'Shawn이 오늘의 한 줄을 고르고 있습니다...',
-  "Shawn's AI가 판단을 내리고 있습니다...",
-  'Shawn이 경제 숲을 걷고 있는 중이에요...',
+  'AI가 오늘의 경제 맥락을 분석하는 중이에요...',
+  'Shawn의 시각으로 오늘 시장을 읽고 있어요...',
+  'VIVA! 살아있는 브리핑을 준비하는 중입니다...',
+  '오늘의 브리핑이 곧 심장을 뛰게 할 거예요...',
 ];
 
 // 경제 퀴즈 (50문항)
@@ -359,69 +359,70 @@ function setLoadingMsg(tab, phase, count = null) {
   let msgIdx = 0;
 
   const ALL_STEPS = [
-    { label:'씨앗 심기',   icon:'🌰', desc:'뉴스를 수집하는 중이에요' },
-    { label:'새싹 돋기',   icon:'🌱', desc:'AI가 헤드라인을 읽고 있어요' },
-    { label:'줄기 성장',   icon:'🌿', desc:'핵심 이슈를 분석하는 중이에요' },
-    { label:'가지 뻗기',   icon:'🪵', desc:'시장 흐름을 파악하는 중이에요' },
-    { label:'잎 피우기',   icon:'🍃', desc:'투자 포인트를 정리하는 중이에요' },
-    { label:'Biz Bite 준비 완료', icon:'🌲', desc:'Biz Bite를 마무리하는 중이에요' },
+    { label:'뉴스 수집 중',   icon:'📡', desc:'오늘의 헤드라인을 모으고 있어요' },
+    { label:'핵심 분석 중',   icon:'🔍', desc:'AI가 핵심 이슈를 읽고 있어요' },
+    { label:'맥락 파악 중',   icon:'🧠', desc:'경제 흐름을 짚어내는 중이에요' },
+    { label:'인사이트 정리',  icon:'⚡', desc:'숨겨진 맥락을 찾고 있어요' },
+    { label:'브리핑 집필 중', icon:'✍️', desc:'살아있는 브리핑을 쓰고 있어요' },
+    { label:'발행 준비 완료', icon:'💗', desc:'오늘의 브리핑이 뛰고 있습니다' },
   ];
 
   function renderLoading() {
-    const ci = _aiStepIndex; // current index (0~6, 6=all done)
+    const ci = _aiStepIndex;
     const totalSteps = ALL_STEPS.length;
+    const isComplete = ci >= totalSteps;
 
-    // 나무 성장 시각화
-    const trunkHeight = Math.min(ci / (totalSteps - 1), 1) * 100; // 0~100%
-    const trunkColor = ci >= totalSteps ? '#1A7A45' : '#8B6914';
+    // ECG beat x positions (end of each beat, SVG width=280)
+    const BEAT_ENDS = [10, 53, 96, 139, 182, 225, 270];
+    const revealX = BEAT_ENDS[Math.min(ci, totalSteps)];
 
-    // 단계별 아이콘 + 라벨 (좌우 교대 배치)
+    function beatPath(i) {
+      const bx = 10 + i * 43;
+      return `M ${bx} 55 L ${bx+6} 55 Q ${bx+9} 47 ${bx+12} 55 L ${bx+16} 55 L ${bx+17} 61 L ${bx+19} 23 L ${bx+21} 71 L ${bx+23} 55 L ${bx+28} 55 Q ${bx+33} 42 ${bx+38} 55 L ${bx+43} 55`;
+    }
+
+    const ecgColor = '#A51C30';
+    const ecgId = `ecg-${tab}`;
+
+    const ecgViz = `
+      <div style="margin:16px -4px 16px;position:relative;">
+        <svg viewBox="0 0 280 90" width="100%" style="display:block;overflow:visible;">
+          <defs>
+            <clipPath id="clip-${ecgId}">
+              <rect id="cliprect-${ecgId}" x="0" y="0" height="90" width="10"
+                style="transition:width 1.4s cubic-bezier(0.4,0,0.2,1);"/>
+            </clipPath>
+          </defs>
+          <line x1="0" y1="55" x2="280" y2="55" stroke="#F0EEE8" stroke-width="1.5"/>
+          <g clip-path="url(#clip-${ecgId})" stroke="${ecgColor}" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="0" y1="55" x2="10" y2="55"/>
+            ${Array.from({length:6},(_,i)=>`<path d="${beatPath(i)}"/>`).join('')}
+          </g>
+          ${ci > 0 ? `
+          <circle cx="${revealX}" cy="55" r="8" fill="${ecgColor}" opacity="0.1">
+            <animate attributeName="r" values="5;12;5" dur="1.4s" repeatCount="indefinite"/>
+            <animate attributeName="opacity" values="0.12;0.03;0.12" dur="1.4s" repeatCount="indefinite"/>
+          </circle>
+          <circle cx="${revealX}" cy="55" r="3.5" fill="${ecgColor}"/>` : ''}
+          ${isComplete ? `
+          <text x="140" y="82" text-anchor="middle" font-family="var(--font-mono)" font-size="9" font-weight="700" fill="${ecgColor}" letter-spacing="2" opacity="0.6">VIVA · LIVE</text>` : ''}
+        </svg>
+      </div>`;
+
+    // 단계 레이블
     const stepLabels = ALL_STEPS.map((s, idx) => {
       const done = idx < ci;
       const active = idx === ci;
-      const pct = (idx / (totalSteps - 1)) * 100;
-      const side = idx % 2 === 0 ? 'right' : 'left';
-      const color = done ? '#1A7A45' : active ? '#1A7A45' : '#C4C9CF';
-      const weight = (done || active) ? '700' : '500';
-      const opacity = done ? '1' : active ? '1' : '0.5';
-      const posStyle = side === 'right'
-        ? 'left:calc(50% + 18px);text-align:left;'
-        : 'right:calc(50% + 18px);text-align:right;';
-      const pulse = active ? 'animation:pulse 1s infinite;' : '';
-      return `<div style="position:absolute;bottom:${pct}%;${posStyle}transform:translateY(50%);white-space:nowrap;display:flex;align-items:center;gap:5px;opacity:${opacity};transition:all 0.5s ease;${side === 'left' ? 'flex-direction:row-reverse;' : ''}">
-        <span style="font-size:14px;${pulse}">${s.icon}</span>
-        <div style="display:flex;flex-direction:column;${side === 'left' ? 'align-items:flex-end;' : 'align-items:flex-start;'}gap:1px;">
-          <span style="font-size:9px;font-weight:${weight};color:${color};font-family:var(--font-sans);letter-spacing:-0.2px;">${s.label}</span>
-          ${active ? `<span style="font-size:9px;color:#1A7A45;font-weight:500;font-family:var(--font-sans);opacity:0.85;">${s.desc}</span>` : ''}
-        </div>
+      const color = (done || active) ? ecgColor : '#C4C9CF';
+      const weight = (done || active) ? '700' : '400';
+      const opacity = done ? '1' : active ? '1' : '0.35';
+      const icon = done ? '✓' : active ? s.icon : '·';
+      return `<div style="display:flex;align-items:center;gap:8px;opacity:${opacity};transition:opacity 0.4s;">
+        <span style="font-size:${active?'13':'11'}px;min-width:16px;text-align:center;color:${color};">${icon}</span>
+        <span style="font-size:12px;font-weight:${weight};color:${color};font-family:var(--font-sans);">${s.label}</span>
+        ${active ? `<span style="font-size:11px;color:var(--text-dim);">— ${s.desc}</span>` : ''}
       </div>`;
     }).join('');
-
-    // 나뭇잎 (step 4+)
-    const leaves = ci >= 4 ? `
-      <div style="position:absolute;top:2%;left:calc(50% - 22px);width:12px;height:14px;background:radial-gradient(ellipse,#2DA55E,#1A7A45);border-radius:50% 50% 50% 0;transform:rotate(-60deg);opacity:0.7;animation:leafAppear 0.6s ease-out forwards;"></div>
-      <div style="position:absolute;top:8%;right:calc(50% - 24px);width:10px;height:12px;background:radial-gradient(ellipse,#4ADE80,#22914F);border-radius:50% 50% 50% 0;transform:rotate(30deg);opacity:0.6;animation:leafAppear 0.6s ease-out 0.2s forwards;"></div>
-      <div style="position:absolute;top:15%;left:calc(50% - 18px);width:9px;height:11px;background:radial-gradient(ellipse,#2DA55E,#1A7A45);border-radius:50% 50% 50% 0;transform:rotate(-30deg);opacity:0.5;animation:leafAppear 0.6s ease-out 0.4s forwards;"></div>` : '';
-
-    // 가지 (step 3+)
-    const branches = ci >= 3 ? `
-      <div style="position:absolute;bottom:55%;left:50%;width:20px;height:3px;background:linear-gradient(90deg,#1A7A45,#2DA55E);border-radius:1.5px;transform-origin:left center;animation:branchGrow 0.6s ease-out forwards;"></div>
-      <div style="position:absolute;bottom:45%;right:50%;width:18px;height:3px;background:linear-gradient(-90deg,#1A7A45,#2DA55E);border-radius:1.5px;transform-origin:right center;animation:branchGrow 0.6s ease-out 0.2s forwards;"></div>
-      <div style="position:absolute;bottom:70%;left:50%;width:14px;height:2px;background:linear-gradient(90deg,#22914F,#4ADE80);border-radius:1px;transform-origin:left center;animation:branchGrow 0.6s ease-out 0.4s forwards;"></div>` : '';
-
-    // 완성 시 빛 효과
-    const glow = ci >= totalSteps ? `
-      <div style="position:absolute;top:-10px;left:50%;transform:translateX(-50%);width:60px;height:60px;background:radial-gradient(circle,rgba(26,122,69,0.15) 0%,transparent 70%);border-radius:50%;animation:pulse 2s infinite;"></div>` : '';
-
-    const treeViz = `
-      <div style="position:relative;height:140px;margin:16px auto 20px;width:200px;">
-        ${glow}
-        <div style="position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:4px;height:${trunkHeight}%;background:linear-gradient(0deg,${trunkColor} 0%,#1A7A45 100%);border-radius:2px;transition:height 1.5s cubic-bezier(0.34,1.56,0.64,1);"></div>
-        ${branches}
-        ${leaves}
-        ${stepLabels}
-        <div style="position:absolute;bottom:-2px;left:50%;transform:translateX(-50%);width:24px;height:4px;background:rgba(139,105,20,0.2);border-radius:50%;"></div>
-      </div>`;
 
     const quizCard = _currentQuiz ? `
       <div style="background:linear-gradient(135deg,#F0FDF4 0%,#FAFFFD 100%);border:1.5px solid rgba(26,122,69,0.2);border-radius:12px;padding:14px 16px;margin:0 0 16px;text-align:left;position:relative;">
@@ -431,18 +432,23 @@ function setLoadingMsg(tab, phase, count = null) {
       </div>` : '';
 
     card.innerHTML = `
-      <div style="padding:24px 20px;background:#FFFFFF;border-radius:16px;box-shadow:0 2px 16px rgba(13,51,32,0.06);">
-        <div style="font-family:var(--font-sans);font-size:13px;font-weight:700;color:var(--text-muted);letter-spacing:0.3px;margin-bottom:4px;">오늘의 한 입 뉴스</div>
-        ${treeViz}
-        ${quizCard}
-        <div style="text-align:center;">
-          <div class="dots" style="margin-bottom:10px;"><span></span><span></span><span></span></div>
-          <div style="color:var(--text-muted);font-size:12px;font-weight:500;">${msgs[msgIdx % msgs.length]}</div>
+      <div style="padding:24px 20px;background:#FFFFFF;border-radius:16px;box-shadow:0 2px 16px rgba(90,10,20,0.06);">
+        <div style="font-family:var(--font-mono);font-size:9px;font-weight:700;color:${isComplete?'#A51C30':'var(--text-dim)'};letter-spacing:2px;margin-bottom:2px;">
+          ${isComplete ? '💗 VIVA · 살아있는 브리핑' : '♡ VIVA · BRIEFING'}
         </div>
-        <div style="text-align:center;margin-top:20px;">
-          <div style="font-size:10px;color:#9CA3AF;font-family:var(--font-mono);margin-bottom:12px;">뉴스 양에 따라 10~30초 정도 걸릴 수 있어요</div>
+        ${ecgViz}
+        <div style="display:flex;flex-direction:column;gap:7px;margin-bottom:16px;">
+          ${stepLabels}
+        </div>
+        ${quizCard}
+        <div style="text-align:center;padding-top:12px;border-top:1px solid var(--border);">
+          <div class="dots" style="margin-bottom:8px;"><span></span><span></span><span></span></div>
+          <div style="color:var(--text-muted);font-size:12px;font-weight:500;">${msgs[msgIdx % msgs.length]}</div>
+          <div style="font-size:10px;color:#9CA3AF;font-family:var(--font-mono);margin-top:6px;">뉴스 양에 따라 10~30초 정도 걸릴 수 있어요</div>
+        </div>
+        <div style="text-align:center;margin-top:14px;">
           <button onclick="cancelBriefing('${tab}')"
-            style="background:transparent;border:1.5px solid rgba(26,122,69,0.15);border-radius:8px;
+            style="background:transparent;border:1.5px solid var(--border);border-radius:8px;
                    padding:7px 18px;font-size:11px;font-weight:600;color:var(--text-dim);
                    font-family:var(--font-sans);cursor:pointer;">
             ✕ 브리핑 건너뛰기
@@ -450,6 +456,12 @@ function setLoadingMsg(tab, phase, count = null) {
         </div>
       </div>`;
     msgIdx++;
+
+    // ECG clip rect 애니메이션 트리거
+    requestAnimationFrame(() => {
+      const cr = document.getElementById(`cliprect-${ecgId}`);
+      if (cr) cr.style.width = `${revealX}px`;
+    });
   }
 
   renderLoading();
@@ -479,8 +491,8 @@ function showQuizAnswer() {
     font-family:var(--font-sans);text-align:center;
   `;
   card.innerHTML = `
-    <div style="font-size:32px;margin-bottom:12px;">🌲</div>
-    <div style="font-size:10px;font-weight:700;color:#16A34A;letter-spacing:0.5px;margin-bottom:10px;">오늘의 퀴즈 정답!</div>
+    <div style="font-size:32px;margin-bottom:12px;">💗</div>
+    <div style="font-size:10px;font-weight:700;color:var(--accent);letter-spacing:0.5px;margin-bottom:10px;">오늘의 퀴즈 정답!</div>
     <div style="font-size:12px;color:var(--text-muted);margin-bottom:8px;line-height:1.5;">${quiz.q}</div>
     <div style="font-size:15px;font-weight:800;color:var(--accent);margin-bottom:6px;">→ ${quiz.a}</div>
     <div style="font-size:11px;color:var(--text-muted);margin-bottom:18px;line-height:1.5;">${quiz.hint}</div>
@@ -771,9 +783,9 @@ async function genTabSummary(tab) {
     const card = document.getElementById(`${tab}-summary-card`);
     if (card) card.innerHTML = `
       <div class="status-card">
-        <div class="status-card-icon">🌲</div>
+        <div class="status-card-icon">💗</div>
         <div class="status-card-title">브리핑 준비 중입니다</div>
-        <div class="status-card-desc">더 나은 브리핑을 위해 숲을 정비하고 있어요.<br>잠시 후 다시 확인해 주세요.</div>
+        <div class="status-card-desc">살아있는 브리핑을 준비하고 있어요.<br>잠시 후 다시 확인해 주세요.</div>
         <button class="retry-btn" onclick="summaryCache['${tab}']=null;genTabSummary('${tab}')">🔄 다시 시도</button>
       </div>`;
   }
