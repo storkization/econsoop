@@ -27,9 +27,13 @@ export default async function handler(req, res) {
       /<meta[^>]+content=["']([^"']+)["'][^>]+name=["']twitter:image["']/i,
     ];
 
+    const BAD_PATTERNS = ['logo', 'favicon', 'icon', 'banner', 'default', 'blank', 'placeholder', 'no-image', 'noimage', '/ad/', '/ads/', 'spinner', 'loading'];
+
     for (const pattern of patterns) {
       const match = html.match(pattern);
       if (match?.[1] && match[1].startsWith('http')) {
+        const url = match[1].toLowerCase();
+        if (BAD_PATTERNS.some(p => url.includes(p))) continue;
         return res.status(200).json({ imageUrl: match[1] });
       }
     }

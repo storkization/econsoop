@@ -44,7 +44,7 @@ const TAB_COLORS = {
 };
 
 /* ═══════════ CACHE VERSION ═══════════ */
-const CACHE_VERSION = 'v137';
+const CACHE_VERSION = 'v138';
 (function clearOldCache() {
   const savedVersion = localStorage.getItem('eco_cache_version');
   if (savedVersion !== CACHE_VERSION) {
@@ -933,7 +933,9 @@ function renderTabSummary(tab, result) {
 
     card.innerHTML = `
       ${result.topImageUrl ? `<div style="margin:-16px -16px 16px;height:150px;border-radius:12px 12px 0 0;overflow:hidden;position:relative;">
-        <img src="${result.topImageUrl}" style="width:100%;height:100%;object-fit:cover;" onerror="this.parentElement.style.display='none'"/>
+        <img src="${result.topImageUrl}" style="width:100%;height:100%;object-fit:cover;"
+          onerror="this.parentElement.style.display='none'"
+          onload="if(this.naturalWidth<300||this.naturalHeight<150)this.parentElement.style.display='none'"/>
         <div style="position:absolute;inset:0;background:linear-gradient(to bottom,transparent 40%,rgba(0,0,0,0.45) 100%);"></div>
       </div>` : ''}
       <div style="margin-bottom:14px;">
@@ -1307,7 +1309,7 @@ function renderLandingBriefs() {
     ? `background:linear-gradient(160deg,rgba(107,15,26,0.72) 0%,rgba(40,5,10,0.88) 100%), url('${leadImg}') center/cover no-repeat;`
     : `background:${lead.bg};`;
 
-  const leadHtml = `<div class="newspaper-lead-card" onclick="switchTab('${lead.key}')" style="${leadBg}">
+  const leadHtml = `<div class="newspaper-lead-card" onclick="switchTab('${lead.key}')" style="${leadBg}" data-imgurl="${leadImg||''}" data-bgfallback="${lead.bg}">
     <div class="newspaper-lead-tab">${lead.icon} ${lead.label.toUpperCase()} · 오늘의 1면</div>
     <div class="newspaper-lead-headline">${leadHeadline || '브리핑을 불러오는 중...'}</div>
     ${leadSub ? `<div class="newspaper-lead-sub">${leadSub}</div>` : ''}
@@ -1321,7 +1323,7 @@ function renderLandingBriefs() {
     const bgStyle = img
       ? `background:linear-gradient(160deg,rgba(0,0,0,0.7) 60%,rgba(0,0,0,0.35) 100%), url('${img}') center/cover no-repeat;`
       : `background:${t.bg};`;
-    return `<div class="newspaper-card newspaper-card-dark" onclick="switchTab('${t.key}')" style="${bgStyle}">
+    return `<div class="newspaper-card newspaper-card-dark" onclick="switchTab('${t.key}')" style="${bgStyle}" data-imgurl="${img||''}" data-bgfallback="${t.bg}">
       <div class="newspaper-card-body">
         <div class="newspaper-card-tab" style="color:rgba(255,255,255,0.65)">${t.icon} ${t.label}</div>
         <div class="newspaper-card-headline" style="color:#fff;">${headline || '브리핑 불러오는 중...'}</div>
@@ -1331,6 +1333,19 @@ function renderLandingBriefs() {
   }).join('');
 
   root.innerHTML = leadHtml + `<div class="newspaper-card-grid">${restHtml}</div>`;
+
+  // 이미지 크기 검증 — 너무 작은 이미지(로고·아이콘)는 그라디언트로 대체
+  root.querySelectorAll('[data-imgurl]').forEach(el => {
+    const url = el.dataset.imgurl;
+    if (!url) return;
+    const fallback = el.dataset.bgfallback;
+    const img = new Image();
+    img.onload = () => {
+      if (img.naturalWidth < 300 || img.naturalHeight < 150) el.style.background = fallback;
+    };
+    img.onerror = () => { el.style.background = fallback; };
+    img.src = url;
+  });
 }
 
 function openEarlybirdForm() {
