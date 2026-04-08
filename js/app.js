@@ -936,6 +936,10 @@ function renderTabSummary(tab, result) {
     }
 
     card.innerHTML = `
+      ${result.topImageUrl ? `<div style="margin:-16px -16px 16px;height:150px;border-radius:12px 12px 0 0;overflow:hidden;position:relative;">
+        <img src="${result.topImageUrl}" style="width:100%;height:100%;object-fit:cover;" onerror="this.parentElement.style.display='none'"/>
+        <div style="position:absolute;inset:0;background:linear-gradient(to bottom,transparent 40%,rgba(0,0,0,0.45) 100%);"></div>
+      </div>` : ''}
       <div style="margin-bottom:14px;">
         <div style="font-family:var(--font-sans);font-size:13px;font-weight:700;color:var(--text-muted);letter-spacing:0.3px;">오늘의 한 입 뉴스</div>
       </div>
@@ -1291,10 +1295,10 @@ function renderLandingBriefs() {
   }
 
   const TABS = [
-    { key: 'economy',  label: '경제', icon: '🏦', color: '#A51C30' },
-    { key: 'industry', label: '산업', icon: '🏭', color: '#1D4ED8' },
-    { key: 'global',   label: '국제', icon: '🌐', color: '#B45309' },
-    { key: 'stocks',   label: '증권', icon: '📈', color: '#047857' },
+    { key: 'economy',  label: '경제', icon: '🏦', color: '#A51C30', bg: 'linear-gradient(160deg,#6B0F1A 0%,#A51C30 100%)' },
+    { key: 'industry', label: '산업', icon: '🏭', color: '#1D4ED8', bg: 'linear-gradient(160deg,#1E3A8A 0%,#2563EB 100%)' },
+    { key: 'global',   label: '국제', icon: '🌐', color: '#B45309', bg: 'linear-gradient(160deg,#78350F 0%,#B45309 100%)' },
+    { key: 'stocks',   label: '증권', icon: '📈', color: '#047857', bg: 'linear-gradient(160deg,#064E3B 0%,#047857 100%)' },
   ];
 
   const [lead, ...rest] = TABS;
@@ -1303,9 +1307,21 @@ function renderLandingBriefs() {
   const leadSub = leadResult?.subheading;
   const leadImg = leadResult?.topImageUrl;
 
+  function cardBg(t, img, alpha1 = '0.75', alpha2 = '0.90') {
+    if (img) {
+      // 색상 그라디언트 + 이미지 오버레이
+      const base = t.bg.replace('linear-gradient(160deg,', '').replace(')', '').split(',');
+      const c1 = base[0]?.trim() || '#333';
+      const c2 = base[1]?.trim() || '#111';
+      return `background:linear-gradient(160deg,${c1.replace(')', '')}${alpha1.replace('0.',',')}),${c2.replace(')','')}${alpha2.replace('0.',',')})), url('${img}') center/cover no-repeat;`
+        .replace(/,\)/g, ')');
+    }
+    return `background:${t.bg};`;
+  }
+
   const leadBg = leadImg
-    ? `background:linear-gradient(160deg,rgba(90,10,20,0.72) 0%,rgba(40,5,10,0.88) 100%), url('${leadImg}') center/cover no-repeat;`
-    : `background:linear-gradient(160deg, var(--viva-deep) 0%, var(--viva-ink) 100%);`;
+    ? `background:linear-gradient(160deg,rgba(107,15,26,0.72) 0%,rgba(40,5,10,0.88) 100%), url('${leadImg}') center/cover no-repeat;`
+    : `background:${lead.bg};`;
 
   const leadHtml = `<div class="newspaper-lead-card" onclick="switchTab('${lead.key}')" style="${leadBg}">
     <div class="newspaper-lead-tab">${lead.icon} ${lead.label.toUpperCase()} · 오늘의 1면</div>
@@ -1318,12 +1334,15 @@ function renderLandingBriefs() {
     const result = summaryCache[t.key];
     const headline = result?.headline;
     const img = result?.topImageUrl;
-    return `<div class="newspaper-card" onclick="switchTab('${t.key}')" ${img ? `style="background:linear-gradient(90deg,rgba(255,255,255,0.97) 55%,rgba(255,255,255,0.3) 100%), url('${img}') right center/cover no-repeat;"` : ''}>
+    const bgStyle = img
+      ? `background:linear-gradient(160deg,rgba(0,0,0,0.7) 60%,rgba(0,0,0,0.35) 100%), url('${img}') center/cover no-repeat;`
+      : `background:${t.bg};`;
+    return `<div class="newspaper-card newspaper-card-dark" onclick="switchTab('${t.key}')" style="${bgStyle}">
       <div class="newspaper-card-body">
-        <div class="newspaper-card-tab" style="color:${t.color}">${t.icon} ${t.label}</div>
-        <div class="newspaper-card-headline">${headline || '브리핑 불러오는 중...'}</div>
+        <div class="newspaper-card-tab" style="color:rgba(255,255,255,0.65)">${t.icon} ${t.label}</div>
+        <div class="newspaper-card-headline" style="color:#fff;">${headline || '브리핑 불러오는 중...'}</div>
       </div>
-      <div class="newspaper-card-arrow">›</div>
+      <div class="newspaper-card-arrow" style="color:rgba(255,255,255,0.5)">›</div>
     </div>`;
   }).join('');
 

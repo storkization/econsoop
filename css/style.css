@@ -857,6 +857,8 @@
     .newspaper-card-arrow {
       font-size:18px; color:var(--text-dim); flex-shrink:0;
     }
+    .newspaper-card-dark { border:none; }
+    .newspaper-card-dark .newspaper-card-headline { color:#fff; }
 
     /* ── 프리미엄 게이트 ── */
     .premium-gate {
