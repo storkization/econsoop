@@ -969,7 +969,7 @@
       opacity:0.65;
     }
     .ceo-photo {
-      width:56px; height:72px; border-radius:10px;
+      width:88px; height:110px; border-radius:12px;
       background:var(--green-light);
       flex-shrink:0; overflow:hidden;
       display:flex; align-items:center; justify-content:center;
