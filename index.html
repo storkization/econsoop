@@ -557,9 +557,11 @@
 if('serviceWorker' in navigator){
   let swReg = null;
   let refreshing = false;
+  let lastSwUpdate = 0;
 
   navigator.serviceWorker.register('sw.js').then(reg => {
     swReg = reg;
+    reg.update().catch(()=>{});
     reg.addEventListener('updatefound', () => {
       const nw = reg.installing;
       if (!nw) return;
@@ -577,7 +579,9 @@ if('serviceWorker' in navigator){
   });
 
   document.addEventListener('visibilitychange', () => {
-    if (document.visibilityState === 'visible' && swReg) {
+    const now = Date.now();
+    if (document.visibilityState === 'visible' && swReg && !refreshing && now - lastSwUpdate > 60000) {
+      lastSwUpdate = now;
       swReg.update().catch(()=>{});
     }
   });
