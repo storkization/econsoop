@@ -228,8 +228,14 @@ function switchTab(id) {
   if (id==='breaking') loadBreaking();
   if (id==='front') renderLandingBriefs();
   if (id==='newsroom') renderNewsroom();
-  if (id==='column') loadColumnTab();
-  if (id==='archive') loadArchive();
+  if (id==='column') {
+    if (!isPremiumUnlocked()) { renderPremiumGate('column'); return; }
+    loadColumnTab();
+  }
+  if (id==='archive') {
+    if (!isPremiumUnlocked()) { renderPremiumGate('archive'); return; }
+    loadArchive();
+  }
 }
 
 
@@ -1263,34 +1269,69 @@ function renderLandingBriefs() {
   const root = document.getElementById('landing-briefs');
   if (!root) return;
 
+  // 날짜 채우기
+  const dateEl = document.getElementById('newspaper-date');
+  if (dateEl) {
+    const now = new Date();
+    dateEl.innerHTML = now.toLocaleDateString('ko-KR', { year:'numeric', month:'long', day:'numeric', weekday:'short' })
+      + '<br>' + now.toLocaleTimeString('ko-KR', { hour:'2-digit', minute:'2-digit' }) + ' 기준';
+  }
+
   const TABS = [
     { key: 'economy',  label: '경제', icon: '🏦', color: '#A51C30' },
     { key: 'industry', label: '산업', icon: '🏭', color: '#1D4ED8' },
     { key: 'global',   label: '국제', icon: '🌐', color: '#B45309' },
+    { key: 'stocks',   label: '증권', icon: '📈', color: '#047857' },
   ];
 
-  const html = TABS.map(t => {
+  const [lead, ...rest] = TABS;
+  const leadResult = summaryCache[lead.key];
+  const leadHeadline = leadResult?.headline;
+  const leadSub = leadResult?.subheading;
+
+  const leadHtml = `<div class="newspaper-lead-card" onclick="switchTab('${lead.key}')">
+    <div class="newspaper-lead-tab">${lead.icon} ${lead.label.toUpperCase()} · 오늘의 1면</div>
+    <div class="newspaper-lead-headline">${leadHeadline || '브리핑을 불러오는 중...'}</div>
+    ${leadSub ? `<div class="newspaper-lead-sub">${leadSub}</div>` : ''}
+    <div class="newspaper-lead-arrow">브리핑 전체 보기 →</div>
+  </div>`;
+
+  const restHtml = rest.map(t => {
     const result = summaryCache[t.key];
     const headline = result?.headline;
-    const subheading = result?.subheading;
-
-    if (!headline) {
-      return `<div class="lp-brief-card lp-brief-loading" onclick="switchTab('${t.key}')">
-        <div class="lp-brief-tab" style="color:${t.color};">${t.icon} ${t.label}</div>
-        <div class="lp-brief-placeholder">브리핑 불러오는 중...</div>
-        <div class="lp-brief-arrow" style="color:${t.color};">→</div>
-      </div>`;
-    }
-
-    return `<div class="lp-brief-card" onclick="switchTab('${t.key}')" style="border-left-color:${t.color};">
-      <div class="lp-brief-tab" style="color:${t.color};">${t.icon} ${t.label}</div>
-      <div class="lp-brief-headline">${headline}</div>
-      ${subheading ? `<div class="lp-brief-sub">${subheading}</div>` : ''}
-      <div class="lp-brief-arrow" style="color:${t.color};">브리핑 보기 →</div>
+    return `<div class="newspaper-card" onclick="switchTab('${t.key}')">
+      <div class="newspaper-card-body">
+        <div class="newspaper-card-tab" style="color:${t.color}">${t.icon} ${t.label}</div>
+        <div class="newspaper-card-headline">${headline || '브리핑 불러오는 중...'}</div>
+      </div>
+      <div class="newspaper-card-arrow">›</div>
     </div>`;
   }).join('');
 
-  root.innerHTML = html;
+  root.innerHTML = leadHtml + `<div class="newspaper-card-grid">${restHtml}</div>`;
+}
+
+function isPremiumUnlocked() {
+  return localStorage.getItem('eco_premium_key') !== null;
+}
+
+function renderPremiumGate(tabId) {
+  const rootId = tabId === 'column' ? 'column-tab-root' : 'archive-root';
+  const root = document.getElementById(rootId);
+  if (!root) return;
+  root.innerHTML = `
+    <div class="premium-gate">
+      <div class="premium-gate-icon">💎</div>
+      <div class="premium-gate-title">PREMIUM</div>
+      <div class="premium-gate-desc">칼럼과 아카이브는 프리미엄 구독자에게만 제공됩니다.</div>
+      <ul class="premium-gate-features">
+        <li>📰 매일 AI가 쓰는 심층 칼럼</li>
+        <li>📚 날짜별 브리핑 아카이브</li>
+        <li>🔍 경제 흐름 장기 트래킹</li>
+      </ul>
+      <button class="premium-gate-cta" onclick="switchTab('subscribe')">얼리버드 신청하기 →</button>
+      <div class="premium-gate-note">* 출시 시 얼리버드 혜택 우선 제공</div>
+    </div>`;
 }
 
 /* ═══════════ 서브칩 뉴스 ═══════════ */

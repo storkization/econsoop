@@ -38,23 +38,23 @@
     <div class="drawer-section-label">뉴스</div>
     <button class="drawer-item active" data-drawer-tab="economy" onclick="drawerNav('economy')">
       <span class="drawer-item-left"><span class="emoji">🏦</span> <span class="drawer-kr">경제</span><span class="drawer-en">Economy</span></span>
-      <span class="drawer-arrow">∨</span>
+      <span class="drawer-arrow">›</span>
     </button>
     <button class="drawer-item" data-drawer-tab="industry" onclick="drawerNav('industry')">
       <span class="drawer-item-left"><span class="emoji">🏭</span> <span class="drawer-kr">산업</span><span class="drawer-en">Industry</span></span>
-      <span class="drawer-arrow">∨</span>
+      <span class="drawer-arrow">›</span>
     </button>
     <button class="drawer-item" data-drawer-tab="global" onclick="drawerNav('global')">
       <span class="drawer-item-left"><span class="emoji">🌐</span> <span class="drawer-kr">국제</span><span class="drawer-en">Global</span></span>
-      <span class="drawer-arrow">∨</span>
+      <span class="drawer-arrow">›</span>
     </button>
     <button class="drawer-item" data-drawer-tab="stocks" onclick="drawerNav('stocks')">
       <span class="drawer-item-left"><span class="emoji">📈</span> <span class="drawer-kr">증권</span><span class="drawer-en">Securities</span></span>
-      <span class="drawer-arrow">∨</span>
+      <span class="drawer-arrow">›</span>
     </button>
     <button class="drawer-item" data-drawer-tab="market" onclick="drawerNav('market')">
       <span class="drawer-item-left"><span class="emoji">📊</span> <span class="drawer-kr">증시</span><span class="drawer-en">Market</span></span>
-      <span class="drawer-arrow">∨</span>
+      <span class="drawer-arrow">›</span>
     </button>
     <div class="drawer-premium-group">
       <button class="drawer-premium-item" data-drawer-tab="column" onclick="drawerNav('column')">
@@ -139,107 +139,13 @@
       </div>
     </div>
 
-    <!-- ▸ 랜딩 (front) -->
+    <!-- ▸ 랜딩 (front) — 신문 1면 -->
     <div class="tab-panel" id="tab-front">
-
-      <!-- HERO -->
-      <div class="lp-hero">
-        <div class="lp-eyebrow">AI 경제 브리핑 · 무료</div>
-        <h1 class="lp-headline">경제를 읽는 법,<br>더 생생하고 더 깊이 있게</h1>
-        <p class="lp-sub">경제·산업·국제 뉴스를 AI가 분석해<br>핵심만 3분에 읽을 수 있게 만들었어요.</p>
-        <button class="lp-cta" onclick="switchTab('economy')">무료로 읽기 시작 →</button>
-        <div class="lp-pills">
-          <span class="lp-pill">📅 매일 07:00 · 17:00</span>
-          <span class="lp-pill">🤖 Claude AI 분석</span>
-          <span class="lp-pill">✅ 완전 무료</span>
-        </div>
+      <div class="newspaper-masthead">
+        <div class="newspaper-masthead-title">오늘의 브리핑</div>
+        <div class="newspaper-masthead-date" id="newspaper-date"></div>
       </div>
-
-      <!-- 서비스 특징 -->
-      <div class="lp-section lp-section-tinted">
-        <div class="lp-section-head">
-          <div class="lp-section-title">이런 서비스예요</div>
-        </div>
-        <div class="lp-features">
-          <div class="lp-feature">
-            <div class="lp-feature-icon">🤖</div>
-            <div class="lp-feature-title">AI가 대신 읽어줘요</div>
-            <div class="lp-feature-desc">수십 개 뉴스를 Claude AI가 분석해 핵심이슈·배경·시장영향·투자전략 4가지로 정리해드려요.</div>
-          </div>
-          <div class="lp-feature">
-            <div class="lp-feature-icon">⚡</div>
-            <div class="lp-feature-title">하루 두 번 자동 업데이트</div>
-            <div class="lp-feature-desc">오전 7시, 오후 5시. 최신 뉴스를 자동으로 분석해 항상 오늘의 흐름을 파악할 수 있어요.</div>
-          </div>
-          <div class="lp-feature">
-            <div class="lp-feature-icon">📚</div>
-            <div class="lp-feature-title">지난 브리핑도 쌓여요</div>
-            <div class="lp-feature-desc">아카이브에서 날짜별 브리핑을 다시 찾아볼 수 있어요. 경제 흐름을 길게 읽는 데 도움이 돼요.</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- 이런 분들에게 -->
-      <div class="lp-section">
-        <div class="lp-section-head">
-          <div class="lp-section-title">이런 분들에게 딱이에요</div>
-        </div>
-        <div class="lp-personas">
-          <div class="lp-persona">
-            <span class="lp-persona-emoji">⏰</span>
-            <span class="lp-persona-text">바빠서 뉴스 볼 시간이 없는 직장인</span>
-          </div>
-          <div class="lp-persona">
-            <span class="lp-persona-emoji">📈</span>
-            <span class="lp-persona-text">경제 공부를 시작했는데 어디서부터 봐야 할지 모르는 분</span>
-          </div>
-          <div class="lp-persona">
-            <span class="lp-persona-emoji">💼</span>
-            <span class="lp-persona-text">투자는 하고 있는데 큰 흐름을 놓치는 것 같은 분</span>
-          </div>
-          <div class="lp-persona">
-            <span class="lp-persona-emoji">🌏</span>
-            <span class="lp-persona-text">미국·중국 이슈가 한국 경제에 왜 영향을 주는지 궁금한 분</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- 이용 방법 -->
-      <div class="lp-section lp-section-tinted">
-        <div class="lp-section-head">
-          <div class="lp-section-title">이렇게 이용하세요</div>
-        </div>
-        <div class="lp-steps">
-          <div class="lp-step">
-            <div class="lp-step-num">01</div>
-            <div class="lp-step-body">
-              <div class="lp-step-title">분야 선택</div>
-              <div class="lp-step-desc">경제 · 산업 · 국제 중 오늘 관심 있는 분야를 골라요</div>
-            </div>
-          </div>
-          <div class="lp-step">
-            <div class="lp-step-num">02</div>
-            <div class="lp-step-body">
-              <div class="lp-step-title">브리핑 읽기</div>
-              <div class="lp-step-desc">4가지 포인트로 정리된 핵심 분석을 3분 안에 읽어요</div>
-            </div>
-          </div>
-          <div class="lp-step">
-            <div class="lp-step-num">03</div>
-            <div class="lp-step-body">
-              <div class="lp-step-title">흐름 파악</div>
-              <div class="lp-step-desc">아카이브에서 지난 브리핑과 비교하며 트렌드를 읽어요</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- 하단 CTA -->
-      <div class="lp-footer-cta">
-        <div class="lp-footer-title">오늘의 경제 뉴스,<br>지금 바로 확인해요 🌲</div>
-        <button class="lp-cta" onclick="switchTab('economy')">무료로 읽기 시작 →</button>
-        <div style="font-size:11px;color:rgba(255,255,255,0.6);margin-top:14px;font-family:var(--font-mono);">© 2025 The Viva Company</div>
-      </div>
+      <div id="landing-briefs"></div>
 
       <!-- 숨김 (JS 호환성 유지) -->
       <div style="display:none;">
@@ -247,7 +153,6 @@
         <div id="front-industry-preview"></div>
         <div id="front-global-preview"></div>
       </div>
-
     </div>
 
     <!-- ▸ 경제 탭 -->
