@@ -54,7 +54,22 @@ export default async function handler(req, res) {
         it.description ? `${it.title}\n   → ${it.description.slice(0, 100)}` : it.title
       );
 
-      // 2. Claude 브리핑 생성
+      // 2-a. 대표 기사 OG 이미지 추출
+      let topImageUrl = '';
+      const topUrl = unique[0]?.originallink || unique[0]?.link;
+      if (topUrl) {
+        try {
+          const ogRes = await fetch(`https://${host}/api/ogimage?url=${encodeURIComponent(topUrl)}`, {
+            signal: AbortSignal.timeout(6000),
+          });
+          if (ogRes.ok) {
+            const ogData = await ogRes.json();
+            topImageUrl = ogData.imageUrl || '';
+          }
+        } catch(e) { /* skip */ }
+      }
+
+      // 2-b. Claude 브리핑 생성
       const briefingRes = await fetch(`https://${host}/api/briefing`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -76,6 +91,7 @@ export default async function handler(req, res) {
         heading3: heading3 || '', subheading3: subheading3 || '',
         heading4: heading4 || '', subheading4: subheading4 || '',
         columnHook: columnHook || '',
+        topImageUrl: topImageUrl || '',
         created_at: now,
       };
       await db.collection('briefings').doc(tab).set(briefingData);

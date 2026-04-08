@@ -634,7 +634,7 @@ async function genTabSummary(tab) {
       const cf = await cfRes.json();
       if (cf.fresh && cf.summary) {
         console.log(`[CACHED] ${tab} 프리젠 데이터 사용 (created_at: ${new Date(cf.created_at).toLocaleTimeString()})`);
-        const result = { summary: cf.summary, oneliner: '', footnotes: cf.footnotes || '', headline: cf.headline || '', subheading: cf.subheading || '', heading2: cf.heading2 || '', subheading2: cf.subheading2 || '', heading3: cf.heading3 || '', subheading3: cf.subheading3 || '', heading4: cf.heading4 || '', subheading4: cf.subheading4 || '', columnHook: cf.columnHook || '', topNews: [] };
+        const result = { summary: cf.summary, oneliner: '', footnotes: cf.footnotes || '', headline: cf.headline || '', subheading: cf.subheading || '', heading2: cf.heading2 || '', subheading2: cf.subheading2 || '', heading3: cf.heading3 || '', subheading3: cf.subheading3 || '', heading4: cf.heading4 || '', subheading4: cf.subheading4 || '', columnHook: cf.columnHook || '', topImageUrl: cf.topImageUrl || '', topNews: [] };
         summaryCache[tab] = result;
         localStorage.setItem(cacheKey, JSON.stringify(result));
         localStorage.setItem(cacheTimeKey, cf.created_at.toString());
@@ -1301,8 +1301,13 @@ function renderLandingBriefs() {
   const leadResult = summaryCache[lead.key];
   const leadHeadline = leadResult?.headline;
   const leadSub = leadResult?.subheading;
+  const leadImg = leadResult?.topImageUrl;
 
-  const leadHtml = `<div class="newspaper-lead-card" onclick="switchTab('${lead.key}')">
+  const leadBg = leadImg
+    ? `background:linear-gradient(160deg,rgba(90,10,20,0.72) 0%,rgba(40,5,10,0.88) 100%), url('${leadImg}') center/cover no-repeat;`
+    : `background:linear-gradient(160deg, var(--viva-deep) 0%, var(--viva-ink) 100%);`;
+
+  const leadHtml = `<div class="newspaper-lead-card" onclick="switchTab('${lead.key}')" style="${leadBg}">
     <div class="newspaper-lead-tab">${lead.icon} ${lead.label.toUpperCase()} · 오늘의 1면</div>
     <div class="newspaper-lead-headline">${leadHeadline || '브리핑을 불러오는 중...'}</div>
     ${leadSub ? `<div class="newspaper-lead-sub">${leadSub}</div>` : ''}
@@ -1312,7 +1317,8 @@ function renderLandingBriefs() {
   const restHtml = rest.map(t => {
     const result = summaryCache[t.key];
     const headline = result?.headline;
-    return `<div class="newspaper-card" onclick="switchTab('${t.key}')">
+    const img = result?.topImageUrl;
+    return `<div class="newspaper-card" onclick="switchTab('${t.key}')" ${img ? `style="background:linear-gradient(90deg,rgba(255,255,255,0.97) 55%,rgba(255,255,255,0.3) 100%), url('${img}') right center/cover no-repeat;"` : ''}>
       <div class="newspaper-card-body">
         <div class="newspaper-card-tab" style="color:${t.color}">${t.icon} ${t.label}</div>
         <div class="newspaper-card-headline">${headline || '브리핑 불러오는 중...'}</div>
