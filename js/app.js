@@ -44,7 +44,7 @@ const TAB_COLORS = {
 };
 
 /* ═══════════ CACHE VERSION ═══════════ */
-const CACHE_VERSION = 'v136';
+const CACHE_VERSION = 'v137';
 (function clearOldCache() {
   const savedVersion = localStorage.getItem('eco_cache_version');
   if (savedVersion !== CACHE_VERSION) {
@@ -226,7 +226,10 @@ function switchTab(id) {
   if (id==='market') loadStocks();
   if (id==='fx' && !fxRates) loadFX();
   if (id==='breaking') loadBreaking();
-  if (id==='front') renderLandingBriefs();
+  if (id==='front') {
+    renderLandingBriefs();
+    ['economy','industry','global','stocks'].forEach(t => { if (!summaryCache[t]) genTabSummary(t); });
+  }
   if (id==='newsroom') renderNewsroom();
   if (id==='about') renderAbout();
   if (id==='column') {
