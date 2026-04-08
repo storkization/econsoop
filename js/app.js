@@ -44,7 +44,7 @@ const TAB_COLORS = {
 };
 
 /* ═══════════ CACHE VERSION ═══════════ */
-const CACHE_VERSION = 'v134';
+const CACHE_VERSION = 'v136';
 (function clearOldCache() {
   const savedVersion = localStorage.getItem('eco_cache_version');
   if (savedVersion !== CACHE_VERSION) {
@@ -372,40 +372,33 @@ function setLoadingMsg(tab, phase, count = null) {
     const totalSteps = ALL_STEPS.length;
     const isComplete = ci >= totalSteps;
 
-    // ECG beat x positions (end of each beat, SVG width=280)
-    const BEAT_ENDS = [10, 53, 96, 139, 182, 225, 270];
-    const revealX = BEAT_ENDS[Math.min(ci, totalSteps)];
+    // WiFi 신호 애니메이션 (VIVA = 세상과 연결)
+    const wifiColor = '#A51C30';
+    const WIFI_ARCS = [12, 24, 37, 51, 65];
+    const WCX = 140, WCY = 83;
+    const litCount = Math.min(ci, WIFI_ARCS.length);
 
-    function beatPath(i) {
-      const bx = 10 + i * 43;
-      return `M ${bx} 55 L ${bx+6} 55 Q ${bx+9} 47 ${bx+12} 55 L ${bx+16} 55 L ${bx+17} 61 L ${bx+19} 23 L ${bx+21} 71 L ${bx+23} 55 L ${bx+28} 55 Q ${bx+33} 42 ${bx+38} 55 L ${bx+43} 55`;
+    function arcPath(r) {
+      return `M ${WCX - r} ${WCY} A ${r} ${r} 0 0 1 ${WCX + r} ${WCY}`;
     }
 
-    const ecgColor = '#A51C30';
-    const ecgId = `ecg-${tab}`;
-
-    const ecgViz = `
-      <div style="margin:16px -4px 16px;position:relative;">
+    const wifiViz = `
+      <div style="margin:8px -4px 16px;position:relative;text-align:center;">
         <svg viewBox="0 0 280 90" width="100%" style="display:block;overflow:visible;">
-          <defs>
-            <clipPath id="clip-${ecgId}">
-              <rect id="cliprect-${ecgId}" x="0" y="0" height="90" width="10"
-                style="transition:width 1.4s cubic-bezier(0.4,0,0.2,1);"/>
-            </clipPath>
-          </defs>
-          <line x1="0" y1="55" x2="280" y2="55" stroke="#F0EEE8" stroke-width="1.5"/>
-          <g clip-path="url(#clip-${ecgId})" stroke="${ecgColor}" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-            <line x1="0" y1="55" x2="10" y2="55"/>
-            ${Array.from({length:6},(_,i)=>`<path d="${beatPath(i)}"/>`).join('')}
-          </g>
-          ${ci > 0 ? `
-          <circle cx="${revealX}" cy="55" r="8" fill="${ecgColor}" opacity="0.1">
-            <animate attributeName="r" values="5;12;5" dur="1.4s" repeatCount="indefinite"/>
-            <animate attributeName="opacity" values="0.12;0.03;0.12" dur="1.4s" repeatCount="indefinite"/>
-          </circle>
-          <circle cx="${revealX}" cy="55" r="3.5" fill="${ecgColor}"/>` : ''}
+          ${WIFI_ARCS.map((r, i) => `
+            <path d="${arcPath(r)}" fill="none"
+              stroke="${i < litCount ? wifiColor : '#E5E7EB'}"
+              stroke-width="3.5" stroke-linecap="round"
+              style="transition:stroke 0.6s ease;"/>
+          `).join('')}
+          <circle cx="${WCX}" cy="${WCY}" r="5"
+            fill="${litCount >= 1 ? wifiColor : '#E5E7EB'}"
+            style="transition:fill 0.6s ease;"/>
           ${isComplete ? `
-          <text x="140" y="82" text-anchor="middle" font-family="var(--font-mono)" font-size="9" font-weight="700" fill="${ecgColor}" letter-spacing="2" opacity="0.6">VIVA · LIVE</text>` : ''}
+          <circle cx="${WCX}" cy="${WCY}" r="8" fill="${wifiColor}" opacity="0.1">
+            <animate attributeName="r" values="6;20;6" dur="1.6s" repeatCount="indefinite"/>
+            <animate attributeName="opacity" values="0.12;0.03;0.12" dur="1.6s" repeatCount="indefinite"/>
+          </circle>` : ''}
         </svg>
       </div>`;
 
@@ -413,7 +406,7 @@ function setLoadingMsg(tab, phase, count = null) {
     const stepLabels = ALL_STEPS.map((s, idx) => {
       const done = idx < ci;
       const active = idx === ci;
-      const color = (done || active) ? ecgColor : '#C4C9CF';
+      const color = (done || active) ? wifiColor : '#C4C9CF';
       const weight = (done || active) ? '700' : '400';
       const opacity = done ? '1' : active ? '1' : '0.35';
       const icon = done ? '✓' : active ? s.icon : '·';
@@ -434,9 +427,9 @@ function setLoadingMsg(tab, phase, count = null) {
     card.innerHTML = `
       <div style="padding:24px 20px;background:#FFFFFF;border-radius:16px;box-shadow:0 2px 16px rgba(90,10,20,0.06);">
         <div style="font-family:var(--font-mono);font-size:9px;font-weight:700;color:${isComplete?'#A51C30':'var(--text-dim)'};letter-spacing:2px;margin-bottom:2px;">
-          ${isComplete ? '💗 VIVA · 살아있는 브리핑' : '♡ VIVA · BRIEFING'}
+          ${isComplete ? '📶 VIVA · 연결 완료' : '📶 VIVA · 연결 중'}
         </div>
-        ${ecgViz}
+        ${wifiViz}
         <div style="display:flex;flex-direction:column;gap:7px;margin-bottom:16px;">
           ${stepLabels}
         </div>

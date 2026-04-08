@@ -64,7 +64,11 @@
       "Bash(sed -i 's|content=\"#0C1931\"|content=\"#6B0F1A\"|g' index.html)",
       "Bash(powershell.exe:*)",
       "Skill(update-config)",
-      "Bash(ls:*)"
+      "Bash(ls:*)",
+      "mcp__claude_ai_Notion__notion-search",
+      "mcp__claude_ai_Notion__notion-create-pages",
+      "mcp__claude_ai_Notion__notion-get-users",
+      "WebSearch"
     ]
   }
 }
