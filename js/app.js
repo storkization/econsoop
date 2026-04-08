@@ -1300,18 +1300,6 @@ function renderLandingBriefs() {
   const leadSub = leadResult?.subheading;
   const leadImg = leadResult?.topImageUrl;
 
-  function cardBg(t, img, alpha1 = '0.75', alpha2 = '0.90') {
-    if (img) {
-      // 색상 그라디언트 + 이미지 오버레이
-      const base = t.bg.replace('linear-gradient(160deg,', '').replace(')', '').split(',');
-      const c1 = base[0]?.trim() || '#333';
-      const c2 = base[1]?.trim() || '#111';
-      return `background:linear-gradient(160deg,${c1.replace(')', '')}${alpha1.replace('0.',',')}),${c2.replace(')','')}${alpha2.replace('0.',',')})), url('${img}') center/cover no-repeat;`
-        .replace(/,\)/g, ')');
-    }
-    return `background:${t.bg};`;
-  }
-
   const leadBg = leadImg
     ? `background:linear-gradient(160deg,rgba(107,15,26,0.72) 0%,rgba(40,5,10,0.88) 100%), url('${leadImg}') center/cover no-repeat;`
     : `background:${lead.bg};`;
