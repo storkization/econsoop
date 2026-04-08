@@ -44,7 +44,7 @@ const TAB_COLORS = {
 };
 
 /* ═══════════ CACHE VERSION ═══════════ */
-const CACHE_VERSION = 'v132';
+const CACHE_VERSION = 'v134';
 (function clearOldCache() {
   const savedVersion = localStorage.getItem('eco_cache_version');
   if (savedVersion !== CACHE_VERSION) {
@@ -140,7 +140,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // 앱 시작 = 저장된 시작 탭 로드
-  const startTab = localStorage.getItem('eco_start_tab') || 'economy';
+  const startTab = localStorage.getItem('eco_start_tab') || 'front';
   switchTab(startTab);
 
   // 설정 초기화
@@ -228,6 +228,7 @@ function switchTab(id) {
   if (id==='breaking') loadBreaking();
   if (id==='front') renderLandingBriefs();
   if (id==='newsroom') renderNewsroom();
+  if (id==='about') renderAbout();
   if (id==='column') {
     if (!isPremiumUnlocked()) { renderPremiumGate('column'); return; }
     loadColumnTab();
@@ -1311,6 +1312,74 @@ function renderLandingBriefs() {
   root.innerHTML = leadHtml + `<div class="newspaper-card-grid">${restHtml}</div>`;
 }
 
+function openEarlybirdForm() {
+  // 얼리버드 신청 — 추후 실제 폼/결제 링크로 교체
+  const form = document.getElementById('earlybird-form-overlay');
+  if (form) { form.style.display = 'flex'; return; }
+  const overlay = document.createElement('div');
+  overlay.id = 'earlybird-form-overlay';
+  overlay.style.cssText = 'position:fixed;inset:0;z-index:500;background:rgba(0,0,0,0.55);display:flex;align-items:flex-end;justify-content:center;';
+  overlay.innerHTML = `
+    <div style="background:#fff;border-radius:20px 20px 0 0;padding:28px 24px 40px;width:100%;max-width:480px;box-sizing:border-box;">
+      <div style="width:36px;height:4px;background:#E5E7EB;border-radius:2px;margin:0 auto 20px;"></div>
+      <div style="font-family:var(--font-serif);font-size:20px;font-weight:900;color:var(--text);margin-bottom:6px;">얼리버드 신청</div>
+      <div style="font-size:13px;color:var(--text-dim);margin-bottom:20px;line-height:1.6;">이메일을 남겨주시면 출시 시 가장 먼저 안내드립니다.</div>
+      <input id="earlybird-email" type="email" placeholder="이메일 주소를 입력해주세요"
+        style="width:100%;box-sizing:border-box;padding:14px 16px;border:1.5px solid #E5E7EB;border-radius:12px;font-size:15px;font-family:var(--font-sans);outline:none;margin-bottom:12px;">
+      <button onclick="submitEarlybird()" style="width:100%;padding:15px;background:linear-gradient(135deg,var(--viva-deep),var(--viva-ink));color:#fff;border:none;border-radius:14px;font-size:15px;font-weight:700;font-family:var(--font-sans);cursor:pointer;letter-spacing:-0.2px;">신청 완료하기</button>
+      <button onclick="document.getElementById('earlybird-form-overlay').style.display='none'" style="width:100%;padding:12px;background:none;border:none;color:var(--text-dim);font-size:13px;cursor:pointer;margin-top:4px;">닫기</button>
+    </div>`;
+  overlay.addEventListener('click', e => { if (e.target === overlay) overlay.style.display = 'none'; });
+  document.body.appendChild(overlay);
+}
+
+function submitEarlybird() {
+  const email = document.getElementById('earlybird-email')?.value?.trim();
+  if (!email || !email.includes('@')) {
+    alert('올바른 이메일 주소를 입력해주세요.');
+    return;
+  }
+  // TODO: 실제 제출 로직 (Firebase 저장 또는 외부 폼 연동)
+  localStorage.setItem('eco_earlybird_email', email);
+  document.getElementById('earlybird-form-overlay').style.display = 'none';
+  showToast('얼리버드 신청이 완료됐습니다! 출시 시 안내드릴게요 🎉');
+}
+
+function renderAbout() {
+  const root = document.getElementById('about-root');
+  if (!root || root.dataset.rendered) return;
+  root.dataset.rendered = '1';
+  root.innerHTML = `
+    <div class="about-wrap">
+      <div class="about-hero">
+        <div class="about-eyebrow">The Viva Company</div>
+        <h1 class="about-title">경제를 읽는 법,<br>더 생생하고 더 깊이 있게</h1>
+        <p class="about-sub">수십 개의 경제 뉴스를 AI가 분석해<br>핵심만 3분 안에 읽을 수 있도록 만들었습니다.</p>
+      </div>
+      <div class="about-section">
+        <div class="about-section-title">이런 서비스예요</div>
+        <div class="about-features">
+          <div class="about-feature"><span class="about-feature-icon">🤖</span><div><div class="about-feature-title">AI가 대신 읽어줘요</div><div class="about-feature-desc">Claude AI가 수십 개 뉴스를 핵심이슈·배경·시장영향·투자전략 4가지로 정리합니다.</div></div></div>
+          <div class="about-feature"><span class="about-feature-icon">☀️</span><div><div class="about-feature-title">매일 아침 7시 자동 업데이트</div><div class="about-feature-desc">하루를 시작하기 전, 오늘의 경제 흐름을 먼저 파악하세요.</div></div></div>
+          <div class="about-feature"><span class="about-feature-icon">📚</span><div><div class="about-feature-title">지난 브리핑이 쌓여요</div><div class="about-feature-desc">아카이브에서 날짜별 브리핑을 다시 찾아보며 경제 흐름을 길게 읽을 수 있어요.</div></div></div>
+        </div>
+      </div>
+      <div class="about-section about-section-tinted">
+        <div class="about-section-title">이런 분들에게 딱이에요</div>
+        <div class="about-personas">
+          <div class="about-persona">⏰ 바빠서 뉴스 볼 시간이 없는 직장인</div>
+          <div class="about-persona">📈 투자는 하는데 큰 흐름을 놓치는 것 같은 분</div>
+          <div class="about-persona">🌏 미국·중국 이슈가 왜 한국 경제에 영향 주는지 궁금한 분</div>
+          <div class="about-persona">👨‍👩‍👧 경제 뉴스를 쉽게 이해하고 싶은 분</div>
+        </div>
+      </div>
+      <div class="about-cta-wrap">
+        <button class="about-cta" onclick="switchTab('economy')">오늘의 브리핑 읽기 →</button>
+        <div class="about-copyright">© 2025 The Viva Company · Publisher Shawn Kim</div>
+      </div>
+    </div>`;
+}
+
 function isPremiumUnlocked() {
   return localStorage.getItem('eco_premium_key') !== null;
 }
@@ -1539,7 +1608,7 @@ function initSettings() {
   document.querySelectorAll('#font-size-btns .settings-opt').forEach(b => {
     b.classList.toggle('active', b.dataset.size === _savedFontSize);
   });
-  _savedStartTab = localStorage.getItem('eco_start_tab') || 'economy';
+  _savedStartTab = localStorage.getItem('eco_start_tab') || 'front';
   document.querySelectorAll('#start-tab-btns .settings-opt').forEach(b => {
     b.classList.toggle('active', b.dataset.start === _savedStartTab);
   });
