@@ -44,7 +44,7 @@ const TAB_COLORS = {
 };
 
 /* ═══════════ CACHE VERSION ═══════════ */
-const CACHE_VERSION = 'v129';
+const CACHE_VERSION = 'v130';
 (function clearOldCache() {
   const savedVersion = localStorage.getItem('eco_cache_version');
   if (savedVersion !== CACHE_VERSION) {
@@ -183,7 +183,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
 function pad(n) { return String(n).padStart(2,'0'); }
 function esc(s){ return (s||'').replace(/&/g,'&amp;').replace(/'/g,"\\'").replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-function openLink(u){ if(u) window.open(u,'_blank'); }
 function ago(d){
   const date = d instanceof Date ? d : new Date(d);
   if (isNaN(date.getTime())) return '방금 전';
@@ -977,38 +976,7 @@ function renderTabSummary(tab, result) {
       </div>`;
   }
   const newsEl = document.getElementById(`${tab}-summary-news`);
-  if (newsEl) {
-    if (!result.topNews || !result.topNews.length) {
-      newsEl.innerHTML = '';
-    } else {
-      const now = new Date();
-      const timeStr = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
-      let h = `
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
-          <div style="display:flex;align-items:center;gap:8px;">
-            <span style="font-size:11px;font-weight:800;letter-spacing:0.8px;color:${tc.main};font-family:var(--font-mono);">AI PICK</span>
-            <span style="font-size:11px;color:#6B7280;font-family:var(--font-sans);">오늘의 핵심 뉴스</span>
-          </div>
-          <span style="font-size:10px;color:#9CA3AF;font-family:var(--font-mono);">${timeStr} 기준 · ${result.topNews.length}건</span>
-        </div>
-        <div style="border-radius:var(--radius);overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,0.07);border:1px solid ${tc.shadow.replace('0.07','0.12')}">`;
-      result.topNews.forEach((it, i) => {
-        const isLast = i === result.topNews.length - 1;
-        h += `<div class="news-item" style="${!isLast ? 'border-bottom:1px solid rgba(0,0,0,0.05);' : ''}">
-          <div class="news-num" style="color:${tc.main};font-weight:800;">${pad(i+1)}</div>
-          <div class="news-body" onclick="openLink('${esc(it.link)}')">
-            <div class="news-title">${it.title}</div>
-            <div class="news-meta">
-              <span style="background:${tc.bg1};color:${tc.main};padding:1px 6px;border-radius:4px;font-weight:600;">${it.source}</span>
-              <span>${ago(it.date)}</span>
-            </div>
-          </div>
-        </div>`;
-      });
-      h += `</div>`;
-      newsEl.innerHTML = h;
-    }
-  }
+  if (newsEl) newsEl.innerHTML = '';
 }
 
 /* ═══════════ INSIGHT 렌더 (독립 함수) ═══════════ */
@@ -1328,21 +1296,7 @@ function renderLandingBriefs() {
 /* ═══════════ 서브칩 뉴스 ═══════════ */
 
 function renderNewsList(items, el) {
-  if (!items || !items.length) {
-    el.innerHTML = `<div class="loading-wrap"><p>뉴스를 찾을 수 없습니다.</p></div>`;
-    return;
-  }
-  let h = `<div class="section-label">주요 뉴스</div>`;
-  items.forEach((it, i) => {
-    h += `<div class="news-item">
-      <div class="news-num">${pad(i+1)}</div>
-      <div class="news-body" onclick="openLink('${esc(it.link)}')">
-        <div class="news-title">${it.title}</div>
-        <div class="news-meta"><span>${it.source}</span><span>${ago(it.date)}</span></div>
-      </div>
-    </div>`;
-  });
-  el.innerHTML = h;
+  el.innerHTML = '';
 }
 
 
@@ -1351,70 +1305,9 @@ let breakingCache = null;
 let breakingLoaded = false;
 
 async function loadBreaking(force = false) {
-  if (breakingLoaded && !force) return;
-
   const el = document.getElementById('breaking-news-list');
-  el.innerHTML = `<div class="loading-wrap"><div class="dots"><span></span><span></span><span></span></div><p style="margin-top:14px">속보를 불러오는 중...</p></div>`;
-
-  const queries = ['속보 경제', '속보 금융 증시', '속보 환율 금리'];
-  const allItems = [];
-
-  const results = await fetchInBatches(queries, async q => {
-    try {
-      const r = await fetch(`/api/news?query=${encodeURIComponent(q)}&display=15&type=general`,
-        { signal: (function(){ const c = new AbortController(); setTimeout(()=>c.abort(), 5000); return c.signal; })() });
-      const j = await r.json();
-      return j.items || [];
-    } catch(e) {
-      console.warn("[BREAKING FETCH]", q, e.message);
-      return [];
-    }
-  }, 3, 250);
-  allItems.push(...results.flat());
-
-  // 중복 제거 + 최신순
-  const seen = new Set();
-  const unique = allItems
-    .filter(it => { const k=it.title.slice(0,15); if(seen.has(k)) return false; seen.add(k); return true; })
-    .sort((a,b) => new Date(b.date)-new Date(a.date))
-    .slice(0, 30);
-
-  breakingCache = unique;
-  breakingLoaded = true;
-
-  if (!unique.length) {
-    el.innerHTML = `<div class="loading-wrap"><p>속보를 찾을 수 없습니다.</p></div>`;
-    return;
-  }
-
-  const now = new Date();
-  const timeStr = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
-
-  let h = `
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
-      <div style="display:flex;align-items:center;gap:8px;">
-        <span style="font-size:11px;font-weight:800;letter-spacing:0.8px;color:var(--red);font-family:var(--font-mono);">BREAKING</span>
-        <span style="font-size:11px;color:#6B7280;font-family:var(--font-sans);">경제 속보</span>
-      </div>
-      <span style="font-size:10px;color:#9CA3AF;font-family:var(--font-mono);">${timeStr} 기준 · ${unique.length}건</span>
-    </div>
-    <div style="border-radius:var(--radius);overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,0.07);border:1px solid rgba(220,38,38,0.15);">`;
-
-  unique.forEach((it, i) => {
-    const isLast = i === unique.length - 1;
-    h += `<div class="news-item" style="${!isLast ? 'border-bottom:1px solid rgba(0,0,0,0.05);' : ''}">
-      <div class="news-num" style="color:var(--red);font-weight:800;">${pad(i+1)}</div>
-      <div class="news-body" onclick="openLink('${esc(it.link)}')">
-        <div class="news-title">${it.title}</div>
-        <div class="news-meta">
-          <span style="background:#FEE2E2;color:#DC2626;padding:1px 6px;border-radius:4px;font-weight:600;">${it.source}</span>
-          <span>${ago(it.date)}</span>
-        </div>
-      </div>
-    </div>`;
-  });
-  h += `</div>`;
-  el.innerHTML = h;
+  if (el) el.innerHTML = '';
+  return;
 }
 
 
