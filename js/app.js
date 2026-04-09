@@ -1450,7 +1450,7 @@ function fmtChg(q) {
 // 모든 지표 통합 목록 (3열 그리드)
 const MARKET_GROUPS = [
   {
-    label: '환율', icon: '💱', cols: 3,
+    label: '환율', icon: '💱', cols: 4,
     items: [
       { sym:'USDKRW=X', label:'달러 USD', dot:'#2563EB', kr:true },
       { sym:'EURKRW=X', label:'유로 EUR',  dot:'#059669', kr:true },
@@ -1518,13 +1518,17 @@ const DEV_MARKET = [
 ];
 
 async function fetchSparkline(sym) {
-  try {
-    const url = `https://query2.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(sym)}?interval=1d&range=7d`;
-    const r = await fetch(url, { signal: (()=>{ const c=new AbortController(); setTimeout(()=>c.abort(),7000); return c.signal; })() });
-    const j = await r.json();
-    const closes = j?.chart?.result?.[0]?.indicators?.quote?.[0]?.close?.filter(v=>v!=null);
-    return closes?.length >= 2 ? closes : null;
-  } catch { return null; }
+  const hosts = ['query1', 'query2'];
+  for (const host of hosts) {
+    try {
+      const url = `https://${host}.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(sym)}?interval=1d&range=7d`;
+      const r = await fetch(url, { signal: (()=>{ const c=new AbortController(); setTimeout(()=>c.abort(),7000); return c.signal; })() });
+      const j = await r.json();
+      const closes = j?.chart?.result?.[0]?.indicators?.quote?.[0]?.close?.filter(v=>v!=null);
+      if (closes?.length >= 2) return closes;
+    } catch {}
+  }
+  return null;
 }
 
 function buildSparklineSvg(prices, cls) {
