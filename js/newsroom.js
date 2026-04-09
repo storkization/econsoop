@@ -39,15 +39,18 @@ function renderNewsroom() {
   // CEO 카드
   const ceoHtml = `
     <div class="ceo-card">
-      <div class="ceo-photo">
-        <img src="${NEWSROOM_CEO.photo}" alt="${NEWSROOM_CEO.name}"
-             onerror="this.parentElement.textContent='👤'">
+      <div class="ceo-card-top">
+        <div class="ceo-photo">
+          <img src="${NEWSROOM_CEO.photo}" alt="${NEWSROOM_CEO.name}"
+               onerror="this.parentElement.textContent='👤'">
+        </div>
+        <div class="ceo-info">
+          <div class="ceo-badge">CEO · Founder</div>
+          <div class="ceo-name">${NEWSROOM_CEO.name}</div>
+          <div class="ceo-role">${NEWSROOM_CEO.role}</div>
+        </div>
       </div>
-      <div class="ceo-info">
-        <div class="ceo-badge">CEO · Founder ${NEWSROOM_CEO.flag}</div>
-        <div class="ceo-name">${NEWSROOM_CEO.name}</div>
-        <div class="ceo-role">${NEWSROOM_CEO.role}</div>
-      </div>
+      <div class="ceo-bio">${NEWSROOM_CEO.bio}</div>
     </div>
   `;
 
