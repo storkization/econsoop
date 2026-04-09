@@ -812,29 +812,35 @@
       display:grid; grid-template-columns:1fr 1fr; gap:8px;
     }
     .newspaper-card {
-      border-radius:14px; padding:16px 14px;
+      border-radius:14px; overflow:hidden;
       cursor:pointer; border:none;
-      display:flex; flex-direction:column; justify-content:space-between;
-      min-height:130px; box-sizing:border-box;
+      display:flex; flex-direction:column;
+      background:var(--bg-card);
       transition:opacity 0.15s;
     }
-    .newspaper-card:active { opacity:0.85; }
+    .newspaper-card:active { opacity:0.82; }
+    .newspaper-card-img {
+      width:100%; height:90px; object-fit:cover;
+      display:block; flex-shrink:0;
+    }
+    .newspaper-card-img-placeholder {
+      width:100%; height:90px; flex-shrink:0;
+    }
+    .newspaper-card-body {
+      padding:10px 12px 12px; display:flex;
+      flex-direction:column; flex:1;
+    }
     .newspaper-card-tab {
       font-size:9px; font-weight:700; letter-spacing:1px;
-      margin-bottom:8px; font-family:var(--font-mono);
-      color:rgba(255,255,255,0.6);
+      margin-bottom:5px; font-family:var(--font-mono);
+      color:var(--text-dim);
     }
     .newspaper-card-headline {
-      font-size:14px; font-weight:800; color:#fff;
+      font-size:13px; font-weight:800; color:var(--text);
       line-height:1.45; letter-spacing:-0.2px;
       overflow:hidden; display:-webkit-box;
       -webkit-line-clamp:3; -webkit-box-orient:vertical;
       flex:1;
-    }
-    .newspaper-card-arrow {
-      margin-top:10px; font-size:10px;
-      color:rgba(255,255,255,0.4); font-family:var(--font-mono);
-      flex-shrink:0;
     }
 
     /* ── 프리미엄 게이트 ── */

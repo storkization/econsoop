@@ -1303,29 +1303,30 @@ function renderLandingBriefs() {
     const result = summaryCache[t.key];
     const headline = result?.headline;
     const img = result?.topImageUrl;
-    const bgStyle = img
-      ? `background:linear-gradient(160deg,rgba(0,0,0,0.68) 0%,rgba(0,0,0,0.38) 100%), url('${img}') center/cover no-repeat;`
-      : `background:${t.bg};`;
-    return `<div class="newspaper-card" onclick="switchTab('${t.key}')" style="${bgStyle}" data-imgurl="${img||''}" data-bgfallback="${t.bg}">
-      <div class="newspaper-card-tab">${t.icon} ${t.label.toUpperCase()}</div>
-      <div class="newspaper-card-headline">${headline || '브리핑 불러오는 중...'}</div>
-      <div class="newspaper-card-arrow">브리핑 보기 →</div>
+    const imgHtml = img
+      ? `<img class="newspaper-card-img" src="${img}" alt="" loading="lazy" data-fallbackbg="${t.bg}" onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
+         <div class="newspaper-card-img-placeholder" style="background:${t.bg};display:none;"></div>`
+      : `<div class="newspaper-card-img-placeholder" style="background:${t.bg};"></div>`;
+    return `<div class="newspaper-card" onclick="switchTab('${t.key}')">
+      ${imgHtml}
+      <div class="newspaper-card-body">
+        <div class="newspaper-card-tab">${t.icon} ${t.label.toUpperCase()}</div>
+        <div class="newspaper-card-headline">${headline || '브리핑 불러오는 중...'}</div>
+      </div>
     </div>`;
   }).join('');
 
   root.innerHTML = `<div class="newspaper-card-grid">${cardsHtml}</div>`;
 
-  // 이미지 크기 검증 — 너무 작은 이미지(로고·아이콘)는 그라디언트로 대체
-  root.querySelectorAll('[data-imgurl]').forEach(el => {
-    const url = el.dataset.imgurl;
-    if (!url) return;
-    const fallback = el.dataset.bgfallback;
-    const img = new Image();
-    img.onload = () => {
-      if (img.naturalWidth < 300 || img.naturalHeight < 150) el.style.background = fallback;
+  // 이미지 크기 검증 — 너무 작은 이미지(로고·아이콘)는 플레이스홀더로 대체
+  root.querySelectorAll('.newspaper-card-img').forEach(imgEl => {
+    const onSmall = () => {
+      imgEl.style.display = 'none';
+      imgEl.nextElementSibling.style.display = 'block';
     };
-    img.onerror = () => { el.style.background = fallback; };
-    img.src = url;
+    imgEl.addEventListener('load', () => {
+      if (imgEl.naturalWidth < 300 || imgEl.naturalHeight < 150) onSmall();
+    });
   });
 }
 
