@@ -832,7 +832,7 @@
     }
     .fm-card-label {
       font-family:var(--font-sans); font-size:10px; font-weight:700;
-      color:var(--text-dim); letter-spacing:-0.1px;
+      color:var(--text); letter-spacing:-0.1px;
       white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
     }
     .fm-card-prev {
