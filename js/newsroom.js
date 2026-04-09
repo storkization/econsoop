@@ -45,8 +45,8 @@ function renderNewsroom() {
                onerror="this.parentElement.textContent='👤'">
         </div>
         <div class="ceo-info">
-          <div class="ceo-badge">CEO · Founder</div>
           <div class="ceo-name">${NEWSROOM_CEO.name}</div>
+          <div class="ceo-badge">CEO · Founder</div>
         </div>
       </div>
     </div>
