@@ -1459,14 +1459,14 @@ const MARKET_GROUPS = [
     ],
   },
   {
-    label: '한국 증시', icon: '🇰🇷',
+    label: '한국 증시', icon: '🇰🇷', cols: 4,
     items: [
       { sym:'^KS11', label:'KOSPI',  dot:'#A51C30', kr:true },
       { sym:'^KQ11', label:'KOSDAQ', dot:'#A51C30', kr:true },
     ],
   },
   {
-    label: '미국 증시', icon: '🇺🇸',
+    label: '미국 증시', icon: '🇺🇸', cols: 4,
     items: [
       { sym:'^DJI',  label:'다우존스', dot:'#1D4ED8', kr:false },
       { sym:'^IXIC', label:'NASDAQ',  dot:'#1D4ED8', kr:false },
@@ -1497,26 +1497,31 @@ function fmtMarketVal(price, kr) {
     : price.toLocaleString('en-US', { maximumFractionDigits: 2 });
 }
 
-function buildFmCard(item, q) {
+function buildFmCard(item, q, cols) {
   const prev = q ? q.price - q.chg : null;
   const { cls, txt } = fmtChg(q);
   const chgAmt = q ? `${q.chg >= 0 ? '+' : ''}${fmtMarketVal(q.chg, item.kr)}` : '—';
-  return `<div class="fm-card">
+  const compact = cols >= 4;
+  return `<div class="fm-card${compact ? ' fm-card-compact' : ''}">
     <div class="fm-card-top">
       <div class="fm-card-dot" style="background:${item.dot}"></div>
       <div class="fm-card-label">${item.label}</div>
     </div>
-    <div class="fm-card-price-row">
-      <div class="fm-card-val">${q ? fmtMarketVal(q.price, item.kr) : '—'}</div>
-      <div class="fm-card-prev">(전일 ${prev != null ? fmtMarketVal(prev, item.kr) : '—'})</div>
-    </div>
-    <div class="fm-card-chg ${cls}">${chgAmt}&nbsp;&nbsp;${txt}</div>
+    ${compact
+      ? `<div class="fm-card-val">${q ? fmtMarketVal(q.price, item.kr) : '—'}</div>
+         <div class="fm-card-chg ${cls}">${txt}</div>`
+      : `<div class="fm-card-price-row">
+           <div class="fm-card-val">${q ? fmtMarketVal(q.price, item.kr) : '—'}</div>
+           <div class="fm-card-prev">(전일 ${prev != null ? fmtMarketVal(prev, item.kr) : '—'})</div>
+         </div>
+         <div class="fm-card-chg ${cls}">${chgAmt}&nbsp;&nbsp;${txt}</div>`
+    }
   </div>`;
 }
 
 function buildFmSection(group, results, offset) {
-  const cards = group.items.map((item, i) => buildFmCard(item, results[offset + i])).join('');
-  const cols = group.items.length === 2 ? 2 : 2;
+  const cols = group.cols || 2;
+  const cards = group.items.map((item, i) => buildFmCard(item, results[offset + i], cols)).join('');
   return `
     <div class="fm-section-label">${group.icon} ${group.label}</div>
     <div class="fm-grid fm-grid-${cols}">${cards}</div>`;
