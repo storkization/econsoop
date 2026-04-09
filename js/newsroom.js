@@ -30,40 +30,37 @@ const TEAM_SECTIONS = [
 
 // ── 조직도 ─────────────────────────────────────────────────
 function buildOrgChart() {
-  const chiefCols = TEAM_SECTIONS.map(sec => {
+  const teamCardsHtml = TEAM_SECTIONS.map(sec => {
     const chief   = NEWSROOM_TEAM.find(m => m.team === sec.key && m.role === 'Chief Editor');
     const reports = NEWSROOM_TEAM.filter(m => m.team === sec.key && m.role !== 'Chief Editor');
     const reportHtml = reports.map(r => `
-      <div class="org-report">
-        <div class="org-report-id">${r.flag} ${r.name}</div>
-        <div class="org-report-role">${r.role.replace(' Researcher','').replace(' Analyst','')}</div>
-        <div class="org-report-spec">${r.spec}</div>
+      <div class="org-report-mini">
+        <span class="org-mini-id">${r.flag} ${r.name}</span>
+        <span class="org-mini-role">${r.role.replace(' Researcher','').replace(' Analyst','')}</span>
+        <span class="org-mini-spec">${r.spec}</span>
       </div>`).join('');
     return `
-      <div class="org-col">
-        <div class="org-chief" style="border-top:3px solid ${sec.color};background:${sec.bg};border-color:${sec.border};">
-          <div class="org-chief-badge" style="color:${sec.color};">${sec.icon} ${sec.label}</div>
+      <div class="org-team-card" style="border-top:3px solid ${sec.color};background:${sec.bg};border-color:${sec.border};">
+        <div class="org-team-badge" style="color:${sec.color};">${sec.icon} ${sec.label}</div>
+        <div class="org-team-chief">
           <div class="org-chief-id">${chief?.name || ''} <span class="emoji">🤖</span></div>
           <div class="org-chief-role">Chief Editor</div>
           <div class="org-chief-spec">${chief?.spec || ''}</div>
         </div>
-        <div class="org-reports">${reportHtml}</div>
+        <div class="org-team-reports">${reportHtml}</div>
       </div>`;
   }).join('');
 
-  const colCol = `
-    <div class="org-col org-col-c">
-      <div class="org-chief org-chief-c">
-        <div class="org-chief-badge" style="color:#0F172A;">✍️ Column</div>
-        <div class="org-chief-id">C-01 <span class="emoji">🤖</span></div>
-        <div class="org-chief-role">Column Editor</div>
-        <div class="org-chief-spec">4개 부문 종합</div>
-      </div>
-      <div class="org-reports">
-        <div class="org-report org-report-c">
-          <div class="org-report-role">경제·산업·국제·증권</div>
-          <div class="org-report-spec">브리핑 수렴 후 칼럼 생성</div>
+  const colCard = `
+    <div class="org-col-full-card">
+      <div class="org-col-inner">
+        <div>
+          <div class="org-team-badge" style="color:#0F172A;margin-bottom:6px;">✍️ Column</div>
+          <div class="org-chief-id">C-01 <span class="emoji">🤖</span></div>
+          <div class="org-chief-role">Column Editor</div>
+          <div class="org-chief-spec">4개 부문 종합 · 브리핑 수렴 후 칼럼 생성</div>
         </div>
+        <div class="org-col-badge">경제 · 산업 · 국제 · 증권</div>
       </div>
     </div>`;
 
@@ -71,27 +68,8 @@ function buildOrgChart() {
     <div class="org-section">
       <div class="org-eyebrow">ORGANIZATION</div>
       <div class="org-title">AI 뉴스룸 구조</div>
-
-      <div class="org-ceo-node">
-        <div class="org-ceo-photo">
-          ${NEWSROOM_CEO.photo
-            ? `<img src="${NEWSROOM_CEO.photo}" alt="${NEWSROOM_CEO.name}" onerror="this.textContent='👤'">`
-            : '👤'}
-        </div>
-        <div>
-          <div class="org-ceo-name">${NEWSROOM_CEO.name}</div>
-          <div class="org-ceo-role">${NEWSROOM_CEO.role}</div>
-        </div>
-      </div>
-
-      <div class="org-connector-v"></div>
-
-      <div class="org-chiefs-scroll">
-        <div class="org-chiefs-row">
-          ${chiefCols}
-          ${colCol}
-        </div>
-      </div>
+      <div class="org-grid">${teamCardsHtml}</div>
+      ${colCard}
     </div>`;
 }
 
@@ -123,7 +101,7 @@ function buildWorkflow() {
     <div class="wf-section">
       <div class="org-eyebrow">BRIEFING PROCESS</div>
       <div class="org-title">브리핑 제작 과정</div>
-      <div class="wf-sub">전문화된 AI들의 협업으로 신뢰도 높은 브리핑을 제공합니다.<br>4개 부문 13개 AI가 매일 협력하여 정확하고 깊이 있는 경제 브리핑을 만듭니다.</div>
+      <div class="wf-sub">4개 부문 13개 AI 에디터가 매일 협업합니다. 각 AI는 독립적으로 분석하고, 검증 결과를 서로 교차 참조하여 단일 AI보다 훨씬 높은 정확도와 깊이를 실현합니다.</div>
       <div class="wf-steps">${stepsHtml}</div>
     </div>`;
 }
@@ -155,11 +133,6 @@ function renderNewsroom() {
 
   root.innerHTML = `
     <div class="newsroom-wrap">
-      <div class="newsroom-header">
-        <div class="newsroom-eyebrow">VIVA Economy Intelligence</div>
-        <div class="newsroom-title">Today's Biz Bite</div>
-        <div class="newsroom-desc">비즈니스 로직을 해석하는 AI 뉴스룸</div>
-      </div>
       ${buildOrgChart()}
       ${buildWorkflow()}
       <div class="nr-team-header">
