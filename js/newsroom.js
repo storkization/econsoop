@@ -9,18 +9,18 @@ const NEWSROOM_CEO = {
 };
 
 const NEWSROOM_TEAM = [
-  { name: '김태준',        flag: '🇰🇷', team: 'Economy',  role: 'Chief Editor',      spec: '거시지표·금리정책',    photo: '/img/team/taejun1.jpg' },
-  { name: '박소현',        flag: '🇰🇷', team: 'Economy',  role: 'Senior Researcher', spec: '소비/물가·대중 해설',  photo: '/img/team/sohyun1.jpg' },
-  { name: '이준혁',        flag: '🇰🇷', team: 'Economy',  role: 'Junior Researcher', spec: '속보·트렌드',           photo: '/img/team/junhyuk1.jpg' },
-  { name: '최민서',        flag: '🇰🇷', team: 'Industry', role: 'Chief Editor',      spec: '반도체·산업구조',      photo: '/img/team/minseo1.jpg' },
-  { name: '정우성',        flag: '🇰🇷', team: 'Industry', role: 'Senior Researcher', spec: '테크·IT기업',          photo: '/img/team/woosung1.jpg' },
-  { name: '한지은',        flag: '🇰🇷', team: 'Industry', role: 'Junior Researcher', spec: '스타트업·신산업',      photo: '/img/team/jieun1.jpg' },
-  { name: '오민준',        flag: '🇰🇷', team: 'Global',   role: 'Chief Editor',      spec: '지정학·외교경제',      photo: '/img/team/minjun1.jpg' },
-  { name: 'Lena Hoffmann', flag: '🇩🇪', team: 'Global',   role: 'Senior Analyst',    spec: '유럽·ECB정책',         photo: '/img/team/lena1.jpg' },
-  { name: 'Kevin Chan',    flag: '🇭🇰', team: 'Global',   role: 'Junior Analyst',    spec: '아시아금융·신흥국',    photo: '/img/team/kevin1.jpg' },
-  { name: '강동현',        flag: '🇰🇷', team: 'Markets',  role: 'Chief Editor',      spec: '종목분석·기관동향',    photo: '/img/team/donghyun1.jpg' },
-  { name: '윤서영',        flag: '🇰🇷', team: 'Markets',  role: 'Senior Researcher', spec: '개인투자·실전전략',    photo: '/img/team/seoyoung1.jpg' },
-  { name: 'Yuki Tanaka',   flag: '🇯🇵', team: 'Markets',  role: 'Junior Analyst',    spec: '닛케이·아시아증시',    photo: '/img/team/yuki1.jpg' },
+  { name: 'E-01', flag: '🤖', team: 'Economy',  role: 'Chief Editor',      spec: '거시지표·금리정책',    photo: '' },
+  { name: 'E-02', flag: '🤖', team: 'Economy',  role: 'Senior Researcher', spec: '소비/물가·대중 해설',  photo: '' },
+  { name: 'E-03', flag: '🤖', team: 'Economy',  role: 'Junior Researcher', spec: '속보·트렌드',           photo: '' },
+  { name: 'I-01', flag: '🤖', team: 'Industry', role: 'Chief Editor',      spec: '반도체·산업구조',      photo: '' },
+  { name: 'I-02', flag: '🤖', team: 'Industry', role: 'Senior Researcher', spec: '테크·IT기업',          photo: '' },
+  { name: 'I-03', flag: '🤖', team: 'Industry', role: 'Junior Researcher', spec: '스타트업·신산업',      photo: '' },
+  { name: 'G-01', flag: '🤖', team: 'Global',   role: 'Chief Editor',      spec: '지정학·외교경제',      photo: '' },
+  { name: 'G-02', flag: '🤖', team: 'Global',   role: 'Senior Analyst',    spec: '유럽·ECB정책',         photo: '' },
+  { name: 'G-03', flag: '🤖', team: 'Global',   role: 'Junior Analyst',    spec: '아시아금융·신흥국',    photo: '' },
+  { name: 'M-01', flag: '🤖', team: 'Markets',  role: 'Chief Editor',      spec: '종목분석·기관동향',    photo: '' },
+  { name: 'M-02', flag: '🤖', team: 'Markets',  role: 'Senior Researcher', spec: '개인투자·실전전략',    photo: '' },
+  { name: 'M-03', flag: '🤖', team: 'Markets',  role: 'Junior Analyst',    spec: '닛케이·아시아증시',    photo: '' },
 ];
 
 const TEAM_SECTIONS = [
@@ -60,8 +60,9 @@ function renderNewsroom() {
     const makeCard = m => `
       <div class="team-card" style="background:${sec.bg};border-color:${sec.border};">
         <div class="team-photo" style="border-color:${sec.color}33;">
-          <img src="${m.photo}" alt="${m.name}"
-               onerror="this.parentElement.textContent='${m.flag}'">
+          ${m.photo
+            ? `<img src="${m.photo}" alt="${m.name}" onerror="this.parentElement.textContent='${m.flag}'">`
+            : m.flag}
         </div>
         <div class="team-name">${m.name}</div>
         <div class="team-role" style="color:${sec.color};">${m.role}</div>
