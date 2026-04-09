@@ -957,7 +957,7 @@
       margin-bottom:14px;
     }
     .ceo-photo {
-      width:64px; height:80px; border-radius:10px;
+      width:110px; height:138px; border-radius:14px;
       background:var(--green-light);
       flex-shrink:0; overflow:hidden;
       display:flex; align-items:center; justify-content:center;
@@ -981,12 +981,6 @@
     .ceo-role {
       font-size:11px; color:var(--text-dim);
       font-family:var(--font-mono); letter-spacing:0.3px;
-    }
-    .ceo-bio {
-      font-size:13px; color:var(--text-muted);
-      line-height:1.7; letter-spacing:-0.1px;
-      border-top:1px solid var(--border);
-      padding-top:12px;
     }
 
     /* 팀 섹션 */
