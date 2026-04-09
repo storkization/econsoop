@@ -804,59 +804,36 @@
       margin-top:4px; letter-spacing:0.1px;
     }
     /* ── 1면 마켓 대시보드 ── */
-    #front-market { margin-bottom:10px; display:flex; flex-direction:column; gap:6px; }
-
-    /* 달러 히어로 */
-    .fm-hero {
-      background:var(--bg-card); border-radius:14px;
-      padding:14px 18px; border:1px solid var(--border);
-      display:flex; align-items:center; justify-content:space-between;
+    #front-market { margin-bottom:10px; }
+    .fm-grid {
+      display:grid; grid-template-columns:repeat(3,1fr); gap:7px;
     }
-    .fm-hero-left {}
-    .fm-hero-label {
-      font-family:var(--font-sans); font-size:13px; font-weight:700;
-      color:var(--text-dim); margin-bottom:6px; letter-spacing:-0.1px;
-    }
-    .fm-hero-val {
-      font-family:var(--font-sans); font-size:34px; font-weight:900;
-      color:var(--text); letter-spacing:-1.5px; line-height:1;
-    }
-    .fm-hero-unit {
-      font-family:var(--font-sans); font-size:12px; font-weight:600;
-      color:var(--text-dim); margin-top:4px;
-    }
-    .fm-hero-chg {
-      font-family:var(--font-mono); font-size:15px; font-weight:700;
-      padding:6px 12px; border-radius:20px;
-    }
-    .fm-hero-chg.up   { background:#F0FDF4; color:#16A34A; }
-    .fm-hero-chg.down { background:#FEF2F2; color:#DC2626; }
-    .fm-hero-chg.flat { background:var(--bg-card2); color:var(--text-dim); }
-
-    /* 상품/지수 그리드 */
-    .fm-grid-3 { display:grid; grid-template-columns:repeat(3,1fr); gap:6px; }
-    .fm-grid-4 { display:grid; grid-template-columns:repeat(4,1fr); gap:6px; }
-
     .fm-card {
-      background:var(--bg-card); border-radius:11px;
-      padding:10px 8px 9px; text-align:center;
-      border:1px solid var(--border);
+      background:var(--bg-card); border-radius:12px;
+      padding:11px 10px 10px; border:1px solid var(--border);
+      display:flex; flex-direction:column; gap:2px;
+    }
+    .fm-card-top {
+      display:flex; align-items:center; gap:5px; margin-bottom:5px;
     }
     .fm-card-dot {
-      width:20px; height:4px; border-radius:2px;
-      margin:0 auto 6px;
+      width:6px; height:6px; border-radius:50%; flex-shrink:0;
     }
     .fm-card-label {
-      font-family:var(--font-sans); font-size:9px; font-weight:700;
-      letter-spacing:0.8px; color:var(--text-dim); text-transform:uppercase;
-      margin-bottom:5px;
+      font-family:var(--font-sans); font-size:10px; font-weight:700;
+      color:var(--text-dim); letter-spacing:-0.1px;
+      white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+    }
+    .fm-card-prev {
+      font-family:var(--font-mono); font-size:9px; color:var(--text-dim);
+      margin-bottom:2px;
     }
     .fm-card-val {
-      font-family:var(--font-sans); font-size:14px; font-weight:800;
-      color:var(--text); letter-spacing:-0.3px;
+      font-family:var(--font-sans); font-size:16px; font-weight:900;
+      color:var(--text); letter-spacing:-0.5px; line-height:1.1;
     }
     .fm-card-chg {
-      font-family:var(--font-mono); font-size:10px; font-weight:600;
+      font-family:var(--font-mono); font-size:9.5px; font-weight:600;
       margin-top:3px;
     }
     .fm-card-chg.up   { color:#16A34A; }
