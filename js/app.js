@@ -568,10 +568,14 @@ const DEV_DUMMY = {
 ---
 by. Shawn Kim`,
   comments: [
-    { nick: '청소의왕',     text: '환율이 1,500원이면 수입물가 또 오르겠네... 장보기 무서워' },
-    { nick: 'Rodus23',      text: '금리 동결이라는데 체감은 전혀 아닌 것 같음 😅' },
-    { nick: '꼬북이',       text: '이런 거 읽을 때마다 달러 미리 샀어야 했는데 후회됨' },
-    { nick: 'thesomeaudio', text: '오늘 브리핑 핵심만 딱 정리됐네요 감사합니다' },
+    { nick: '청소의왕',     text: '환율이 1,500원이면 수입물가 또 오르겠네... 장보기 무서워', likes: 12,
+      replies: [{ nick: 'Rodus23', text: '진짜 마트 갈 때마다 느껴요' }, { nick: '꼬북이', text: '달러 미리 살걸 ㅠ' }] },
+    { nick: 'k_investor',   text: '금리 동결이라는데 체감은 전혀 아닌 것 같음 😅', likes: 7,
+      replies: [{ nick: '파란하늘82', text: '이자만 매달 50만원인데 동결이 무슨' }] },
+    { nick: '경제요정',     text: '이런 거 읽을 때마다 달러 미리 샀어야 했는데 후회됨', likes: 5,
+      replies: [] },
+    { nick: 'thesomeaudio', text: '오늘 브리핑 핵심만 딱 정리됐네요 감사합니다', likes: 9,
+      replies: [{ nick: '수익왕', text: '저도 매일 읽고 있어요' }] },
   ]
 };
 
@@ -1014,11 +1018,28 @@ function renderTabSummary(tab, result) {
         ${result.comments.map((c, i) => {
           const color = AVATAR_COLORS[i % AVATAR_COLORS.length];
           const initial = c.nick.slice(0,1).toUpperCase();
+          const likeKey = `eco_like_${tab}_${i}`;
+          const liked = localStorage.getItem(likeKey) === '1';
+          const likeCount = (c.likes || 0) + (liked ? 1 : 0);
+          const repliesHtml = (c.replies || []).map((r, ri) => {
+            const rc = AVATAR_COLORS[(i + ri + 3) % AVATAR_COLORS.length];
+            return `<div class="cmt-reply">
+              <div class="cmt-avatar cmt-avatar-sm" style="background:${rc};">${r.nick.slice(0,1).toUpperCase()}</div>
+              <div class="cmt-reply-body">
+                <span class="cmt-nick">${r.nick}</span>
+                <span class="cmt-text">${r.text}</span>
+              </div>
+            </div>`;
+          }).join('');
           return `<div class="cmt-item">
             <div class="cmt-avatar" style="background:${color};">${initial}</div>
             <div class="cmt-body">
-              <span class="cmt-nick">${c.nick}</span>
-              <span class="cmt-text">${c.text}</span>
+              <div class="cmt-row">
+                <span class="cmt-nick">${c.nick}</span>
+                <button class="cmt-like${liked ? ' liked' : ''}" onclick="toggleCmtLike(this,'${tab}',${i},${c.likes || 0})">${liked ? '♥' : '♡'} ${likeCount}</button>
+              </div>
+              <div class="cmt-text">${c.text}</div>
+              ${repliesHtml ? `<div class="cmt-replies">${repliesHtml}</div>` : ''}
             </div>
           </div>`;
         }).join('')}
@@ -1027,6 +1048,21 @@ function renderTabSummary(tab, result) {
 
   const newsEl = document.getElementById(`${tab}-summary-news`);
   if (newsEl) newsEl.innerHTML = '';
+}
+
+/* ═══════════ 댓글 좋아요 토글 ═══════════ */
+function toggleCmtLike(btn, tab, idx, baseLikes) {
+  const key = `eco_like_${tab}_${idx}`;
+  const liked = localStorage.getItem(key) === '1';
+  if (liked) {
+    localStorage.removeItem(key);
+    btn.classList.remove('liked');
+    btn.textContent = `♡ ${baseLikes}`;
+  } else {
+    localStorage.setItem(key, '1');
+    btn.classList.add('liked');
+    btn.textContent = `♥ ${baseLikes + 1}`;
+  }
 }
 
 /* ═══════════ INSIGHT 렌더 (독립 함수) ═══════════ */

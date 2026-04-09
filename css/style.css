@@ -1226,24 +1226,50 @@
     }
     .cmt-item {
       display:flex; align-items:flex-start; gap:10px;
-      padding:8px 0;
+      padding:10px 0;
       border-bottom:1px solid var(--border);
     }
     .cmt-item:last-child { border-bottom:none; padding-bottom:0; }
     .cmt-avatar {
-      width:28px; height:28px; border-radius:50%;
+      width:30px; height:30px; border-radius:50%;
       display:flex; align-items:center; justify-content:center;
-      font-size:12px; font-weight:800; color:#fff;
+      font-size:13px; font-weight:800; color:#fff;
       flex-shrink:0;
     }
+    .cmt-avatar-sm {
+      width:22px; height:22px; font-size:10px; flex-shrink:0;
+    }
     .cmt-body { flex:1; min-width:0; }
+    .cmt-row {
+      display:flex; align-items:center; justify-content:space-between;
+      margin-bottom:3px;
+    }
     .cmt-nick {
       font-size:11px; font-weight:700; color:var(--text);
-      margin-right:8px; font-family:var(--font-mono);
+      font-family:var(--font-mono);
     }
     .cmt-text {
-      font-size:13px; color:var(--text); line-height:1.5;
+      font-size:13px; color:var(--text); line-height:1.55;
     }
+    .cmt-like {
+      background:none; border:none; cursor:pointer; padding:2px 6px;
+      font-size:11px; color:var(--text-dim); font-family:var(--font-mono);
+      border-radius:10px; transition:all 0.15s;
+    }
+    .cmt-like:active { transform:scale(1.2); }
+    .cmt-like.liked { color:#DC2626; font-weight:700; }
+    .cmt-replies {
+      margin-top:8px;
+      padding-left:10px;
+      border-left:2px solid var(--border);
+      display:flex; flex-direction:column; gap:6px;
+    }
+    .cmt-reply {
+      display:flex; align-items:flex-start; gap:7px;
+    }
+    .cmt-reply-body { flex:1; min-width:0; }
+    .cmt-reply-body .cmt-nick { display:block; margin-bottom:1px; }
+    .cmt-reply-body .cmt-text { font-size:12px; }
 
     /* ── 랜딩페이지 ── */
     #tab-front { padding:0; background:#fff; }

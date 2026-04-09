@@ -31,18 +31,26 @@ async function genComments(summary, label) {
       },
       body: JSON.stringify({
         model: 'claude-haiku-4-5-20251001',
-        max_tokens: 400,
+        max_tokens: 700,
         messages: [{
           role: 'user',
-          content: `오늘의 ${label} 브리핑:\n${summary.slice(0, 350)}\n\n이 브리핑을 읽은 한국 독자 4명의 댓글을 생성하세요.\n규칙: 실제 인터넷 댓글처럼 짧고 자연스럽게 (15~45자), 공감/걱정/질문/가벼운 반응 다양하게, 이모지 1개 이하, 마크다운 금지.\nJSON 배열만 출력: ["댓글1","댓글2","댓글3","댓글4"]`,
+          content: `오늘의 ${label} 브리핑:\n${summary.slice(0, 350)}\n\n이 브리핑을 읽은 한국 독자 4명의 댓글과, 각 댓글에 달린 대댓글 1~2개를 생성하세요.\n규칙: 댓글 15~45자, 대댓글 10~30자, 인터넷 말투 자연스럽게, 이모지 1개 이하, 마크다운 금지.\nJSON만 출력:\n[{"text":"댓글","replies":["대댓글1","대댓글2"]},...]`,
         }],
       }),
-      signal: AbortSignal.timeout(20000),
+      signal: AbortSignal.timeout(25000),
     });
     const j = await r.json();
-    const texts = JSON.parse(j.content[0].text);
+    const items = JSON.parse(j.content[0].text);
     const shuffled = [...NICK_POOL].sort(() => Math.random() - 0.5);
-    return texts.slice(0, 4).map((text, i) => ({ nick: shuffled[i], text }));
+    return items.slice(0, 4).map((item, i) => ({
+      nick: shuffled[i],
+      text: item.text,
+      likes: Math.floor(Math.random() * 18) + 1,
+      replies: (item.replies || []).slice(0, 2).map((rt, ri) => ({
+        nick: shuffled[4 + i * 2 + ri] || shuffled[(i + ri + 5) % NICK_POOL.length],
+        text: rt,
+      })),
+    }));
   } catch(e) {
     console.error('[GENERATE] 댓글 생성 실패:', e.message);
     return [];
