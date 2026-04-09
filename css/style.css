@@ -814,17 +814,16 @@
     }
     .fm-hero-left {}
     .fm-hero-label {
-      font-family:var(--font-mono); font-size:9px; font-weight:700;
-      letter-spacing:1.2px; color:var(--text-dim); text-transform:uppercase;
-      margin-bottom:4px;
+      font-family:var(--font-sans); font-size:13px; font-weight:700;
+      color:var(--text-dim); margin-bottom:6px; letter-spacing:-0.1px;
     }
     .fm-hero-val {
-      font-family:var(--font-mono); font-size:30px; font-weight:900;
-      color:var(--text); letter-spacing:-1px; line-height:1;
+      font-family:var(--font-sans); font-size:34px; font-weight:900;
+      color:var(--text); letter-spacing:-1.5px; line-height:1;
     }
     .fm-hero-unit {
-      font-family:var(--font-mono); font-size:11px;
-      color:var(--text-dim); margin-top:3px;
+      font-family:var(--font-sans); font-size:12px; font-weight:600;
+      color:var(--text-dim); margin-top:4px;
     }
     .fm-hero-chg {
       font-family:var(--font-mono); font-size:15px; font-weight:700;
@@ -843,14 +842,17 @@
       padding:10px 8px 9px; text-align:center;
       border:1px solid var(--border);
     }
-    .fm-card-icon  { font-size:16px; margin-bottom:4px; }
+    .fm-card-dot {
+      width:20px; height:4px; border-radius:2px;
+      margin:0 auto 6px;
+    }
     .fm-card-label {
-      font-family:var(--font-mono); font-size:8px; font-weight:700;
+      font-family:var(--font-sans); font-size:9px; font-weight:700;
       letter-spacing:0.8px; color:var(--text-dim); text-transform:uppercase;
       margin-bottom:5px;
     }
     .fm-card-val {
-      font-family:var(--font-mono); font-size:14px; font-weight:800;
+      font-family:var(--font-sans); font-size:14px; font-weight:800;
       color:var(--text); letter-spacing:-0.3px;
     }
     .fm-card-chg {

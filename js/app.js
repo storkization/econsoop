@@ -1434,10 +1434,10 @@ async function loadBreaking(force = false) {
 
 /* ═══════════ FRONT MARKET DASHBOARD ═══════════ */
 const COMMODITIES = [
-  { sym:'GC=F',   label:'GOLD',    icon:'🥇', usd:true },
-  { sym:'SI=F',   label:'SILVER',  icon:'🥈', usd:true },
-  { sym:'CL=F',   label:'WTI',     icon:'🛢', usd:true },
-  { sym:'BTC-USD',label:'BTC',     icon:'₿',  usd:true },
+  { sym:'GC=F',   label:'GOLD',   dot:'#D4A520', usd:true },
+  { sym:'SI=F',   label:'SILVER', dot:'#9CA3AF', usd:true },
+  { sym:'CL=F',   label:'WTI',    dot:'#374151', usd:true },
+  { sym:'BTC-USD',label:'BTC',    dot:'#F97316', usd:true },
 ];
 
 function fmtChg(q) {
@@ -1462,7 +1462,7 @@ async function loadFrontMarket() {
       <div class="fm-hero-chg flat" id="fm-usd-chg">—</div>
     </div>
     <div class="fm-grid-3" id="fm-commodity-grid">
-      ${COMMODITIES.slice(0,3).map(c=>`<div class="fm-card"><div class="fm-card-icon">${c.icon}</div><div class="fm-card-label">${c.label}</div><div class="fm-card-val">—</div><div class="fm-card-chg flat">—</div></div>`).join('')}
+      ${COMMODITIES.slice(0,3).map(c=>`<div class="fm-card"><div class="fm-card-dot" style="background:${c.dot}"></div><div class="fm-card-label">${c.label}</div><div class="fm-card-val">—</div><div class="fm-card-chg flat">—</div></div>`).join('')}
     </div>
     <div class="fm-grid-4" id="fm-indices-grid">
       ${INDICES.map(idx=>`<div class="fm-card"><div class="fm-card-label">${idx.name}</div><div class="fm-card-val">—</div><div class="fm-card-chg flat">—</div></div>`).join('')}
@@ -1494,7 +1494,7 @@ async function loadFrontMarket() {
     const { cls, txt } = fmtChg(q);
     const val = q ? '$' + q.price.toLocaleString('en-US', {maximumFractionDigits:1}) : '—';
     return `<div class="fm-card">
-      <div class="fm-card-icon">${c.icon}</div>
+      <div class="fm-card-dot" style="background:${c.dot}"></div>
       <div class="fm-card-label">${c.label}</div>
       <div class="fm-card-val">${val}</div>
       <div class="fm-card-chg ${cls}">${txt}</div>
