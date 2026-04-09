@@ -1450,7 +1450,7 @@ function fmtChg(q) {
 // 모든 지표 통합 목록 (3열 그리드)
 const MARKET_GROUPS = [
   {
-    label: '환율 · 원자재', icon: '🌐',
+    label: '환율 · 원자재', icon: '🌐', cols: 4,
     items: [
       { sym:'USDKRW=X', label:'달러 환율', dot:'#2563EB', kr:true  },
       { sym:'GC=F',     label:'금 Gold',   dot:'#D4A520', kr:false },
