@@ -59,12 +59,7 @@ function renderNewsroom() {
 
     const makeCard = m => `
       <div class="team-card" style="background:${sec.bg};border-color:${sec.border};">
-        <div class="team-photo" style="border-color:${sec.color}33;">
-          ${m.photo
-            ? `<img src="${m.photo}" alt="${m.name}" onerror="this.parentElement.textContent='${m.flag}'">`
-            : m.flag}
-        </div>
-        <div class="team-name">${m.name}</div>
+        <div class="team-name">${m.flag} ${m.name}</div>
         <div class="team-role" style="color:${sec.color};">${m.role}</div>
         <div class="team-spec">${m.spec}</div>
       </div>
