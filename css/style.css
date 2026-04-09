@@ -795,9 +795,13 @@
       margin-bottom:14px;
     }
     .newspaper-masthead-title {
-      font-family:var(--font-serif);
-      font-size:26px; font-weight:900; font-style:italic;
+      font-family:var(--font-sans);
+      font-size:22px; font-weight:900;
       color:var(--text); letter-spacing:-0.5px;
+    }
+    .newspaper-masthead-en {
+      font-family:var(--font-sans); font-size:13px; font-weight:500;
+      color:var(--text-dim); letter-spacing:0.2px; margin-left:6px;
     }
     .newspaper-masthead-sub {
       font-size:11px; color:var(--text-dim);
