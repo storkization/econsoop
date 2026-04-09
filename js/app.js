@@ -1450,12 +1450,11 @@ function fmtChg(q) {
 // 모든 지표 통합 목록 (3열 그리드)
 const MARKET_GROUPS = [
   {
-    label: '환율', icon: '💱', cols: 4,
+    label: '환율', icon: '💱', cols: 3,
     items: [
       { sym:'USDKRW=X', label:'달러 USD', dot:'#2563EB', kr:true },
       { sym:'EURKRW=X', label:'유로 EUR',  dot:'#059669', kr:true },
       { sym:'JPYKRW=X', label:'엔화 JPY',  dot:'#DC2626', kr:true },
-      { sym:'CNYKRW=X', label:'위안 CNY',  dot:'#D97706', kr:true },
     ],
   },
   {
@@ -1481,6 +1480,15 @@ const MARKET_GROUPS = [
       { sym:'^GSPC', label:'S&P 500', dot:'#1D4ED8', kr:false },
     ],
   },
+  {
+    label: '가상화폐', icon: '₿', cols: 4,
+    items: [
+      { sym:'BTC-USD', label:'비트코인',  dot:'#F97316', kr:false },
+      { sym:'ETH-USD', label:'이더리움',  dot:'#6366F1', kr:false },
+      { sym:'SOL-USD', label:'솔라나',    dot:'#8B5CF6', kr:false },
+      { sym:'XRP-USD', label:'리플',      dot:'#0EA5E9', kr:false },
+    ],
+  },
 ];
 
 // 전체 플랫 배열 (fetch 순서용)
@@ -1491,7 +1499,6 @@ const DEV_MARKET = [
   { price:1354.5,  chg:  4.5,  pct:  0.33 },
   { price:1498.2,  chg: -3.1,  pct: -0.21 },
   { price:   9.21, chg:  0.03, pct:  0.33 },
-  { price: 187.4,  chg:  0.8,  pct:  0.43 },
   // 원자재
   { price:3240.1,  chg: 12.3,  pct:  0.38 },
   { price:  32.45, chg: -0.20, pct: -0.61 },
@@ -1500,10 +1507,41 @@ const DEV_MARKET = [
   { price:2581.03, chg: -8.40, pct: -0.32 },
   { price: 845.21, chg:  6.80, pct:  0.81 },
   // 미국 증시
-  { price:38451.0, chg:312.5,  pct:  0.82 },
-  { price:17432.6, chg:194.3,  pct:  1.12 },
-  { price:5123.41, chg: 47.80, pct:  0.94 },
+  { price:38451.0,  chg: 312.5,  pct:  0.82 },
+  { price:17432.6,  chg: 194.3,  pct:  1.12 },
+  { price: 5123.41, chg:  47.80, pct:  0.94 },
+  // 가상화폐
+  { price:83241.0,  chg:1230.0,  pct:  1.50 },
+  { price: 3182.4,  chg: -42.1,  pct: -1.31 },
+  { price:  142.3,  chg:   5.2,  pct:  3.79 },
+  { price:    2.14, chg:   0.08, pct:  3.88 },
 ];
+
+async function fetchSparkline(sym) {
+  try {
+    const url = `https://query2.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(sym)}?interval=1d&range=7d`;
+    const r = await fetch(url, { signal: (()=>{ const c=new AbortController(); setTimeout(()=>c.abort(),7000); return c.signal; })() });
+    const j = await r.json();
+    const closes = j?.chart?.result?.[0]?.indicators?.quote?.[0]?.close?.filter(v=>v!=null);
+    return closes?.length >= 2 ? closes : null;
+  } catch { return null; }
+}
+
+function buildSparklineSvg(prices, cls) {
+  if (!prices || prices.length < 2) return '';
+  const W = 100, H = 28, pad = 2;
+  const min = Math.min(...prices), max = Math.max(...prices);
+  const range = max - min || 1;
+  const pts = prices.map((p, i) => {
+    const x = pad + (i / (prices.length - 1)) * (W - pad * 2);
+    const y = H - pad - ((p - min) / range) * (H - pad * 2);
+    return `${x.toFixed(1)},${y.toFixed(1)}`;
+  }).join(' ');
+  const color = cls === 'up' ? '#16A34A' : cls === 'down' ? '#DC2626' : '#9CA3AF';
+  return `<svg class="fm-sparkline" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">
+    <polyline points="${pts}" fill="none" stroke="${color}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>`;
+}
 
 function fmtMarketVal(price, kr) {
   if (price == null) return '—';
@@ -1512,11 +1550,12 @@ function fmtMarketVal(price, kr) {
     : price.toLocaleString('en-US', { maximumFractionDigits: 2 });
 }
 
-function buildFmCard(item, q, cols) {
+function buildFmCard(item, q, cols, sparkline) {
   const prev = q ? q.price - q.chg : null;
   const { cls, txt } = fmtChg(q);
   const chgAmt = q ? `${q.chg >= 0 ? '+' : ''}${fmtMarketVal(q.chg, item.kr)}` : '—';
   const compact = cols >= 4;
+  const sparkSvg = sparkline ? buildSparklineSvg(sparkline, cls) : '';
   return `<div class="fm-card${compact ? ' fm-card-compact' : ''}">
     <div class="fm-card-top">
       <div class="fm-card-dot" style="background:${item.dot}"></div>
@@ -1525,12 +1564,13 @@ function buildFmCard(item, q, cols) {
     <div class="fm-card-val">${q ? fmtMarketVal(q.price, item.kr) : '—'}</div>
     <div class="fm-card-prev">전일 ${prev != null ? fmtMarketVal(prev, item.kr) : '—'}</div>
     <div class="fm-card-chg ${cls}">${chgAmt}&nbsp;&nbsp;${txt}</div>
+    ${sparkSvg}
   </div>`;
 }
 
-function buildFmSection(group, results, offset) {
+function buildFmSection(group, results, sparklines, offset) {
   const cols = group.cols || 2;
-  const cards = group.items.map((item, i) => buildFmCard(item, results[offset + i], cols)).join('');
+  const cards = group.items.map((item, i) => buildFmCard(item, results[offset + i], cols, sparklines?.[offset + i])).join('');
   return `
     <div class="fm-section-label">${group.icon} ${group.label}</div>
     <div class="fm-grid fm-grid-${cols}">${cards}</div>`;
@@ -1556,9 +1596,21 @@ async function loadFrontMarket() {
     ? DEV_MARKET
     : await Promise.all(MARKET_ALL.map(item => fetchQuote(item.sym)));
 
+  // 1차 렌더 (스파크라인 없이 즉시)
   let offset = 0;
   el.innerHTML = MARKET_GROUPS.map(g => {
-    const html = buildFmSection(g, results, offset);
+    const html = buildFmSection(g, results, null, offset);
+    offset += g.items.length;
+    return html;
+  }).join('');
+
+  if (DEV_MODE) return;
+
+  // 2차 렌더 (스파크라인 백그라운드 로딩 후 업데이트)
+  const sparklines = await Promise.all(MARKET_ALL.map(item => fetchSparkline(item.sym)));
+  offset = 0;
+  el.innerHTML = MARKET_GROUPS.map(g => {
+    const html = buildFmSection(g, results, sparklines, offset);
     offset += g.items.length;
     return html;
   }).join('');
