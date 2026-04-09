@@ -573,7 +573,7 @@ function getLastScheduleTime() {
   const now = new Date();
   const kst = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Seoul' }));
   const hm = kst.getHours() * 100 + kst.getMinutes();
-  const schedules = [700, 1700];
+  const schedules = [700];
   let lastHm = null;
   for (const s of schedules) {
     if (hm >= s) lastHm = s;
@@ -581,7 +581,7 @@ function getLastScheduleTime() {
   if (lastHm === null) {
     const prev = new Date(kst);
     prev.setDate(prev.getDate() - 1);
-    prev.setHours(17, 0, 0, 0);
+    prev.setHours(7, 0, 0, 0);
     return prev.getTime() - (now - kst);
   }
   const last = new Date(kst);
@@ -894,8 +894,8 @@ function renderTabSummary(tab, result) {
     // 날짜/시간
     const t = localStorage.getItem(`eco_summary_time_${tab}`);
     const d = t ? new Date(Number(t)) : new Date();
-    const schedules = [700,1700];
-    const scheduleLabels = {700:'07:00',1700:'17:00'};
+    const schedules = [700];
+    const scheduleLabels = {700:'07:00'};
     const kst = new Date(d.toLocaleString('en-US',{timeZone:'Asia/Seoul'}));
     const hm = kst.getHours()*100+kst.getMinutes();
     let slotHm = null;
@@ -1299,40 +1299,21 @@ function renderLandingBriefs() {
     { key: 'stocks',   label: '증권', icon: '📈', color: '#047857', bg: 'linear-gradient(160deg,#064E3B 0%,#047857 100%)' },
   ];
 
-  const [lead, ...rest] = TABS;
-  const leadResult = summaryCache[lead.key];
-  const leadHeadline = leadResult?.headline;
-  const leadSub = leadResult?.subheading;
-  const leadImg = leadResult?.topImageUrl;
-
-  const leadBg = leadImg
-    ? `background:linear-gradient(160deg,rgba(107,15,26,0.72) 0%,rgba(40,5,10,0.88) 100%), url('${leadImg}') center/cover no-repeat;`
-    : `background:${lead.bg};`;
-
-  const leadHtml = `<div class="newspaper-lead-card" onclick="switchTab('${lead.key}')" style="${leadBg}" data-imgurl="${leadImg||''}" data-bgfallback="${lead.bg}">
-    <div class="newspaper-lead-tab">${lead.icon} ${lead.label.toUpperCase()} · 오늘의 1면</div>
-    <div class="newspaper-lead-headline">${leadHeadline || '브리핑을 불러오는 중...'}</div>
-    ${leadSub ? `<div class="newspaper-lead-sub">${leadSub}</div>` : ''}
-    <div class="newspaper-lead-arrow">브리핑 전체 보기 →</div>
-  </div>`;
-
-  const restHtml = rest.map(t => {
+  const cardsHtml = TABS.map(t => {
     const result = summaryCache[t.key];
     const headline = result?.headline;
     const img = result?.topImageUrl;
     const bgStyle = img
-      ? `background:linear-gradient(160deg,rgba(0,0,0,0.7) 60%,rgba(0,0,0,0.35) 100%), url('${img}') center/cover no-repeat;`
+      ? `background:linear-gradient(160deg,rgba(0,0,0,0.68) 0%,rgba(0,0,0,0.38) 100%), url('${img}') center/cover no-repeat;`
       : `background:${t.bg};`;
-    return `<div class="newspaper-card newspaper-card-dark" onclick="switchTab('${t.key}')" style="${bgStyle}" data-imgurl="${img||''}" data-bgfallback="${t.bg}">
-      <div class="newspaper-card-body">
-        <div class="newspaper-card-tab" style="color:rgba(255,255,255,0.65)">${t.icon} ${t.label}</div>
-        <div class="newspaper-card-headline" style="color:#fff;">${headline || '브리핑 불러오는 중...'}</div>
-      </div>
-      <div class="newspaper-card-arrow" style="color:rgba(255,255,255,0.5)">›</div>
+    return `<div class="newspaper-card" onclick="switchTab('${t.key}')" style="${bgStyle}" data-imgurl="${img||''}" data-bgfallback="${t.bg}">
+      <div class="newspaper-card-tab">${t.icon} ${t.label.toUpperCase()}</div>
+      <div class="newspaper-card-headline">${headline || '브리핑 불러오는 중...'}</div>
+      <div class="newspaper-card-arrow">브리핑 보기 →</div>
     </div>`;
   }).join('');
 
-  root.innerHTML = leadHtml + `<div class="newspaper-card-grid">${restHtml}</div>`;
+  root.innerHTML = `<div class="newspaper-card-grid">${cardsHtml}</div>`;
 
   // 이미지 크기 검증 — 너무 작은 이미지(로고·아이콘)는 그라디언트로 대체
   root.querySelectorAll('[data-imgurl]').forEach(el => {

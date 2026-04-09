@@ -15,7 +15,7 @@ function getLastSlotTime() {
   const now = new Date();
   const kst = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Seoul' }));
   const hm = kst.getHours() * 100 + kst.getMinutes();
-  const slots = [700, 1700];
+  const slots = [700];
   let lastHm = null;
   for (const s of slots) {
     if (hm >= s) lastHm = s;
