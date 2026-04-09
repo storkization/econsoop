@@ -1468,6 +1468,7 @@ const MARKET_GROUPS = [
   {
     label: '미국 증시', icon: '🇺🇸',
     items: [
+      { sym:'^DJI',  label:'다우존스', dot:'#1D4ED8', kr:false },
       { sym:'^IXIC', label:'NASDAQ',  dot:'#1D4ED8', kr:false },
       { sym:'^GSPC', label:'S&P 500', dot:'#1D4ED8', kr:false },
     ],
@@ -1484,6 +1485,7 @@ const DEV_MARKET = [
   { price:  78.52, chg:  0.91, pct:  1.17 },
   { price:2581.03, chg: -8.40, pct: -0.32 },
   { price: 845.21, chg:  6.80, pct:  0.81 },
+  { price:38451.0, chg:312.5,  pct:  0.82 },
   { price:17432.6, chg:194.3,  pct:  1.12 },
   { price:5123.41, chg: 47.80, pct:  0.94 },
 ];

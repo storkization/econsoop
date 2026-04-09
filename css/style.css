@@ -807,6 +807,20 @@
       font-size:11px; color:var(--text-dim);
       margin-top:4px; letter-spacing:0.1px;
     }
+    /* ── 1면 섹션 구분 ── */
+    .front-section-divider {
+      display:flex; align-items:center; gap:10px;
+      margin:16px 0 10px;
+    }
+    .front-section-divider::before,
+    .front-section-divider::after {
+      content:''; flex:1; height:1px; background:var(--border);
+    }
+    .front-section-title {
+      font-family:var(--font-sans); font-size:11px; font-weight:700;
+      color:var(--text-dim); white-space:nowrap; letter-spacing:0.2px;
+    }
+
     /* ── 1면 마켓 대시보드 ── */
     #front-market { margin-bottom:10px; display:flex; flex-direction:column; gap:10px; }
     .fm-section-label {
