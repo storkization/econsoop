@@ -1518,17 +1518,13 @@ const DEV_MARKET = [
 ];
 
 async function fetchSparkline(sym) {
-  const hosts = ['query1', 'query2'];
-  for (const host of hosts) {
-    try {
-      const url = `https://${host}.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(sym)}?interval=1d&range=7d`;
-      const r = await fetch(url, { signal: (()=>{ const c=new AbortController(); setTimeout(()=>c.abort(),7000); return c.signal; })() });
-      const j = await r.json();
-      const closes = j?.chart?.result?.[0]?.indicators?.quote?.[0]?.close?.filter(v=>v!=null);
-      if (closes?.length >= 2) return closes;
-    } catch {}
-  }
-  return null;
+  try {
+    const r = await fetch(`/api/sparkline?sym=${encodeURIComponent(sym)}`, {
+      signal: (()=>{ const c=new AbortController(); setTimeout(()=>c.abort(),8000); return c.signal; })()
+    });
+    const j = await r.json();
+    return j?.closes?.length >= 2 ? j.closes : null;
+  } catch { return null; }
 }
 
 function buildSparklineSvg(prices, cls) {
@@ -1550,8 +1546,8 @@ function buildSparklineSvg(prices, cls) {
 function fmtMarketVal(price, kr) {
   if (price == null) return '—';
   return kr
-    ? price.toLocaleString('ko-KR', { maximumFractionDigits: 1 })
-    : price.toLocaleString('en-US', { maximumFractionDigits: 2 });
+    ? price.toLocaleString('ko-KR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+    : price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 
 function buildFmCard(item, q, cols, sparkline) {
