@@ -71,7 +71,8 @@
       "WebSearch",
       "Bash(head -100 /c/Users/dodoh/Downloads/ShawnDev/Project1/ecobrief/js/*.js)",
       "mcp__claude_ai_Notion__notion-fetch",
-      "Bash(xargs grep:*)"
+      "Bash(xargs grep:*)",
+      "Bash(vercel --version)"
     ]
   }
 }

@@ -228,6 +228,7 @@ function switchTab(id) {
   if (id==='breaking') loadBreaking();
   if (id==='front') {
     renderLandingBriefs();
+    loadFrontIndices();
     ['economy','industry','global','stocks'].forEach(t => { if (!summaryCache[t]) genTabSummary(t); });
   }
   if (id==='newsroom') renderNewsroom();
@@ -1438,6 +1439,30 @@ async function loadBreaking(force = false) {
   return;
 }
 
+
+/* ═══════════ FRONT INDICES ═══════════ */
+async function loadFrontIndices() {
+  const el = document.getElementById('front-indices');
+  if (!el) return;
+  // 로딩 플레이스홀더
+  el.innerHTML = INDICES.map(idx => `
+    <div class="front-idx">
+      <div class="front-idx-name">${idx.name}</div>
+      <div class="front-idx-val">—</div>
+      <div class="front-idx-chg flat">—</div>
+    </div>`).join('');
+  const results = await Promise.all(INDICES.map(idx => fetchQuote(idx.sym)));
+  el.innerHTML = INDICES.map((idx, i) => {
+    const q = results[i];
+    const cls = q ? (q.chg > 0 ? 'up' : q.chg < 0 ? 'down' : 'flat') : 'flat';
+    const arr = q ? (q.chg > 0 ? '▲' : q.chg < 0 ? '▼' : '') : '';
+    return `<div class="front-idx">
+      <div class="front-idx-name">${idx.name}</div>
+      <div class="front-idx-val">${q ? fmtN(q.price, idx.tag === 'kr') : '—'}</div>
+      <div class="front-idx-chg ${cls}">${q ? `${arr}${Math.abs(q.pct).toFixed(2)}%` : '—'}</div>
+    </div>`;
+  }).join('');
+}
 
 /* ═══════════ STOCKS ═══════════ */
 async function loadStocks(){
