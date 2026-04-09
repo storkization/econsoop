@@ -1450,12 +1450,20 @@ function fmtChg(q) {
 // 모든 지표 통합 목록 (3열 그리드)
 const MARKET_GROUPS = [
   {
-    label: '환율 · 원자재', icon: '🌐', cols: 4,
+    label: '환율', icon: '💱', cols: 4,
     items: [
-      { sym:'USDKRW=X', label:'달러 환율', dot:'#2563EB', kr:true  },
-      { sym:'GC=F',     label:'금 Gold',   dot:'#D4A520', kr:false },
-      { sym:'SI=F',     label:'은 Silver', dot:'#9CA3AF', kr:false },
-      { sym:'CL=F',     label:'WTI 유가',  dot:'#374151', kr:false },
+      { sym:'USDKRW=X', label:'달러 USD', dot:'#2563EB', kr:true },
+      { sym:'EURKRW=X', label:'유로 EUR',  dot:'#059669', kr:true },
+      { sym:'JPYKRW=X', label:'엔화 JPY',  dot:'#DC2626', kr:true },
+      { sym:'CNYKRW=X', label:'위안 CNY',  dot:'#D97706', kr:true },
+    ],
+  },
+  {
+    label: '원자재', icon: '🛢', cols: 4,
+    items: [
+      { sym:'GC=F', label:'금 Gold',   dot:'#D4A520', kr:false },
+      { sym:'SI=F', label:'은 Silver', dot:'#9CA3AF', kr:false },
+      { sym:'CL=F', label:'WTI 유가',  dot:'#374151', kr:false },
     ],
   },
   {
@@ -1479,12 +1487,19 @@ const MARKET_GROUPS = [
 const MARKET_ALL = MARKET_GROUPS.flatMap(g => g.items);
 
 const DEV_MARKET = [
+  // 환율
   { price:1354.5,  chg:  4.5,  pct:  0.33 },
+  { price:1498.2,  chg: -3.1,  pct: -0.21 },
+  { price:   9.21, chg:  0.03, pct:  0.33 },
+  { price: 187.4,  chg:  0.8,  pct:  0.43 },
+  // 원자재
   { price:3240.1,  chg: 12.3,  pct:  0.38 },
   { price:  32.45, chg: -0.20, pct: -0.61 },
   { price:  78.52, chg:  0.91, pct:  1.17 },
+  // 한국 증시
   { price:2581.03, chg: -8.40, pct: -0.32 },
   { price: 845.21, chg:  6.80, pct:  0.81 },
+  // 미국 증시
   { price:38451.0, chg:312.5,  pct:  0.82 },
   { price:17432.6, chg:194.3,  pct:  1.12 },
   { price:5123.41, chg: 47.80, pct:  0.94 },
