@@ -2,9 +2,7 @@
 
 const NEWSROOM_CEO = {
   name: 'Shawn Kim',
-  flag: '',
   role: 'CEO · Founder',
-  bio: '경제 뉴스는 왜 항상 어렵게 쓰여 있을까. 10년간 대기업 전략기획실에서 수천 장의 리포트를 읽으며 내린 결론은 하나였다. 복잡한 건 숨기기 위함이 아니라, 제대로 정리한 사람이 없어서다. VIVA Economy는 그 질문에서 시작됐다.',
   photo: '/img/team/shawn1.png',
 };
 
@@ -30,41 +28,121 @@ const TEAM_SECTIONS = [
   { key: 'Markets',  label: '증권',  color: '#6B21A8', bg: 'linear-gradient(135deg,#F9F0FF,#FEF8FF)', border: 'rgba(107,33,168,0.15)', icon: '📈' },
 ];
 
+// ── 조직도 ─────────────────────────────────────────────────
+function buildOrgChart() {
+  const chiefCols = TEAM_SECTIONS.map(sec => {
+    const chief   = NEWSROOM_TEAM.find(m => m.team === sec.key && m.role === 'Chief Editor');
+    const reports = NEWSROOM_TEAM.filter(m => m.team === sec.key && m.role !== 'Chief Editor');
+    const reportHtml = reports.map(r => `
+      <div class="org-report">
+        <div class="org-report-id">${r.flag} ${r.name}</div>
+        <div class="org-report-role">${r.role.replace(' Researcher','').replace(' Analyst','')}</div>
+        <div class="org-report-spec">${r.spec}</div>
+      </div>`).join('');
+    return `
+      <div class="org-col">
+        <div class="org-chief" style="border-top:3px solid ${sec.color};background:${sec.bg};border-color:${sec.border};">
+          <div class="org-chief-badge" style="color:${sec.color};">${sec.icon} ${sec.label}</div>
+          <div class="org-chief-id">${chief?.name || ''} <span class="emoji">🤖</span></div>
+          <div class="org-chief-role">Chief Editor</div>
+          <div class="org-chief-spec">${chief?.spec || ''}</div>
+        </div>
+        <div class="org-reports">${reportHtml}</div>
+      </div>`;
+  }).join('');
+
+  const colCol = `
+    <div class="org-col org-col-c">
+      <div class="org-chief org-chief-c">
+        <div class="org-chief-badge" style="color:#0F172A;">✍️ Column</div>
+        <div class="org-chief-id">C-01 <span class="emoji">🤖</span></div>
+        <div class="org-chief-role">Column Editor</div>
+        <div class="org-chief-spec">4개 부문 종합</div>
+      </div>
+      <div class="org-reports">
+        <div class="org-report org-report-c">
+          <div class="org-report-role">경제·산업·국제·증권</div>
+          <div class="org-report-spec">브리핑 수렴 후 칼럼 생성</div>
+        </div>
+      </div>
+    </div>`;
+
+  return `
+    <div class="org-section">
+      <div class="org-eyebrow">ORGANIZATION</div>
+      <div class="org-title">AI 뉴스룸 구조</div>
+
+      <div class="org-ceo-node">
+        <div class="org-ceo-photo">
+          ${NEWSROOM_CEO.photo
+            ? `<img src="${NEWSROOM_CEO.photo}" alt="${NEWSROOM_CEO.name}" onerror="this.textContent='👤'">`
+            : '👤'}
+        </div>
+        <div>
+          <div class="org-ceo-name">${NEWSROOM_CEO.name}</div>
+          <div class="org-ceo-role">${NEWSROOM_CEO.role}</div>
+        </div>
+      </div>
+
+      <div class="org-connector-v"></div>
+
+      <div class="org-chiefs-scroll">
+        <div class="org-chiefs-row">
+          ${chiefCols}
+          ${colCol}
+        </div>
+      </div>
+    </div>`;
+}
+
+// ── 브리핑 플로우 ───────────────────────────────────────────
+function buildWorkflow() {
+  const steps = [
+    { num:'01', icon:'📡', title:'실시간 데이터 수집',        desc:'검증된 미디어 소스에서 경제·산업·국제·증권 뉴스를 실시간으로 수집합니다.' },
+    { num:'02', icon:'🔍', title:'파트별 리서치 (Junior AI)', desc:'파트 전담 AI가 핵심 정보를 체계적으로 분류하고 초안을 작성합니다.' },
+    { num:'03', icon:'📊', title:'교차 검증 (Senior AI)',     desc:'배경 맥락과 수치를 독립적으로 분석하여 정확도를 높입니다.' },
+    { num:'04', icon:'✅', title:'최종 편집 확정 (Chief AI)', desc:'편집 기준에 따라 최종 검토를 거쳐 완성도 높은 브리핑을 확정합니다.' },
+    { num:'05', icon:'📰', title:'브리핑 발행',               desc:'경제·산업·국제·증권 4개 부문이 동시에 완성되어 균형 있는 시각을 제공합니다.', last4: true },
+    { num:'06', icon:'✍️', title:'칼럼 종합 (C-01)',         desc:'4개 부문의 인사이트를 종합하여 부문 간 상관관계와 심층 인사이트를 더합니다.', isCol: true },
+  ];
+
+  const stepsHtml = steps.map((s, i) => `
+    <div class="wf-step${s.isCol ? ' wf-step-col' : ''}">
+      <div class="wf-step-left">
+        <div class="wf-num${s.isCol ? ' wf-num-col' : ''}">${s.num}</div>
+        ${i < steps.length - 1 ? '<div class="wf-line"></div>' : ''}
+      </div>
+      <div class="wf-body">
+        <div class="wf-title"><span class="emoji">${s.icon}</span> ${s.title}</div>
+        <div class="wf-desc">${s.desc}</div>
+        ${s.last4 ? '<div class="wf-badge">경제 · 산업 · 국제 · 증권 동시 진행</div>' : ''}
+      </div>
+    </div>`).join('');
+
+  return `
+    <div class="wf-section">
+      <div class="org-eyebrow">BRIEFING PROCESS</div>
+      <div class="org-title">브리핑 제작 과정</div>
+      <div class="wf-sub">전문화된 AI들의 협업으로 신뢰도 높은 브리핑을 제공합니다.<br>4개 부문 13개 AI가 매일 협력하여 정확하고 깊이 있는 경제 브리핑을 만듭니다.</div>
+      <div class="wf-steps">${stepsHtml}</div>
+    </div>`;
+}
+
 // ── 뉴스룸 렌더링 ──────────────────────────────────────────
 function renderNewsroom() {
   const root = document.getElementById('newsroom-root');
   if (!root || root.dataset.rendered) return;
   root.dataset.rendered = 'true';
 
-  // CEO 카드
-  const ceoHtml = `
-    <div class="ceo-card">
-      <div class="ceo-card-top">
-        <div class="ceo-photo">
-          <img src="${NEWSROOM_CEO.photo}" alt="${NEWSROOM_CEO.name}"
-               onerror="this.parentElement.textContent='👤'">
-        </div>
-        <div class="ceo-info">
-          <div class="ceo-name">${NEWSROOM_CEO.name}</div>
-          <div class="ceo-badge">CEO · Founder</div>
-        </div>
-      </div>
-    </div>
-  `;
-
-  // 섹션별 팀 카드
   const sectionsHtml = TEAM_SECTIONS.map(sec => {
     const members = NEWSROOM_TEAM.filter(m => m.team === sec.key);
     if (!members.length) return '';
-
     const makeCard = m => `
       <div class="team-card" style="background:${sec.bg};border-color:${sec.border};">
         <div class="team-name">${m.flag} ${m.name}</div>
         <div class="team-role" style="color:${sec.color};">${m.role}</div>
         <div class="team-spec">${m.spec}</div>
-      </div>
-    `;
-
+      </div>`;
     return `
       <div class="team-section">
         <div class="team-section-header" style="color:${sec.color};border-left-color:${sec.color};">
@@ -72,8 +150,7 @@ function renderNewsroom() {
           <span class="team-section-label-text">${sec.label}</span>
         </div>
         <div class="team-grid">${members.map(makeCard).join('')}</div>
-      </div>
-    `;
+      </div>`;
   }).join('');
 
   root.innerHTML = `
@@ -81,10 +158,14 @@ function renderNewsroom() {
       <div class="newsroom-header">
         <div class="newsroom-eyebrow">VIVA Economy Intelligence</div>
         <div class="newsroom-title">Today's Biz Bite</div>
-        <div class="newsroom-desc">비즈니스 로직을 해석하는 사람들</div>
+        <div class="newsroom-desc">비즈니스 로직을 해석하는 AI 뉴스룸</div>
+      </div>
+      ${buildOrgChart()}
+      ${buildWorkflow()}
+      <div class="nr-team-header">
+        <div class="org-eyebrow">TEAM</div>
+        <div class="org-title">부문별 AI 에디터</div>
       </div>
       ${sectionsHtml}
-      ${ceoHtml}
-    </div>
-  `;
+    </div>`;
 }
