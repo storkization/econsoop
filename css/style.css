@@ -824,8 +824,8 @@
     /* ── 1면 마켓 대시보드 ── */
     #front-market { margin-bottom:10px; display:flex; flex-direction:column; gap:10px; }
     .fm-section-label {
-      font-family:var(--font-sans); font-size:11px; font-weight:700;
-      color:var(--text-dim); letter-spacing:0.2px;
+      font-family:var(--font-sans); font-size:13px; font-weight:800;
+      color:var(--text); letter-spacing:-0.2px;
       margin-bottom:-4px;
     }
     .fm-grid {
