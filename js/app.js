@@ -1496,25 +1496,25 @@ const MARKET_ALL = MARKET_GROUPS.flatMap(g => g.items);
 
 const DEV_MARKET = [
   // 환율
-  { price:1354.5,  chg:  4.5,  pct:  0.33 },
-  { price:1498.2,  chg: -3.1,  pct: -0.21 },
-  { price:   9.21, chg:  0.03, pct:  0.33 },
+  { price:1354.5,  chg:  4.5,  pct:  0.33, closes:[1330,1335,1342,1338,1345,1350,1354] },
+  { price:1498.2,  chg: -3.1,  pct: -0.21, closes:[1510,1505,1502,1508,1500,1501,1498] },
+  { price:   9.21, chg:  0.03, pct:  0.33, closes:[9.10,9.12,9.15,9.18,9.16,9.20,9.21] },
   // 원자재
-  { price:3240.1,  chg: 12.3,  pct:  0.38 },
-  { price:  32.45, chg: -0.20, pct: -0.61 },
-  { price:  78.52, chg:  0.91, pct:  1.17 },
+  { price:3240.1,  chg: 12.3,  pct:  0.38, closes:[3180,3195,3210,3200,3215,3228,3240] },
+  { price:  32.45, chg: -0.20, pct: -0.61, closes:[33.0,32.8,32.9,32.7,32.6,32.65,32.45] },
+  { price:  78.52, chg:  0.91, pct:  1.17, closes:[76.0,76.5,77.2,77.8,77.5,77.6,78.52] },
   // 한국 증시
-  { price:2581.03, chg: -8.40, pct: -0.32 },
-  { price: 845.21, chg:  6.80, pct:  0.81 },
+  { price:2581.03, chg: -8.40, pct: -0.32, closes:[2620,2610,2598,2605,2595,2589,2581] },
+  { price: 845.21, chg:  6.80, pct:  0.81, closes:[825,830,835,838,840,838,845] },
   // 미국 증시
-  { price:38451.0,  chg: 312.5,  pct:  0.82 },
-  { price:17432.6,  chg: 194.3,  pct:  1.12 },
-  { price: 5123.41, chg:  47.80, pct:  0.94 },
+  { price:38451.0,  chg: 312.5,  pct:  0.82, closes:[37800,37900,38100,38050,38200,38140,38451] },
+  { price:17432.6,  chg: 194.3,  pct:  1.12, closes:[17000,17100,17200,17150,17250,17238,17432] },
+  { price: 5123.41, chg:  47.80, pct:  0.94, closes:[5010,5030,5060,5055,5080,5075,5123] },
   // 가상화폐
-  { price:83241.0,  chg:1230.0,  pct:  1.50 },
-  { price: 3182.4,  chg: -42.1,  pct: -1.31 },
-  { price:  142.3,  chg:   5.2,  pct:  3.79 },
-  { price:    2.14, chg:   0.08, pct:  3.88 },
+  { price:83241.0,  chg:1230.0,  pct:  1.50, closes:[79000,80000,81200,80500,82000,82010,83241] },
+  { price: 3182.4,  chg: -42.1,  pct: -1.31, closes:[3300,3280,3250,3220,3200,3224,3182] },
+  { price:  142.3,  chg:   5.2,  pct:  3.79, closes:[128,130,133,135,138,137,142] },
+  { price:    2.14, chg:   0.08, pct:  3.88, closes:[1.95,1.98,2.01,2.05,2.08,2.06,2.14] },
 ];
 
 async function fetchSparkline(sym) {
@@ -1604,10 +1604,10 @@ async function loadFrontMarket() {
     return html;
   }).join('');
 
-  if (DEV_MODE) return;
-
-  // 2차 렌더 (스파크라인 백그라운드 로딩 후 업데이트)
-  const sparklines = await Promise.all(MARKET_ALL.map(item => fetchSparkline(item.sym)));
+  // 2차 렌더 (스파크라인 포함)
+  const sparklines = DEV_MODE
+    ? DEV_MARKET.map(d => d.closes || null)
+    : await Promise.all(MARKET_ALL.map(item => fetchSparkline(item.sym)));
   offset = 0;
   el.innerHTML = MARKET_GROUPS.map(g => {
     const html = buildFmSection(g, results, sparklines, offset);
