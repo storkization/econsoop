@@ -835,17 +835,19 @@
       color:var(--text); letter-spacing:-0.1px;
       white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
     }
-    .fm-card-prev {
-      font-family:var(--font-mono); font-size:9px; color:var(--text-dim);
-      margin-bottom:2px;
+    .fm-card-price-row {
+      display:flex; align-items:baseline; gap:6px; flex-wrap:wrap;
     }
     .fm-card-val {
-      font-family:var(--font-sans); font-size:16px; font-weight:900;
-      color:var(--text); letter-spacing:-0.5px; line-height:1.1;
+      font-family:var(--font-sans); font-size:22px; font-weight:900;
+      color:var(--text); letter-spacing:-0.8px; line-height:1.1;
+    }
+    .fm-card-prev {
+      font-family:var(--font-mono); font-size:10px; color:var(--text-dim);
     }
     .fm-card-chg {
-      font-family:var(--font-mono); font-size:9.5px; font-weight:600;
-      margin-top:3px;
+      font-family:var(--font-sans); font-size:13px; font-weight:700;
+      margin-top:4px;
     }
     .fm-card-chg.up   { color:#16A34A; }
     .fm-card-chg.down { color:#DC2626; }

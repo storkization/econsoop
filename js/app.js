@@ -1504,8 +1504,10 @@ function buildFmCard(item, q) {
       <div class="fm-card-dot" style="background:${item.dot}"></div>
       <div class="fm-card-label">${item.label}</div>
     </div>
-    <div class="fm-card-prev">전일 ${prev != null ? fmtMarketVal(prev, item.kr) : '—'}</div>
-    <div class="fm-card-val">${q ? fmtMarketVal(q.price, item.kr) : '—'}</div>
+    <div class="fm-card-price-row">
+      <div class="fm-card-val">${q ? fmtMarketVal(q.price, item.kr) : '—'}</div>
+      <div class="fm-card-prev">(전일 ${prev != null ? fmtMarketVal(prev, item.kr) : '—'})</div>
+    </div>
     <div class="fm-card-chg ${cls}">${chgAmt}&nbsp;&nbsp;${txt}</div>
   </div>`;
 }
@@ -1528,7 +1530,8 @@ async function loadFrontMarket() {
     <div class="fm-grid fm-grid-2">${g.items.map(item =>
       `<div class="fm-card">
         <div class="fm-card-top"><div class="fm-card-dot" style="background:${item.dot}"></div><div class="fm-card-label">${item.label}</div></div>
-        <div class="fm-card-prev">전일 —</div><div class="fm-card-val">—</div><div class="fm-card-chg flat">—</div>
+        <div class="fm-card-price-row"><div class="fm-card-val">—</div><div class="fm-card-prev">(전일 —)</div></div>
+        <div class="fm-card-chg flat">—</div>
       </div>`).join('')}
     </div>`).join('');
 
