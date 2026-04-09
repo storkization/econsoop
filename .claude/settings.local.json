@@ -73,7 +73,8 @@
       "mcp__claude_ai_Notion__notion-fetch",
       "Bash(xargs grep:*)",
       "Bash(vercel --version)",
-      "mcp__claude_ai_Notion__notion-update-page"
+      "mcp__claude_ai_Notion__notion-update-page",
+      "Bash(xargs wc:*)"
     ]
   }
 }

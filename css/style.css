@@ -1211,6 +1211,40 @@
       line-height:1.4;
     }
 
+    /* ── 댓글 ── */
+    .cmt-section {
+      margin:4px 0 14px;
+      padding:16px 16px 10px;
+      background:var(--bg-card);
+      border-radius:14px;
+      border:1px solid var(--border);
+    }
+    .cmt-header {
+      font-size:11px; font-weight:700; letter-spacing:0.08em;
+      color:var(--text-dim); text-transform:uppercase;
+      margin-bottom:12px;
+    }
+    .cmt-item {
+      display:flex; align-items:flex-start; gap:10px;
+      padding:8px 0;
+      border-bottom:1px solid var(--border);
+    }
+    .cmt-item:last-child { border-bottom:none; padding-bottom:0; }
+    .cmt-avatar {
+      width:28px; height:28px; border-radius:50%;
+      display:flex; align-items:center; justify-content:center;
+      font-size:12px; font-weight:800; color:#fff;
+      flex-shrink:0;
+    }
+    .cmt-body { flex:1; min-width:0; }
+    .cmt-nick {
+      font-size:11px; font-weight:700; color:var(--text);
+      margin-right:8px; font-family:var(--font-mono);
+    }
+    .cmt-text {
+      font-size:13px; color:var(--text); line-height:1.5;
+    }
+
     /* ── 랜딩페이지 ── */
     #tab-front { padding:0; background:#fff; }
 

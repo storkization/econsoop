@@ -566,7 +566,13 @@ const DEV_DUMMY = {
 ### 지금 투자자가 주목해야 할 지표는 딱 하나예요
 다음 달 한국은행 금통위 결정이 핵심이에요. 환율 1,500원·유가 110달러가 지속된다면 7월 금리 인상 카드가 현실화될 수 있고, 이 경우 채권·부동산 시장에 큰 파장이 예상돼요. 🔍
 ---
-by. Shawn Kim`
+by. Shawn Kim`,
+  comments: [
+    { nick: '청소의왕',     text: '환율이 1,500원이면 수입물가 또 오르겠네... 장보기 무서워' },
+    { nick: 'Rodus23',      text: '금리 동결이라는데 체감은 전혀 아닌 것 같음 😅' },
+    { nick: '꼬북이',       text: '이런 거 읽을 때마다 달러 미리 샀어야 했는데 후회됨' },
+    { nick: 'thesomeaudio', text: '오늘 브리핑 핵심만 딱 정리됐네요 감사합니다' },
+  ]
 };
 
 /* ═══════════ 스케줄 캐시 헬퍼 ═══════════ */
@@ -631,7 +637,7 @@ async function genTabSummary(tab) {
       const cf = await cfRes.json();
       if (cf.fresh && cf.summary) {
         console.log(`[CACHED] ${tab} 프리젠 데이터 사용 (created_at: ${new Date(cf.created_at).toLocaleTimeString()})`);
-        const result = { summary: cf.summary, oneliner: '', footnotes: cf.footnotes || '', headline: cf.headline || '', subheading: cf.subheading || '', heading2: cf.heading2 || '', subheading2: cf.subheading2 || '', heading3: cf.heading3 || '', subheading3: cf.subheading3 || '', heading4: cf.heading4 || '', subheading4: cf.subheading4 || '', columnHook: cf.columnHook || '', topImageUrl: cf.topImageUrl || '', topNews: [] };
+        const result = { summary: cf.summary, oneliner: '', footnotes: cf.footnotes || '', headline: cf.headline || '', subheading: cf.subheading || '', heading2: cf.heading2 || '', subheading2: cf.subheading2 || '', heading3: cf.heading3 || '', subheading3: cf.subheading3 || '', heading4: cf.heading4 || '', subheading4: cf.subheading4 || '', columnHook: cf.columnHook || '', topImageUrl: cf.topImageUrl || '', comments: cf.comments || [], topNews: [] };
         summaryCache[tab] = result;
         localStorage.setItem(cacheKey, JSON.stringify(result));
         localStorage.setItem(cacheTimeKey, cf.created_at.toString());
@@ -757,6 +763,7 @@ async function genTabSummary(tab) {
       heading3: j.heading3 || '', subheading3: j.subheading3 || '',
       heading4: j.heading4 || '', subheading4: j.subheading4 || '',
       columnHook: j.columnHook || '',
+      comments: [],
       topNews: unique.slice(0, 15),
     };
     summaryCache[tab] = result;
@@ -997,6 +1004,27 @@ function renderTabSummary(tab, result) {
         <div style="margin-top:10px;font-size:10px;font-weight:600;color:rgba(255,255,255,0.4);font-family:var(--font-mono);letter-spacing:0.5px;">TAP TO READ FULL COLUMN →</div>
       </div>`;
   }
+  // 댓글 렌더
+  const commentsEl = document.getElementById(`${tab}-comments`);
+  if (commentsEl && result.comments?.length) {
+    const AVATAR_COLORS = ['#1A7A45','#1D4ED8','#B45309','#6B21A8','#DC2626','#0891B2','#7C3AED','#059669'];
+    commentsEl.innerHTML = `
+      <div class="cmt-section">
+        <div class="cmt-header">독자 반응</div>
+        ${result.comments.map((c, i) => {
+          const color = AVATAR_COLORS[i % AVATAR_COLORS.length];
+          const initial = c.nick.slice(0,1).toUpperCase();
+          return `<div class="cmt-item">
+            <div class="cmt-avatar" style="background:${color};">${initial}</div>
+            <div class="cmt-body">
+              <span class="cmt-nick">${c.nick}</span>
+              <span class="cmt-text">${c.text}</span>
+            </div>
+          </div>`;
+        }).join('')}
+      </div>`;
+  }
+
   const newsEl = document.getElementById(`${tab}-summary-news`);
   if (newsEl) newsEl.innerHTML = '';
 }

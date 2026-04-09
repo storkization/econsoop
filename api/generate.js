@@ -10,6 +10,45 @@ if (!admin.apps.length) {
 }
 const db = admin.firestore();
 
+// ── 닉네임 풀 ──────────────────────────────────────────────
+const NICK_POOL = [
+  '청소의왕','꼬북이','경제요정','파란하늘82','투자고수','돈나무',
+  'Rodus23','thesomeaudio','moonrider','k_investor','seoul_wolf',
+  '수익왕','주식초보99','환율걱정러','현명한소비자','서울시민A',
+  '금리덕후','꼬마투자자','경제공부중','bull_k','야간매수러',
+];
+
+async function genComments(summary, label) {
+  const apiKey = process.env.ANTHROPIC_API_KEY;
+  if (!apiKey) return [];
+  try {
+    const r = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+        'content-type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'claude-haiku-4-5-20251001',
+        max_tokens: 400,
+        messages: [{
+          role: 'user',
+          content: `오늘의 ${label} 브리핑:\n${summary.slice(0, 350)}\n\n이 브리핑을 읽은 한국 독자 4명의 댓글을 생성하세요.\n규칙: 실제 인터넷 댓글처럼 짧고 자연스럽게 (15~45자), 공감/걱정/질문/가벼운 반응 다양하게, 이모지 1개 이하, 마크다운 금지.\nJSON 배열만 출력: ["댓글1","댓글2","댓글3","댓글4"]`,
+        }],
+      }),
+      signal: AbortSignal.timeout(20000),
+    });
+    const j = await r.json();
+    const texts = JSON.parse(j.content[0].text);
+    const shuffled = [...NICK_POOL].sort(() => Math.random() - 0.5);
+    return texts.slice(0, 4).map((text, i) => ({ nick: shuffled[i], text }));
+  } catch(e) {
+    console.error('[GENERATE] 댓글 생성 실패:', e.message);
+    return [];
+  }
+}
+
 // ── 탭 설정 ────────────────────────────────────────────────
 const SUMMARY_QUERIES = {
   economy:  ['한국은행 금리', '원달러 환율 외환', '코스피 증시 금융시장', '물가 인플레이션 소비', '수출 무역 경상수지', '가계부채 대출', '경제 오늘 주요뉴스'],
@@ -81,6 +120,7 @@ export default async function handler(req, res) {
       if (!summary) throw new Error('브리핑 파싱 실패');
 
       // 3. Firestore 저장 (최신 캐시 — 덮어쓰기)
+      const comments = await genComments(summary, TAB_LABEL[tab]);
       const now = Date.now();
       const briefingData = {
         summary,
@@ -92,6 +132,7 @@ export default async function handler(req, res) {
         heading4: heading4 || '', subheading4: subheading4 || '',
         columnHook: columnHook || '',
         topImageUrl: topImageUrl || '',
+        comments: comments.length ? comments : [],
         created_at: now,
       };
       await db.collection('briefings').doc(tab).set(briefingData);
