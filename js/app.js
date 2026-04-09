@@ -228,7 +228,7 @@ function switchTab(id) {
   if (id==='breaking') loadBreaking();
   if (id==='front') {
     renderLandingBriefs();
-    loadFrontIndices();
+    loadFrontMarket();
     ['economy','industry','global','stocks'].forEach(t => { if (!summaryCache[t]) genTabSummary(t); });
   }
   if (id==='newsroom') renderNewsroom();
@@ -1440,26 +1440,84 @@ async function loadBreaking(force = false) {
 }
 
 
-/* ═══════════ FRONT INDICES ═══════════ */
-async function loadFrontIndices() {
-  const el = document.getElementById('front-indices');
+/* ═══════════ FRONT MARKET DASHBOARD ═══════════ */
+const COMMODITIES = [
+  { sym:'GC=F',   label:'GOLD',    icon:'🥇', usd:true },
+  { sym:'SI=F',   label:'SILVER',  icon:'🥈', usd:true },
+  { sym:'CL=F',   label:'WTI',     icon:'🛢', usd:true },
+  { sym:'BTC-USD',label:'BTC',     icon:'₿',  usd:true },
+];
+
+function fmtChg(q) {
+  if (!q) return { cls:'flat', txt:'—' };
+  const cls = q.chg > 0 ? 'up' : q.chg < 0 ? 'down' : 'flat';
+  const arr = q.chg > 0 ? '▲' : q.chg < 0 ? '▼' : '';
+  return { cls, txt: `${arr}${Math.abs(q.pct).toFixed(2)}%` };
+}
+
+async function loadFrontMarket() {
+  const el = document.getElementById('front-market');
   if (!el) return;
-  // 로딩 플레이스홀더
-  el.innerHTML = INDICES.map(idx => `
-    <div class="front-idx">
-      <div class="front-idx-name">${idx.name}</div>
-      <div class="front-idx-val">—</div>
-      <div class="front-idx-chg flat">—</div>
-    </div>`).join('');
-  const results = await Promise.all(INDICES.map(idx => fetchQuote(idx.sym)));
-  el.innerHTML = INDICES.map((idx, i) => {
-    const q = results[i];
-    const cls = q ? (q.chg > 0 ? 'up' : q.chg < 0 ? 'down' : 'flat') : 'flat';
-    const arr = q ? (q.chg > 0 ? '▲' : q.chg < 0 ? '▼' : '') : '';
-    return `<div class="front-idx">
-      <div class="front-idx-name">${idx.name}</div>
-      <div class="front-idx-val">${q ? fmtN(q.price, idx.tag === 'kr') : '—'}</div>
-      <div class="front-idx-chg ${cls}">${q ? `${arr}${Math.abs(q.pct).toFixed(2)}%` : '—'}</div>
+
+  // 로딩 스켈레톤
+  el.innerHTML = `
+    <div class="fm-hero">
+      <div class="fm-hero-left">
+        <div class="fm-hero-label">🇺🇸 USD / KRW · 달러 환율</div>
+        <div class="fm-hero-val" id="fm-usd-val">—</div>
+        <div class="fm-hero-unit">원</div>
+      </div>
+      <div class="fm-hero-chg flat" id="fm-usd-chg">—</div>
+    </div>
+    <div class="fm-grid-3" id="fm-commodity-grid">
+      ${COMMODITIES.slice(0,3).map(c=>`<div class="fm-card"><div class="fm-card-icon">${c.icon}</div><div class="fm-card-label">${c.label}</div><div class="fm-card-val">—</div><div class="fm-card-chg flat">—</div></div>`).join('')}
+    </div>
+    <div class="fm-grid-4" id="fm-indices-grid">
+      ${INDICES.map(idx=>`<div class="fm-card"><div class="fm-card-label">${idx.name}</div><div class="fm-card-val">—</div><div class="fm-card-chg flat">—</div></div>`).join('')}
+    </div>`;
+
+  // 병렬 fetch
+  const [fxData, ...quotes] = await Promise.all([
+    fetch('https://open.er-api.com/v6/latest/USD').then(r=>r.json()).catch(()=>null),
+    ...COMMODITIES.map(c => fetchQuote(c.sym)),
+    ...INDICES.map(idx => fetchQuote(idx.sym)),
+  ]);
+  const commoResults  = quotes.slice(0, COMMODITIES.length);
+  const indicesResults = quotes.slice(COMMODITIES.length);
+
+  // 달러 환율
+  const krw = fxData?.rates?.KRW;
+  const usdValEl = document.getElementById('fm-usd-val');
+  const usdChgEl = document.getElementById('fm-usd-chg');
+  if (usdValEl && krw) {
+    usdValEl.textContent = krw.toLocaleString('ko-KR', { maximumFractionDigits:1, minimumFractionDigits:1 });
+    usdChgEl.textContent = '실시간';
+    usdChgEl.className = 'fm-hero-chg flat';
+  }
+
+  // 상품 (금/은/WTI)
+  const cgEl = document.getElementById('fm-commodity-grid');
+  if (cgEl) cgEl.innerHTML = COMMODITIES.slice(0,3).map((c,i) => {
+    const q = commoResults[i];
+    const { cls, txt } = fmtChg(q);
+    const val = q ? '$' + q.price.toLocaleString('en-US', {maximumFractionDigits:1}) : '—';
+    return `<div class="fm-card">
+      <div class="fm-card-icon">${c.icon}</div>
+      <div class="fm-card-label">${c.label}</div>
+      <div class="fm-card-val">${val}</div>
+      <div class="fm-card-chg ${cls}">${txt}</div>
+    </div>`;
+  }).join('');
+
+  // 지수
+  const igEl = document.getElementById('fm-indices-grid');
+  if (igEl) igEl.innerHTML = INDICES.map((idx,i) => {
+    const q = indicesResults[i];
+    const { cls, txt } = fmtChg(q);
+    return `<div class="fm-card">
+      <div class="fm-card-label">${idx.name}</div>
+      <div class="fm-card-val">${q ? fmtN(q.price, idx.tag==='kr') : '—'}</div>
+      <div class="fm-card-chg ${cls}">${txt}</div>
     </div>`;
   }).join('');
 }

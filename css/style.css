@@ -808,32 +808,63 @@
       font-size:10px; font-family:var(--font-mono);
       color:var(--text-dim); text-align:right; line-height:1.6;
     }
-    /* ── 1면 증시 티커 ── */
-    #front-indices {
-      display:grid; grid-template-columns:repeat(4,1fr); gap:6px;
-      margin-bottom:10px;
+    /* ── 1면 마켓 대시보드 ── */
+    #front-market { margin-bottom:10px; display:flex; flex-direction:column; gap:6px; }
+
+    /* 달러 히어로 */
+    .fm-hero {
+      background:var(--bg-card); border-radius:14px;
+      padding:14px 18px; border:1px solid var(--border);
+      display:flex; align-items:center; justify-content:space-between;
     }
-    .front-idx {
-      background:var(--bg-card); border-radius:10px;
-      padding:8px 8px 7px; text-align:center;
+    .fm-hero-left {}
+    .fm-hero-label {
+      font-family:var(--font-mono); font-size:9px; font-weight:700;
+      letter-spacing:1.2px; color:var(--text-dim); text-transform:uppercase;
+      margin-bottom:4px;
+    }
+    .fm-hero-val {
+      font-family:var(--font-mono); font-size:30px; font-weight:900;
+      color:var(--text); letter-spacing:-1px; line-height:1;
+    }
+    .fm-hero-unit {
+      font-family:var(--font-mono); font-size:11px;
+      color:var(--text-dim); margin-top:3px;
+    }
+    .fm-hero-chg {
+      font-family:var(--font-mono); font-size:15px; font-weight:700;
+      padding:6px 12px; border-radius:20px;
+    }
+    .fm-hero-chg.up   { background:#F0FDF4; color:#16A34A; }
+    .fm-hero-chg.down { background:#FEF2F2; color:#DC2626; }
+    .fm-hero-chg.flat { background:var(--bg-card2); color:var(--text-dim); }
+
+    /* 상품/지수 그리드 */
+    .fm-grid-3 { display:grid; grid-template-columns:repeat(3,1fr); gap:6px; }
+    .fm-grid-4 { display:grid; grid-template-columns:repeat(4,1fr); gap:6px; }
+
+    .fm-card {
+      background:var(--bg-card); border-radius:11px;
+      padding:10px 8px 9px; text-align:center;
       border:1px solid var(--border);
     }
-    .front-idx-name {
-      font-family:var(--font-mono); font-size:8.5px; font-weight:700;
-      letter-spacing:0.5px; color:var(--text-dim);
-      margin-bottom:3px; text-transform:uppercase;
+    .fm-card-icon  { font-size:16px; margin-bottom:4px; }
+    .fm-card-label {
+      font-family:var(--font-mono); font-size:8px; font-weight:700;
+      letter-spacing:0.8px; color:var(--text-dim); text-transform:uppercase;
+      margin-bottom:5px;
     }
-    .front-idx-val {
-      font-family:var(--font-mono); font-size:12px; font-weight:700;
+    .fm-card-val {
+      font-family:var(--font-mono); font-size:14px; font-weight:800;
       color:var(--text); letter-spacing:-0.3px;
     }
-    .front-idx-chg {
+    .fm-card-chg {
       font-family:var(--font-mono); font-size:10px; font-weight:600;
-      margin-top:2px;
+      margin-top:3px;
     }
-    .front-idx-chg.up   { color:#16A34A; }
-    .front-idx-chg.down { color:#DC2626; }
-    .front-idx-chg.flat { color:var(--text-dim); }
+    .fm-card-chg.up   { color:#16A34A; }
+    .fm-card-chg.down { color:#DC2626; }
+    .fm-card-chg.flat { color:var(--text-dim); }
     .newspaper-card-grid {
       display:grid; grid-template-columns:1fr 1fr; gap:8px;
     }
