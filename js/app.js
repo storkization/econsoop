@@ -1447,9 +1447,52 @@ function fmtChg(q) {
   return { cls, txt: `${arr}${Math.abs(q.pct).toFixed(2)}%` };
 }
 
+const DEV_MARKET = {
+  usdkrw: 1354.5,
+  commodities: [
+    { price: 3240.1, chg: 12.3, pct: 0.38 },
+    { price: 32.45,  chg: -0.2, pct: -0.61 },
+    { price: 78.52,  chg: 0.91, pct: 1.17 },
+  ],
+  indices: [
+    { price: 2581.03, chg: -8.4,  pct: -0.32 },
+    { price: 845.21,  chg: 6.8,   pct:  0.81 },
+    { price: 17432.6, chg: 194.3, pct:  1.12 },
+    { price: 5123.41, chg: 47.8,  pct:  0.94 },
+  ],
+};
+
 async function loadFrontMarket() {
   const el = document.getElementById('front-market');
   if (!el) return;
+
+  if (DEV_MODE) {
+    const { cls: uCls } = fmtChg({ chg: 0.5, pct: 0.04 });
+    el.innerHTML = `
+      <div class="fm-hero">
+        <div class="fm-hero-left">
+          <div class="fm-hero-label">🇺🇸 USD / KRW · 달러 환율</div>
+          <div class="fm-hero-val">${DEV_MARKET.usdkrw.toLocaleString('ko-KR',{minimumFractionDigits:1,maximumFractionDigits:1})}</div>
+          <div class="fm-hero-unit">원</div>
+        </div>
+        <div class="fm-hero-chg flat">DEV</div>
+      </div>
+      <div class="fm-grid-3">
+        ${COMMODITIES.slice(0,3).map((c,i)=>{
+          const q = DEV_MARKET.commodities[i];
+          const {cls,txt} = fmtChg(q);
+          return `<div class="fm-card"><div class="fm-card-dot" style="background:${c.dot}"></div><div class="fm-card-label">${c.label}</div><div class="fm-card-val">$${q.price.toLocaleString('en-US',{maximumFractionDigits:1})}</div><div class="fm-card-chg ${cls}">${txt}</div></div>`;
+        }).join('')}
+      </div>
+      <div class="fm-grid-4">
+        ${INDICES.map((idx,i)=>{
+          const q = DEV_MARKET.indices[i];
+          const {cls,txt} = fmtChg(q);
+          return `<div class="fm-card"><div class="fm-card-label">${idx.name}</div><div class="fm-card-val">${fmtN(q.price,idx.tag==='kr')}</div><div class="fm-card-chg ${cls}">${txt}</div></div>`;
+        }).join('')}
+      </div>`;
+    return;
+  }
 
   // 로딩 스켈레톤
   el.innerHTML = `
