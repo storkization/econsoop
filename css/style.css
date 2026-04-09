@@ -790,23 +790,18 @@
 
     /* ── 신문 1면 ── */
     .newspaper-masthead {
-      padding:16px 4px 14px;
+      padding:16px 4px 12px;
       border-bottom:2px solid var(--text);
       margin-bottom:14px;
-      display:flex; justify-content:space-between; align-items:flex-end;
-    }
-    .newspaper-masthead-edition {
-      font-family:var(--font-mono); font-size:9px; font-weight:700;
-      letter-spacing:2px; color:var(--accent); margin-bottom:2px;
     }
     .newspaper-masthead-title {
       font-family:var(--font-serif);
       font-size:26px; font-weight:900; font-style:italic;
       color:var(--text); letter-spacing:-0.5px;
     }
-    .newspaper-masthead-date {
-      font-size:10px; font-family:var(--font-mono);
-      color:var(--text-dim); text-align:right; line-height:1.6;
+    .newspaper-masthead-sub {
+      font-size:11px; color:var(--text-dim);
+      margin-top:4px; letter-spacing:0.1px;
     }
     /* ── 1면 마켓 대시보드 ── */
     #front-market { margin-bottom:10px; display:flex; flex-direction:column; gap:6px; }

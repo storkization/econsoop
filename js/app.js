@@ -1285,14 +1285,6 @@ function renderLandingBriefs() {
   const root = document.getElementById('landing-briefs');
   if (!root) return;
 
-  // 날짜 채우기
-  const dateEl = document.getElementById('newspaper-date');
-  if (dateEl) {
-    const now = new Date();
-    dateEl.innerHTML = now.toLocaleDateString('ko-KR', { year:'numeric', month:'long', day:'numeric', weekday:'short' })
-      + '<br>' + now.toLocaleTimeString('ko-KR', { hour:'2-digit', minute:'2-digit' }) + ' 기준';
-  }
-
   const TABS = [
     { key: 'economy',  label: '경제', icon: '🏦', color: '#A51C30', bg: 'linear-gradient(160deg,#6B0F1A 0%,#A51C30 100%)' },
     { key: 'industry', label: '산업', icon: '🏭', color: '#1D4ED8', bg: 'linear-gradient(160deg,#1E3A8A 0%,#2563EB 100%)' },
