@@ -808,10 +808,17 @@
       margin-top:4px; letter-spacing:0.1px;
     }
     /* ── 1면 마켓 대시보드 ── */
-    #front-market { margin-bottom:10px; }
-    .fm-grid {
-      display:grid; grid-template-columns:repeat(3,1fr); gap:7px;
+    #front-market { margin-bottom:10px; display:flex; flex-direction:column; gap:10px; }
+    .fm-section-label {
+      font-family:var(--font-sans); font-size:11px; font-weight:700;
+      color:var(--text-dim); letter-spacing:0.2px;
+      margin-bottom:-4px;
     }
+    .fm-grid {
+      display:grid; gap:7px;
+    }
+    .fm-grid-2 { grid-template-columns:repeat(2,1fr); }
+    .fm-grid-3 { grid-template-columns:repeat(3,1fr); }
     .fm-card {
       background:var(--bg-card); border-radius:12px;
       padding:11px 10px 10px; border:1px solid var(--border);

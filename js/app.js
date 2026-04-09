@@ -1448,20 +1448,44 @@ function fmtChg(q) {
 }
 
 // 모든 지표 통합 목록 (3열 그리드)
-const MARKET_ITEMS = [
-  ...COMMODITIES,
-  ...INDICES.map(idx => ({ sym: idx.sym, label: idx.name, sub: idx.tag === 'kr' ? 'KRW' : 'USD', dot: idx.tag === 'kr' ? '#A51C30' : '#1D4ED8', kr: idx.tag === 'kr' })),
+const MARKET_GROUPS = [
+  {
+    label: '환율 · 원자재', icon: '🌐',
+    items: [
+      { sym:'USDKRW=X', label:'달러 환율', dot:'#2563EB', kr:true  },
+      { sym:'GC=F',     label:'금 Gold',   dot:'#D4A520', kr:false },
+      { sym:'SI=F',     label:'은 Silver', dot:'#9CA3AF', kr:false },
+      { sym:'CL=F',     label:'WTI 유가',  dot:'#374151', kr:false },
+    ],
+  },
+  {
+    label: '한국 증시', icon: '🇰🇷',
+    items: [
+      { sym:'^KS11', label:'KOSPI',  dot:'#A51C30', kr:true },
+      { sym:'^KQ11', label:'KOSDAQ', dot:'#A51C30', kr:true },
+    ],
+  },
+  {
+    label: '미국 증시', icon: '🇺🇸',
+    items: [
+      { sym:'^IXIC', label:'NASDAQ',  dot:'#1D4ED8', kr:false },
+      { sym:'^GSPC', label:'S&P 500', dot:'#1D4ED8', kr:false },
+    ],
+  },
 ];
 
+// 전체 플랫 배열 (fetch 순서용)
+const MARKET_ALL = MARKET_GROUPS.flatMap(g => g.items);
+
 const DEV_MARKET = [
-  { price:1354.5,  chg:  4.5,   pct:  0.33 },
-  { price:3240.1,  chg: 12.3,   pct:  0.38 },
-  { price:  32.45, chg: -0.20,  pct: -0.61 },
-  { price:  78.52, chg:  0.91,  pct:  1.17 },
-  { price:2581.03, chg: -8.40,  pct: -0.32 },
-  { price: 845.21, chg:  6.80,  pct:  0.81 },
-  { price:17432.6, chg:194.3,   pct:  1.12 },
-  { price:5123.41, chg: 47.80,  pct:  0.94 },
+  { price:1354.5,  chg:  4.5,  pct:  0.33 },
+  { price:3240.1,  chg: 12.3,  pct:  0.38 },
+  { price:  32.45, chg: -0.20, pct: -0.61 },
+  { price:  78.52, chg:  0.91, pct:  1.17 },
+  { price:2581.03, chg: -8.40, pct: -0.32 },
+  { price: 845.21, chg:  6.80, pct:  0.81 },
+  { price:17432.6, chg:194.3,  pct:  1.12 },
+  { price:5123.41, chg: 47.80, pct:  0.94 },
 ];
 
 function fmtMarketVal(price, kr) {
@@ -1486,28 +1510,38 @@ function buildFmCard(item, q) {
   </div>`;
 }
 
+function buildFmSection(group, results, offset) {
+  const cards = group.items.map((item, i) => buildFmCard(item, results[offset + i])).join('');
+  const cols = group.items.length === 2 ? 2 : 2;
+  return `
+    <div class="fm-section-label">${group.icon} ${group.label}</div>
+    <div class="fm-grid fm-grid-${cols}">${cards}</div>`;
+}
+
 async function loadFrontMarket() {
   const el = document.getElementById('front-market');
   if (!el) return;
 
   // 로딩 스켈레톤
-  el.innerHTML = `<div class="fm-grid">${MARKET_ITEMS.map(item =>
-    `<div class="fm-card">
-      <div class="fm-card-top"><div class="fm-card-dot" style="background:${item.dot}"></div><div class="fm-card-label">${item.label}</div></div>
-      <div class="fm-card-prev">전일 —</div>
-      <div class="fm-card-val">—</div>
-      <div class="fm-card-chg flat">—</div>
-    </div>`).join('')}</div>`;
+  el.innerHTML = MARKET_GROUPS.map(g => `
+    <div class="fm-section-label">${g.icon} ${g.label}</div>
+    <div class="fm-grid fm-grid-2">${g.items.map(item =>
+      `<div class="fm-card">
+        <div class="fm-card-top"><div class="fm-card-dot" style="background:${item.dot}"></div><div class="fm-card-label">${item.label}</div></div>
+        <div class="fm-card-prev">전일 —</div><div class="fm-card-val">—</div><div class="fm-card-chg flat">—</div>
+      </div>`).join('')}
+    </div>`).join('');
 
-  if (DEV_MODE) {
-    el.innerHTML = `<div class="fm-grid">${MARKET_ITEMS.map((item, i) =>
-      buildFmCard(item, DEV_MARKET[i] || null)).join('')}</div>`;
-    return;
-  }
+  const results = DEV_MODE
+    ? DEV_MARKET
+    : await Promise.all(MARKET_ALL.map(item => fetchQuote(item.sym)));
 
-  const results = await Promise.all(MARKET_ITEMS.map(item => fetchQuote(item.sym)));
-  el.innerHTML = `<div class="fm-grid">${MARKET_ITEMS.map((item, i) =>
-    buildFmCard(item, results[i])).join('')}</div>`;
+  let offset = 0;
+  el.innerHTML = MARKET_GROUPS.map(g => {
+    const html = buildFmSection(g, results, offset);
+    offset += g.items.length;
+    return html;
+  }).join('');
 }
 
 /* ═══════════ STOCKS ═══════════ */
