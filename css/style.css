@@ -1035,13 +1035,13 @@
       padding-bottom:8px; border-bottom:1px solid var(--border); margin-bottom:8px;
     }
     .org-chief-id { font-size:14px; font-weight:900; color:var(--text); }
-    .org-chief-role { font-size:10px; color:var(--text-dim); margin-top:1px; }
-    .org-chief-spec { font-size:10px; color:var(--text-dim); margin-top:3px; line-height:1.4; }
+    .org-chief-role { font-size:10px; color:var(--text); margin-top:1px; }
+    .org-chief-spec { font-size:10px; color:var(--text); margin-top:3px; line-height:1.4; }
     .org-team-reports { display:flex; flex-direction:column; gap:6px; }
     .org-report-mini { display:flex; flex-direction:column; gap:1px; }
     .org-mini-id { font-size:12px; font-weight:700; color:var(--text); }
-    .org-mini-role { font-size:10px; color:var(--text-dim); }
-    .org-mini-spec { font-size:10px; color:var(--text-dim); line-height:1.4; }
+    .org-mini-role { font-size:10px; color:var(--text); }
+    .org-mini-spec { font-size:10px; color:var(--text); line-height:1.4; }
     /* C-01 풀폭 카드 */
     .org-col-full-card {
       border-radius:12px; padding:13px 16px;

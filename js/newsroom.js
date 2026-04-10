@@ -67,7 +67,7 @@ function buildOrgChart() {
   return `
     <div class="org-section">
       <div class="org-eyebrow">ORGANIZATION</div>
-      <div class="org-title">AI 뉴스룸 구조</div>
+      <div class="org-title">AI Newsroom</div>
       <div class="org-grid">${teamCardsHtml}</div>
       ${colCard}
     </div>`;
