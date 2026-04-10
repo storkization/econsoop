@@ -1236,10 +1236,10 @@
     .cmt-like:active { transform:scale(1.2); }
     .cmt-like.liked { color:#DC2626; font-weight:700; }
     .cmt-replies {
-      margin-top:8px;
+      margin-top:14px;
       padding-left:10px;
       border-left:2px solid var(--border);
-      display:flex; flex-direction:column; gap:6px;
+      display:flex; flex-direction:column; gap:10px;
     }
     .cmt-reply {
       display:flex; align-items:flex-start; gap:7px;
