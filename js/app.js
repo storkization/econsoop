@@ -536,7 +536,7 @@ async function genTabSummary(tab) {
       const parsed = JSON.parse(cached);
       if (parsed.summary) {
         summaryCache[tab] = parsed;
-        renderLandingBriefs(); // 1면 카드 즉시 반영
+        renderLandingBriefs();
         setLoadingMsg(tab, 'fast');
         setTimeout(() => {
           renderTabSummary(tab, summaryCache[tab]);
@@ -560,7 +560,7 @@ async function genTabSummary(tab) {
         summaryCache[tab] = result;
         localStorage.setItem(cacheKey, JSON.stringify(result));
         localStorage.setItem(cacheTimeKey, cf.created_at.toString());
-        renderLandingBriefs(); // 1면 카드 즉시 반영
+        renderLandingBriefs();
         // 로딩 애니메이션 5초 후 탭 렌더링
         setLoadingMsg(tab, 'fast');
         setTimeout(async () => {
@@ -1214,14 +1214,13 @@ function renderLandingBriefs() {
          <div class="newspaper-card-img-placeholder" style="background:${t.bg};display:none;"></div>`
       : `<div class="newspaper-card-img-placeholder" style="background:${t.bg};"></div>`;
     const sub = result?.subheading;
-    const loading = !headline;
     return `<div class="newspaper-card" onclick="switchTab('${t.key}')" style="border-top:3px solid ${t.color};">
       ${imgHtml}
       <div class="newspaper-card-body">
         <div class="newspaper-card-tab" style="color:${t.color};">${t.icon} ${t.label.toUpperCase()}</div>
         <div class="newspaper-card-headline">${headline || '브리핑 불러오는 중...'}</div>
-        ${sub && !loading ? `<div class="newspaper-card-sub">${sub}</div>` : ''}
-        ${!loading ? `<div class="newspaper-card-cta"><span style="background:${t.color};">읽기 →</span></div>` : ''}
+        ${sub && headline ? `<div class="newspaper-card-sub">${sub}</div>` : ''}
+        ${headline ? `<div class="newspaper-card-cta"><span style="background:${t.color};">읽기 →</span></div>` : ''}
       </div>
     </div>`;
   }).join('');
@@ -1435,10 +1434,10 @@ const DEV_MARKET = [
 async function fetchSparkline(sym) {
   try {
     const r = await fetch(`/api/sparkline?sym=${encodeURIComponent(sym)}`, {
-      signal: (()=>{ const c=new AbortController(); setTimeout(()=>c.abort(),8000); return c.signal; })()
+      signal: AbortSignal.timeout(8000),
     });
     const j = await r.json();
-    return j?.closes?.length >= 2 ? j.closes : null;
+    return j?.closes?.length >= 2 ? j : null;
   } catch { return null; }
 }
 
@@ -1518,30 +1517,20 @@ async function loadFrontMarket() {
       </div>`).join('')}
     </div>`).join('');
 
-  const results = DEV_MODE
+  const combined = DEV_MODE
     ? DEV_MARKET
-    : await Promise.all(MARKET_ALL.map(item => fetchQuote(item.sym)));
-
-  // 1차 렌더 (스파크라인 없이 즉시)
-  let offset = 0;
-  el.innerHTML = MARKET_GROUPS.map(g => {
-    const html = buildFmSection(g, results, null, offset);
-    offset += g.items.length;
-    return html;
-  }).join('');
-
-  // 2차 렌더 (스파크라인 포함)
-  const sparklines = DEV_MODE
-    ? DEV_MARKET.map(d => d.closes || null)
     : await Promise.all(MARKET_ALL.map(item => fetchSparkline(item.sym)));
-  offset = 0;
+
+  const results   = combined.map(d => d ? { price: d.price, chg: d.chg, pct: d.pct } : null);
+  const sparklines = combined.map(d => d?.closes || null);
+
+  let offset = 0;
   el.innerHTML = MARKET_GROUPS.map(g => {
     const html = buildFmSection(g, results, sparklines, offset);
     offset += g.items.length;
     return html;
   }).join('');
 
-  // 캐시 저장
   if (!DEV_MODE) {
     marketCache = { results, sparklines };
     marketCacheTime = Date.now();

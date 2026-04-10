@@ -11,10 +11,16 @@ export default async function handler(req, res) {
         signal: AbortSignal.timeout(7000),
       });
       const j = await r.json();
-      const closes = j?.chart?.result?.[0]?.indicators?.quote?.[0]?.close?.filter(v => v != null);
+      const result = j?.chart?.result?.[0];
+      const closes = result?.indicators?.quote?.[0]?.close?.filter(v => v != null);
       if (closes?.length >= 2) {
+        const meta = result.meta;
+        const price = meta?.regularMarketPrice ?? closes[closes.length - 1];
+        const prev  = meta?.chartPreviousClose ?? closes[closes.length - 2];
+        const chg   = price - prev;
+        const pct   = prev ? (chg / prev) * 100 : 0;
         res.setHeader('Cache-Control', 's-maxage=900');
-        return res.status(200).json({ closes });
+        return res.status(200).json({ closes, price, chg, pct });
       }
     } catch {}
   }
