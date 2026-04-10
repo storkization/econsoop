@@ -177,32 +177,23 @@ export default async function handler(req, res) {
       };
       await db.collection('briefings').doc(tab).set(briefingData);
 
-      // 4. 아카이브 저장 (예약 슬롯 시간에만 — 07:00±15분, 17:00±15분)
+      // 4. 아카이브 저장 (날짜 기준 — 매 실행마다 저장, archiveId로 중복 방지)
       try {
         const kst = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Seoul' }));
-        const hm = kst.getHours() * 100 + kst.getMinutes();
-        const SLOTS = [{ hm: 700, label: '0700' }, { hm: 1700, label: '1700' }];
-        const matchedSlot = SLOTS.find(s => Math.abs(hm - s.hm) <= 15);
-
-        if (matchedSlot) {
-          const dateStr = String(kst.getFullYear()) +
-            String(kst.getMonth() + 1).padStart(2, '0') +
-            String(kst.getDate()).padStart(2, '0');
-          const archiveId = `${tab}_${dateStr}_${matchedSlot.label}`;
-          const month = `${kst.getFullYear()}-${String(kst.getMonth() + 1).padStart(2, '0')}`;
-          const slotDisplay = `${matchedSlot.label.slice(0, 2)}:${matchedSlot.label.slice(2)}`;
-          await db.collection('archive').doc(archiveId).set({
-            ...briefingData,
-            tab,
-            date: dateStr,
-            slot: slotDisplay,
-            month,
-            year: String(kst.getFullYear()),
-          });
-          console.log(`[GENERATE] ${tab} 아카이브 저장: ${archiveId}`);
-        } else {
-          console.log(`[GENERATE] ${tab} 아카이브 건너뜀 (슬롯 외 시간: ${hm})`);
-        }
+        const dateStr = String(kst.getFullYear()) +
+          String(kst.getMonth() + 1).padStart(2, '0') +
+          String(kst.getDate()).padStart(2, '0');
+        const archiveId = `${tab}_${dateStr}_0700`;
+        const month = `${kst.getFullYear()}-${String(kst.getMonth() + 1).padStart(2, '0')}`;
+        await db.collection('archive').doc(archiveId).set({
+          ...briefingData,
+          tab,
+          date: dateStr,
+          slot: '07:00',
+          month,
+          year: String(kst.getFullYear()),
+        });
+        console.log(`[GENERATE] ${tab} 아카이브 저장: ${archiveId}`);
       } catch (archiveErr) {
         console.error(`[GENERATE] ${tab} 아카이브 저장 실패:`, archiveErr.message);
       }
@@ -215,21 +206,15 @@ export default async function handler(req, res) {
     }
   }
 
-  // ── 에디션 저장 (슬롯 시간에만) ───────────────────────────
+  // ── 에디션 저장 (매 실행마다 저장, editionId로 중복 방지) ──
   try {
     const kst = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Seoul' }));
-    const hm = kst.getHours() * 100 + kst.getMinutes();
-    const SLOTS = [
-      { hm: 700,  label: '0700', period: '오전' },
-      { hm: 1700, label: '1700', period: '오후' },
-    ];
-    const matchedSlot = SLOTS.find(s => Math.abs(hm - s.hm) <= 15);
-
-    if (matchedSlot) {
+    {
       const dateStr = String(kst.getFullYear()) +
         String(kst.getMonth() + 1).padStart(2, '0') +
         String(kst.getDate()).padStart(2, '0');
-      const editionId = `${dateStr}_${matchedSlot.label}`;
+      const editionId = `${dateStr}_0700`;
+      const matchedSlot = { label: '0700', period: '오전' };
       const month = `${kst.getFullYear()}-${String(kst.getMonth() + 1).padStart(2, '0')}`;
 
       // 탭별 티저 추출 (포인트1 첫 문장)
@@ -283,8 +268,6 @@ export default async function handler(req, res) {
         column: { text: columnText, teaser: columnTeaser },
       });
       console.log(`[GENERATE] 에디션 저장: ${editionId}`);
-    } else {
-      console.log(`[GENERATE] 에디션 건너뜀 (슬롯 외 시간: ${hm})`);
     }
   } catch(e) {
     console.error('[GENERATE] 에디션 저장 실패:', e.message);
