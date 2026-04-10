@@ -74,7 +74,7 @@ function showToast(msg) {
 }
 
 /* ═══════════ CACHE VERSION ═══════════ */
-const CACHE_VERSION = 'v145';
+const CACHE_VERSION = 'v146';
 (function clearOldCache() {
   const savedVersion = localStorage.getItem('eco_cache_version');
   if (savedVersion !== CACHE_VERSION) {
@@ -645,11 +645,7 @@ async function genTabSummary(tab) {
     setLoadingMsg(tab, 'ai');
     // 뉴스 섹션 로딩 대기화면
     const newsElLoading = document.getElementById(`${tab}-summary-news`);
-    if (newsElLoading) newsElLoading.innerHTML = `
-      <div style="display:flex;align-items:center;gap:10px;padding:16px 4px;">
-        <div class="dots" style="transform:scale(0.7);transform-origin:left;"><span></span><span></span><span></span></div>
-        <span style="font-size:12px;color:#6B7280;">AI가 핵심 뉴스를 선별하는 중...</span>
-      </div>`;
+    if (newsElLoading) newsElLoading.innerHTML = '';
     const headlines = unique.slice(0, 18).map(n =>
       n.description ? `${n.title}\n   → ${n.description.slice(0, 100)}` : n.title
     );
