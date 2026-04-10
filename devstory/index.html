@@ -266,7 +266,7 @@ body{font-family:var(--font);color:var(--text);background:var(--bg);line-height:
   <div class="hero-eyebrow">VIBE CODING STORY · 2026</div>
   <h1>VIVA Economy, 이렇게 만들었습니다</h1>
   <p>비개발자가 AI와 대화하며 처음부터 끝까지 혼자 만든<br>실제 서비스의 개발 이야기</p>
-  <span class="hero-badge">by Shawn Kim (김도훈) · econsoop.vercel.app</span>
+  <span class="hero-badge">by Shawn Kim (김도훈) · moneybrief-vip.vercel.app</span>
 </header>
 
 <main class="main">
@@ -275,18 +275,13 @@ body{font-family:var(--font);color:var(--text);background:var(--bg);line-height:
 <section class="section fade-in" id="intro">
   <div class="section-label">ABOUT</div>
   <h2>VIVA Economy은 이런 앱입니다</h2>
-  <p class="desc">"나무가 아닌 숲을 보라" — 매일 쏟아지는 경제 뉴스를 AI가 핵심만 추려 3줄로 브리핑해주는 서비스입니다.</p>
+  <p class="desc">매일 쏟아지는 경제 뉴스를 AI가 핵심만 추려 브리핑해주는 서비스입니다. 매일 아침 7시, 자동으로 생성된 브리핑이 앱을 여는 순간 바로 전달됩니다.</p>
 
   <div class="feat-grid">
     <div class="feat-card">
       <div class="feat-card-icon">📰</div>
       <h4>AI 4포인트 브리핑</h4>
       <p>경제/산업/국제 뉴스를 AI가 <strong>핵심 이슈 · 시장 흐름 · 투자 포인트 · 인사이트</strong> 4가지로 분석합니다. 각 항목에 용어 각주(어려운 단어 설명)가 자동으로 붙습니다. <span style="font-size:13px;color:var(--sub)">※ Phase 2에서 3줄 → 4포인트로 확장</span></p>
-    </div>
-    <div class="feat-card">
-      <div class="feat-card-icon">💡</div>
-      <h4>쓰리포인트 인사이트</h4>
-      <p><strong>배경(왜 이런 일이?)</strong> / <strong>시장 영향(그래서 어떻게?)</strong> / <strong>주목할 점(앞으로는?)</strong> — 한눈에 시장 맥락을 파악할 수 있습니다.</p>
     </div>
     <div class="feat-card">
       <div class="feat-card-icon">⏰</div>
@@ -544,63 +539,95 @@ body{font-family:var(--font);color:var(--text);background:var(--bg);line-height:
 <section class="section fade-in" id="flow">
   <div class="section-label">DATA FLOW</div>
   <h2>앱을 열면 어떤 일이 벌어지나?</h2>
-  <p class="desc">사용자 눈에는 3줄 브리핑이 보이지만, 뒤에서는 이런 과정이 진행됩니다.</p>
+  <p class="desc">앱을 열면 브리핑이 즉시 나타납니다. 비결은 두 가지 흐름이 완전히 분리되어 있다는 것입니다. <strong>사용자가 요청하기 전에 이미 만들어져 있고</strong>, 사용자는 그것을 꺼내 보기만 하면 됩니다.</p>
 
-  <!-- 앱 Flow 도식화 -->
+  <!-- 앱 Flow 도식화 — 현재 아키텍처 (Phase 3+) -->
   <div style="margin:28px 0;background:var(--bg2);border-radius:var(--radius);padding:28px 16px;border:1px solid var(--light);overflow-x:auto">
-    <div style="text-align:center;font-size:14px;font-weight:700;color:var(--dark);margin-bottom:20px">📱 VIVA Economy 데이터 플로우</div>
-    <svg viewBox="0 0 720 420" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:720px;margin:0 auto;display:block" font-family="Pretendard,-apple-system,sans-serif">
-      <!-- 사용자 접속 -->
-      <rect x="260" y="10" width="200" height="48" rx="24" fill="#EAF3EE" stroke="#1A7A45" stroke-width="2"/>
-      <text x="360" y="38" text-anchor="middle" font-size="14" font-weight="700" fill="#1A7A45">📱 사용자 앱 접속</text>
-      <!-- 화살표 1 -->
-      <line x1="360" y1="58" x2="360" y2="82" stroke="#9CA3AF" stroke-width="2" marker-end="url(#arrow)"/>
-      <!-- 캐시 확인 (분기) -->
-      <polygon points="360,82 440,120 360,158 280,120" fill="#FFFBEB" stroke="#D97706" stroke-width="2"/>
-      <text x="360" y="117" text-anchor="middle" font-size="12" font-weight="600" fill="#D97706">캐시 유효?</text>
-      <text x="360" y="132" text-anchor="middle" font-size="10" fill="#D97706">(저장된 데이터 확인)</text>
-      <!-- YES 분기 — 오른쪽 -->
-      <line x1="440" y1="120" x2="560" y2="120" stroke="#059669" stroke-width="2" marker-end="url(#arrow)"/>
-      <text x="480" y="112" font-size="11" font-weight="700" fill="#059669">YES</text>
-      <rect x="560" y="96" width="150" height="48" rx="10" fill="#ECFDF5" stroke="#059669" stroke-width="2"/>
-      <text x="635" y="118" text-anchor="middle" font-size="12" font-weight="600" fill="#059669">저장된 데이터 표시</text>
-      <text x="635" y="134" text-anchor="middle" font-size="10" fill="#059669">비용 0원 ✅</text>
-      <!-- NO 분기 — 아래 -->
-      <line x1="360" y1="158" x2="360" y2="186" stroke="#DC2626" stroke-width="2" marker-end="url(#arrow)"/>
-      <text x="372" y="176" font-size="11" font-weight="700" fill="#DC2626">NO</text>
-      <!-- 뉴스 수집 -->
-      <rect x="240" y="186" width="240" height="44" rx="10" fill="#E8F9EE" stroke="#03C75A" stroke-width="2"/>
-      <text x="360" y="207" text-anchor="middle" font-size="12" font-weight="600" fill="#03C75A">🔍 Naver API — 뉴스 18개 수집</text>
-      <text x="360" y="222" text-anchor="middle" font-size="10" fill="#03C75A">3개씩 × 0.25초 간격</text>
-      <!-- 화살표 -->
-      <line x1="360" y1="230" x2="360" y2="254" stroke="#9CA3AF" stroke-width="2" marker-end="url(#arrow)"/>
-      <!-- AI 1차 호출 -->
-      <rect x="220" y="254" width="280" height="44" rx="10" fill="#FFFBEB" stroke="#D97706" stroke-width="2"/>
-      <text x="360" y="275" text-anchor="middle" font-size="12" font-weight="600" fill="#D97706">🤖 1차 AI 호출 — 3줄 브리핑 생성</text>
-      <text x="360" y="290" text-anchor="middle" font-size="10" fill="#D97706">Claude Sonnet · max 1,200 토큰</text>
-      <!-- 화살표 + 즉시 렌더링 -->
-      <line x1="360" y1="298" x2="360" y2="322" stroke="#9CA3AF" stroke-width="2" marker-end="url(#arrow)"/>
-      <!-- 즉시 화면 표시 -->
-      <rect x="240" y="322" width="240" height="40" rx="10" fill="#DBEAFE" stroke="#2563EB" stroke-width="2"/>
-      <text x="360" y="346" text-anchor="middle" font-size="12" font-weight="700" fill="#2563EB">⚡ 즉시 화면에 표시!</text>
-      <!-- 병렬: AI 2차 + 저장 -->
-      <line x1="360" y1="362" x2="360" y2="378" stroke="#9CA3AF" stroke-width="2"/>
-      <line x1="360" y1="378" x2="220" y2="378" stroke="#9CA3AF" stroke-width="2"/>
-      <line x1="360" y1="378" x2="500" y2="378" stroke="#9CA3AF" stroke-width="2"/>
-      <line x1="220" y1="378" x2="220" y2="390" stroke="#9CA3AF" stroke-width="2" marker-end="url(#arrow)"/>
-      <line x1="500" y1="378" x2="500" y2="390" stroke="#9CA3AF" stroke-width="2" marker-end="url(#arrow)"/>
-      <!-- 2차 AI -->
-      <rect x="100" y="390" width="240" height="28" rx="8" fill="#F5F3FF" stroke="#7C3AED" stroke-width="1.5"/>
-      <text x="220" y="409" text-anchor="middle" font-size="11" font-weight="600" fill="#7C3AED">🔄 2차 AI — 쓰리포인트 (백그라운드)</text>
-      <!-- 저장 -->
-      <rect x="380" y="390" width="240" height="28" rx="8" fill="#F8FAFB" stroke="#6B7280" stroke-width="1.5"/>
-      <text x="500" y="409" text-anchor="middle" font-size="11" font-weight="600" fill="#374151">💾 localStorage에 캐시 저장</text>
-      <!-- 화살표 마커 정의 -->
+    <div style="text-align:center;font-size:14px;font-weight:700;color:var(--dark);margin-bottom:20px">VIVA Economy — 두 가지 흐름</div>
+    <svg viewBox="0 0 720 400" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:720px;margin:0 auto;display:block" font-family="Pretendard,-apple-system,sans-serif">
       <defs>
-        <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
-          <path d="M 0 0 L 10 5 L 0 10 z" fill="#9CA3AF"/>
+        <marker id="arrowG" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M 0 0 L 10 5 L 0 10 z" fill="#D97706"/>
+        </marker>
+        <marker id="arrowB" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M 0 0 L 10 5 L 0 10 z" fill="#2563EB"/>
         </marker>
       </defs>
+
+      <!-- ── Track 1: 생성 트랙 (상단) ── -->
+      <text x="30" y="36" font-size="11" font-weight="700" fill="#D97706">TRACK 1 — 생성 (매일 07:00 KST, 사용자 없이 자동)</text>
+
+      <!-- Vercel Cron -->
+      <rect x="30" y="48" width="130" height="44" rx="8" fill="#FFFBEB" stroke="#D97706" stroke-width="2"/>
+      <text x="95" y="68" text-anchor="middle" font-size="12" font-weight="700" fill="#D97706">⏰ Vercel Cron</text>
+      <text x="95" y="83" text-anchor="middle" font-size="10" fill="#D97706">UTC 22:00 = KST 07:00</text>
+
+      <line x1="160" y1="70" x2="192" y2="70" stroke="#D97706" stroke-width="2" marker-end="url(#arrowG)"/>
+
+      <!-- generate.js -->
+      <rect x="192" y="48" width="130" height="44" rx="8" fill="#FFFBEB" stroke="#D97706" stroke-width="2"/>
+      <text x="257" y="68" text-anchor="middle" font-size="12" font-weight="700" fill="#D97706">⚙️ /api/generate</text>
+      <text x="257" y="83" text-anchor="middle" font-size="10" fill="#D97706">서버리스 함수 실행</text>
+
+      <line x1="322" y1="70" x2="354" y2="70" stroke="#D97706" stroke-width="2" marker-end="url(#arrowG)"/>
+
+      <!-- Naver API -->
+      <rect x="354" y="48" width="140" height="44" rx="8" fill="#E8F9EE" stroke="#03C75A" stroke-width="2"/>
+      <text x="424" y="68" text-anchor="middle" font-size="12" font-weight="700" fill="#03C75A">🔍 Naver API</text>
+      <text x="424" y="83" text-anchor="middle" font-size="10" fill="#03C75A">18개 기사 × 4탭 수집</text>
+
+      <line x1="494" y1="70" x2="526" y2="70" stroke="#D97706" stroke-width="2" marker-end="url(#arrowG)"/>
+
+      <!-- Claude Sonnet -->
+      <rect x="526" y="48" width="162" height="44" rx="8" fill="#FFFBEB" stroke="#D97706" stroke-width="2"/>
+      <text x="607" y="68" text-anchor="middle" font-size="12" font-weight="700" fill="#D97706">🤖 Claude Sonnet 4.6</text>
+      <text x="607" y="83" text-anchor="middle" font-size="10" fill="#D97706">브리핑 · 헤드라인 · 칼럼 생성</text>
+
+      <!-- 아래로 → Firebase -->
+      <line x1="607" y1="92" x2="607" y2="152" stroke="#D97706" stroke-width="2" marker-end="url(#arrowG)"/>
+
+      <!-- Firebase (중앙) -->
+      <rect x="280" y="152" width="280" height="52" rx="12" fill="#FEF3C7" stroke="#D97706" stroke-width="2.5"/>
+      <text x="420" y="176" text-anchor="middle" font-size="14" font-weight="700" fill="#D97706">🔥 Firebase Firestore</text>
+      <text x="420" y="194" text-anchor="middle" font-size="11" fill="#92400E">브리핑 저장 · 항시 대기</text>
+
+      <!-- Track 1 화살표 → Firebase -->
+      <line x1="420" y1="152" x2="420" y2="144" stroke="none"/>
+      <line x1="607" y1="152" x2="500" y2="152" stroke="none"/>
+
+      <!-- ── Track 2: 배달 트랙 (하단) ── -->
+      <text x="30" y="248" font-size="11" font-weight="700" fill="#2563EB">TRACK 2 — 배달 (사용자가 앱을 열 때)</text>
+
+      <!-- 사용자 -->
+      <rect x="30" y="260" width="130" height="44" rx="8" fill="#DBEAFE" stroke="#2563EB" stroke-width="2"/>
+      <text x="95" y="280" text-anchor="middle" font-size="12" font-weight="700" fill="#2563EB">📱 사용자 접속</text>
+      <text x="95" y="295" text-anchor="middle" font-size="10" fill="#2563EB">앱 오픈</text>
+
+      <line x1="160" y1="282" x2="192" y2="282" stroke="#2563EB" stroke-width="2" marker-end="url(#arrowB)"/>
+
+      <!-- cached.js -->
+      <rect x="192" y="260" width="130" height="44" rx="8" fill="#DBEAFE" stroke="#2563EB" stroke-width="2"/>
+      <text x="257" y="280" text-anchor="middle" font-size="12" font-weight="700" fill="#2563EB">📡 /api/cached</text>
+      <text x="257" y="295" text-anchor="middle" font-size="10" fill="#2563EB">서버리스 조회 함수</text>
+
+      <!-- cached.js → Firebase (위로) -->
+      <line x1="257" y1="260" x2="257" y2="220" stroke="#2563EB" stroke-width="1.5" stroke-dasharray="5,3"/>
+      <line x1="257" y1="220" x2="310" y2="220" stroke="#2563EB" stroke-width="1.5" stroke-dasharray="5,3"/>
+      <line x1="310" y1="220" x2="310" y2="204" stroke="#2563EB" stroke-width="1.5" marker-end="url(#arrowB)"/>
+
+      <!-- Firebase → cached.js 응답 -->
+      <line x1="350" y1="204" x2="350" y2="230" stroke="#D97706" stroke-width="1.5" stroke-dasharray="5,3"/>
+      <line x1="350" y1="230" x2="322" y2="230" stroke="#D97706" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#arrowG)"/>
+
+      <line x1="322" y1="282" x2="354" y2="282" stroke="#2563EB" stroke-width="2" marker-end="url(#arrowB)"/>
+
+      <!-- 즉시 표시 -->
+      <rect x="354" y="260" width="176" height="44" rx="8" fill="#ECFDF5" stroke="#059669" stroke-width="2.5"/>
+      <text x="442" y="280" text-anchor="middle" font-size="13" font-weight="700" fill="#059669">⚡ 즉시 브리핑 표시</text>
+      <text x="442" y="295" text-anchor="middle" font-size="10" fill="#059669">~0.5초 · AI 호출 없음</text>
+
+      <!-- 구분선 -->
+      <line x1="20" y1="236" x2="700" y2="236" stroke="#E5E7EB" stroke-width="1" stroke-dasharray="4,4"/>
     </svg>
   </div>
 
@@ -608,50 +635,46 @@ body{font-family:var(--font);color:var(--text);background:var(--bg);line-height:
     <div class="flow-step">
       <div class="flow-num">1</div>
       <div class="flow-body">
-        <h4>뉴스 수집 — Naver API</h4>
-        <p>키워드별로 네이버 뉴스에 요청을 보냅니다. 뉴스 제목 18개를 가져오되, <strong>3개씩 나눠서 0.25초 간격</strong>으로 요청합니다. 한꺼번에 너무 많이 요청하면 "요청 과다" 오류가 나기 때문입니다.</p>
+        <h4>[생성 트랙] Vercel Cron — 매일 07:00 KST 자동 실행</h4>
+        <p>사용자가 없는 새벽, Vercel의 스케줄러가 <code>/api/generate</code> 함수를 자동으로 호출합니다. 이 함수가 오늘의 브리핑을 만드는 모든 과정을 담당합니다.</p>
       </div>
     </div>
     <div class="flow-step">
       <div class="flow-num">2</div>
       <div class="flow-body">
-        <h4>1차 AI 호출 — 3줄 브리핑 생성</h4>
-        <p>수집된 뉴스 제목 + 내용 앞부분(100글자)을 Claude Sonnet에게 보냅니다. AI가 <strong>핵심 3줄 요약 + 어려운 용어 설명</strong>을 만들면, <strong>곧바로 화면에 보여줍니다</strong>. 사용자는 이 단계에서 바로 브리핑을 볼 수 있습니다.</p>
+        <h4>[생성 트랙] Naver API — 탭별 뉴스 18개 수집</h4>
+        <p>경제·산업·국제·증시 4개 탭 각각에 대해 네이버 뉴스를 수집합니다. 한꺼번에 요청하면 429 오류가 나기 때문에 <strong>3개씩 × 0.25초 간격</strong>으로 나눠서 가져옵니다.</p>
       </div>
     </div>
     <div class="flow-step">
       <div class="flow-num">3</div>
       <div class="flow-body">
-        <h4>2차 AI 호출 — 쓰리포인트 인사이트 (뒤에서 처리)</h4>
-        <p>1차 결과를 바탕으로 <strong>배경(왜?) / 시장 영향(그래서?) / 주목할 점(앞으로?)</strong> 분석을 생성합니다. 이 과정은 <strong>사용자가 브리핑을 읽는 동안 뒤에서</strong> 진행되어 기다리는 느낌을 줄입니다.</p>
+        <h4>[생성 트랙] Claude Sonnet 4.6 → Firebase 저장</h4>
+        <p>수집된 기사들을 Claude Sonnet에게 보내 <strong>헤드라인 · 4포인트 브리핑 · 각주 · 칼럼 훅</strong>을 생성합니다. 완성된 결과는 Firebase Firestore에 저장되어 언제든 꺼낼 수 있는 상태가 됩니다.</p>
       </div>
     </div>
     <div class="flow-step">
       <div class="flow-num">4</div>
       <div class="flow-body">
-        <h4>저장 — 다음에 다시 쓸 수 있도록</h4>
-        <p>결과를 브라우저 저장소(localStorage)에 보관합니다. 다음 갱신 시간까지 저장된 내용을 재활용하여 <strong>불필요한 AI 호출(= 비용)을 차단</strong>합니다.</p>
+        <h4>[배달 트랙] 사용자 접속 → /api/cached → 즉시 표시</h4>
+        <p>사용자가 앱을 열면 <code>/api/cached</code>가 Firebase에서 저장된 브리핑을 꺼내 전달합니다. AI 호출이 전혀 없기 때문에 <strong>약 0.5초</strong> 만에 브리핑이 표시됩니다. API 비용도 0원입니다.</p>
       </div>
     </div>
   </div>
 
-  <!-- 로딩 + 쓰리포인트 스크린샷: 데이터 흐름 설명 아래 -->
-  <div class="screenshot-grid" style="grid-template-columns:1fr 1fr;margin:28px 0">
+  <!-- 로딩 스크린샷 -->
+  <div class="screenshot-grid" style="grid-template-columns:1fr;margin:28px auto;max-width:360px">
     <div class="screenshot-wrap">
       <img src="img_loading1.png" alt="VIVA Economy 로딩 UX">
-      <div class="cap">로딩 화면 — 6단계 진행 표시 + 경제 퀴즈</div>
-    </div>
-    <div class="screenshot-wrap">
-      <img src="img_3points1.png" alt="쓰리포인트 인사이트">
-      <div class="cap">쓰리포인트 인사이트 — 배경(Why) 분석</div>
+      <div class="cap">브리핑 로딩 화면 — ECG 심전도 애니메이션</div>
     </div>
   </div>
 
   <div class="callout blue">
-    <div class="callout-icon">⚡</div>
+    <div class="callout-icon">🔥</div>
     <div class="callout-body">
-      <h4>핵심 설계 원칙: 체감 속도 최우선</h4>
-      <p>1차 호출이 끝나면 즉시 화면에 보여주고, 2차는 뒤에서 처리합니다. 사용자가 "느리다"고 느끼지 않도록 하는 것이 가장 중요한 설계 원칙입니다.</p>
+      <h4>핵심 설계 원칙: 미리 만들고 즉시 전달</h4>
+      <p>Phase 1에서는 사용자가 앱을 열 때마다 AI를 호출했습니다. Phase 3 이후로는 사용자가 오기 전에 이미 만들어 두고, 앱을 열면 꺼내 주기만 합니다. 로딩 시간은 사라지고, 비용은 하루 1회로 고정됩니다.</p>
     </div>
   </div>
 </section>
@@ -666,12 +689,15 @@ body{font-family:var(--font);color:var(--text);background:var(--bg);line-height:
     <h4><span class="tag" style="background:var(--red)">문제 1</span> 로딩 시간이 너무 길다</h4>
     <p>AI가 뉴스를 분석하려면 최소 10~30초가 걸립니다. 앱을 열었는데 아무것도 안 보이면 사용자는 떠나버립니다.</p>
     <div style="margin-top:16px;padding:16px;background:var(--green-pale);border-radius:8px">
-      <p style="font-size:15px;color:var(--dark);font-weight:600;margin-bottom:8px">🔧 시도한 해결 방법들:</p>
-      <p style="font-size:15px;color:var(--sub);line-height:1.9"><strong>① 순차적 로딩 도입:</strong> 1차 AI 호출(3줄 브리핑)이 끝나면 바로 보여주고, 2차(쓰리포인트)는 뒤에서 처리. 사용자가 기다리는 느낌을 크게 줄였습니다.<br>
-      <strong>② 프롬프트 축소:</strong> AI에게 보내는 지시문을 최대한 짧게 다듬었습니다. 글자 수가 줄면 처리 시간도 줄어듭니다.<br>
-      <strong>③ 6단계 로딩 UX:</strong> 실제로는 AI가 처리 중이지만, 화면에는 "뉴스 수집 → 소스 분석 → 브리핑 작성..." 식으로 진행 표시를 나눠 보여줍니다. 대기 중에 경제 퀴즈도 보여줘서 지루함을 줄였습니다.<br>
-      <strong>④ Sonnet 모델 사용:</strong> 가장 빠른 Haiku를 쓰면 좋겠지만 정확도가 떨어져서, 속도와 품질의 균형이 좋은 Sonnet을 선택했습니다.</p>
-      <p style="font-size:14px;color:var(--amber);font-weight:600;margin-top:12px">⚠️ 아직 한계점: AI 호출 자체의 시간(10~30초)은 줄이기 어렵습니다. 더 빠른 모델이 나오거나, 캐시를 더 적극 활용하는 방법을 계속 연구 중입니다.</p>
+      <p style="font-size:15px;color:var(--dark);font-weight:600;margin-bottom:8px">🔧 Phase 1~2에서 시도한 임시 해결책들:</p>
+      <p style="font-size:15px;color:var(--sub);line-height:1.9"><strong>① 순차적 표시:</strong> 1차 AI 호출(브리핑)이 끝나면 즉시 보여주고, 나머지는 뒤에서 처리. 사용자가 기다리는 느낌을 줄였습니다.<br>
+      <strong>② 프롬프트 최적화:</strong> AI 지시문을 최대한 짧게 다듬어 처리 시간을 단축했습니다.<br>
+      <strong>③ 로딩 UX 개선:</strong> ECG 심전도 애니메이션 + 경제 퀴즈로 대기 체감 시간을 줄였습니다.<br>
+      <strong>④ Sonnet 모델 선택:</strong> 가장 빠른 Haiku는 정확도가 낮아서, 속도와 품질의 균형이 좋은 Sonnet을 유지했습니다.</p>
+    </div>
+    <div style="margin-top:12px;padding:16px;background:#DBEAFE;border-radius:8px">
+      <p style="font-size:15px;color:var(--dark);font-weight:600;margin-bottom:8px">✅ Phase 3에서 근본 해결 — Firebase 사전 생성</p>
+      <p style="font-size:15px;color:#1e40af;line-height:1.9">사용자 요청 시 AI를 호출하는 방식 자체를 버렸습니다. 매일 07:00 KST에 Vercel Cron이 자동으로 브리핑을 생성해 Firebase에 저장하고, 사용자가 앱을 열면 저장된 결과를 꺼내 주기만 합니다. <strong>AI 호출 시간 0초, 로딩 시간 ~0.5초</strong>로 문제가 근본적으로 해결되었습니다.</p>
     </div>
   </div>
 
@@ -701,7 +727,7 @@ body{font-family:var(--font);color:var(--text);background:var(--bg);line-height:
 <section class="section fade-in" id="arch">
   <div class="section-label">ARCHITECTURE</div>
   <h2>전체 기술 구조</h2>
-  <p class="desc">4개 도구가 각자의 역할을 하며 연결됩니다. 쉽게 말하면, 개발자가 코드를 GitHub에 올리면 Vercel이 자동으로 전 세계에 배포하고, 사용자가 접속하면 네이버에서 뉴스를, Claude에게서 분석을 받아오는 구조입니다.</p>
+  <p class="desc">5개 레이어가 각자의 역할을 하며 연결됩니다. 개발자가 코드를 GitHub에 올리면 Vercel이 자동으로 배포하고, 매일 아침 Cron이 브리핑을 생성해 Firebase에 저장하며, 사용자가 앱을 열면 저장된 결과를 즉시 전달합니다.</p>
 
   <div class="arch">
     <div class="arch-row">
@@ -709,19 +735,23 @@ body{font-family:var(--font);color:var(--text);background:var(--bg);line-height:
       <div class="arch-arrow">→</div>
       <div class="arch-box gh"><span style="display:inline-flex;align-items:center;gap:6px"><svg width="20" height="20" viewBox="0 0 16 16" fill="#24292f"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg> GitHub</span><span class="arch-sub">코드 저장소 (변경 이력 관리)</span></div>
       <div class="arch-arrow">→</div>
-      <div class="arch-box vc"><span style="display:inline-flex;align-items:center;gap:6px"><svg width="18" height="18" viewBox="0 0 76 65" fill="#000"><path d="M37.5274 0L75.0548 65H0L37.5274 0Z"/></svg> Vercel</span><span class="arch-sub">자동 배포 + 서버 역할</span></div>
+      <div class="arch-box vc"><span style="display:inline-flex;align-items:center;gap:6px"><svg width="18" height="18" viewBox="0 0 76 65" fill="#000"><path d="M37.5274 0L75.0548 65H0L37.5274 0Z"/></svg> Vercel</span><span class="arch-sub">자동 배포 + 9개 서버리스 함수 + Cron</span></div>
     </div>
     <div style="text-align:center;color:var(--sub);font-size:20px;margin:8px 0">↕</div>
     <div class="arch-row">
-      <div class="arch-box nv"><span style="display:inline-flex;align-items:center;gap:6px"><span style="background:#03C75A;color:#fff;font-weight:900;font-size:11px;padding:2px 6px;border-radius:3px;letter-spacing:-0.5px">N</span> Naver 뉴스 API</span><span class="arch-sub">경제 뉴스 자동 수집</span></div>
+      <div class="arch-box nv"><span style="display:inline-flex;align-items:center;gap:6px"><span style="background:#03C75A;color:#fff;font-weight:900;font-size:11px;padding:2px 6px;border-radius:3px;letter-spacing:-0.5px">N</span> Naver 뉴스 API</span><span class="arch-sub">18개 기사 × 4탭 자동 수집</span></div>
       <div class="arch-arrow">←</div>
-      <div class="arch-box vc" style="min-width:200px">Vercel 서버리스 함수<span class="arch-sub">news · briefing · insight · column</span></div>
+      <div class="arch-box vc" style="min-width:200px">Vercel 서버리스 함수 × 9<span class="arch-sub">generate · cached · news · briefing<br>insight · column · sparkline · ogimage · archive</span></div>
       <div class="arch-arrow">→</div>
-      <div class="arch-box cl"><span style="display:inline-flex;align-items:center;gap:6px"><span style="background:#D97706;color:#fff;font-weight:900;font-size:11px;padding:3px 7px;border-radius:3px">C</span> Claude AI API</span><span class="arch-sub">뉴스 분석 / 요약 / 칼럼 생성</span></div>
+      <div class="arch-box cl"><span style="display:inline-flex;align-items:center;gap:6px"><span style="background:#D97706;color:#fff;font-weight:900;font-size:11px;padding:3px 7px;border-radius:3px">C</span> Claude Sonnet 4.6</span><span class="arch-sub">헤드라인 · 4포인트 브리핑 · 칼럼 생성</span></div>
+    </div>
+    <div style="text-align:center;color:var(--sub);font-size:20px;margin:8px 0">↕</div>
+    <div class="arch-row">
+      <div class="arch-box" style="background:#FEF3C7;border-color:#D97706;color:#92400E;min-width:200px"><span style="display:inline-flex;align-items:center;gap:6px">🔥 Firebase Firestore</span><span class="arch-sub">브리핑 저장소 — 24시간 대기</span></div>
     </div>
     <div style="text-align:center;color:var(--sub);font-size:20px;margin:8px 0">↓</div>
     <div class="arch-row">
-      <div class="arch-box user">📱 사용자 — econsoop.vercel.app<span class="arch-sub">PWA 지원 · 모바일 홈 화면에 앱처럼 설치 가능</span></div>
+      <div class="arch-box user">📱 사용자 — moneybrief-vip.vercel.app<span class="arch-sub">PWA · 모바일 홈 화면 설치 가능 · 8탭 구성</span></div>
     </div>
   </div>
 </section>
@@ -874,9 +904,9 @@ body{font-family:var(--font);color:var(--text);background:var(--bg);line-height:
       </tr>
       <tr>
         <td><span class="api-file">api/insight.js</span></td>
-        <td>쓰리포인트 인사이트</td>
+        <td>온라인 인사이트</td>
         <td><span style="background:#D97706;color:#fff;font-weight:800;font-size:10px;padding:2px 6px;border-radius:3px">C</span> Claude Sonnet</td>
-        <td>배경 / 시장 영향 / 주목할 점 분석</td>
+        <td>사용자 요청 시 추가 인사이트 온디맨드 생성</td>
       </tr>
       <tr>
         <td><span class="api-file">api/column.js</span></td>
@@ -920,10 +950,10 @@ body{font-family:var(--font);color:var(--text);background:var(--bg);line-height:
     <div class="compare-box" style="background:var(--green-pale)">
       <h4 style="color:var(--green)">📥 받는 것 (출력)</h4>
       <ul>
-        <li>핵심 이슈 / 시장 흐름 / 투자 포인트 3줄</li>
+        <li>헤드라인 + 서브헤딩 (신문 1면 스타일)</li>
+        <li>4포인트 브리핑 (핵심 이슈 · 시장 흐름 · 투자 포인트 · 인사이트)</li>
         <li>어려운 용어 설명 (※ 형식의 각주)</li>
-        <li>배경(왜?) / 시장 영향(그래서?) / 주목할 점(앞으로?)</li>
-        <li>각 분석마다 인라인 용어 설명</li>
+        <li>칼럼 훅 (오늘의 칼럼 도입부)</li>
       </ul>
     </div>
   </div>
@@ -941,7 +971,7 @@ body{font-family:var(--font);color:var(--text);background:var(--bg);line-height:
     <div class="flow-step"><div class="flow-num">3</div><div class="flow-body"><h4>AI가 코드 생성/수정</h4><p>Claude가 수정된 코드를 만들어줍니다. 내가 확인하고 이해한 뒤 반영합니다.</p></div></div>
     <div class="flow-step"><div class="flow-num">4</div><div class="flow-body"><h4>DEV MODE에서 테스트</h4><p><code>?dev=true</code>를 붙여서 AI 호출 없이 화면만 확인합니다. 비용은 0원.</p></div></div>
     <div class="flow-step"><div class="flow-num">5</div><div class="flow-body"><h4>Git Push → 자동 배포</h4><p><code>git add -A && git commit -m "설명" && git push</code> → 10초 후 실제 서비스에 반영.</p></div></div>
-    <div class="flow-step"><div class="flow-num">6</div><div class="flow-body"><h4>실제 환경에서 최종 확인</h4><p>econsoop.vercel.app에서 실제 AI를 호출하여 제대로 작동하는지 최종 확인합니다.</p></div></div>
+    <div class="flow-step"><div class="flow-num">6</div><div class="flow-body"><h4>실제 환경에서 최종 확인</h4><p>moneybrief-vip.vercel.app에서 실제 브리핑이 제대로 표시되는지 최종 확인합니다.</p></div></div>
   </div>
 </section>
 
