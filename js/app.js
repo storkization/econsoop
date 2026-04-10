@@ -394,7 +394,6 @@ function setLoadingMsg(tab, phase, count = null) {
   _loadingInterval = setInterval(renderLoading, 4000);
 }
 
-function showQuizAnswer() {}
 
 function stopLoadingMsg() {
   if (_loadingInterval) { clearInterval(_loadingInterval); _loadingInterval = null; }
@@ -671,7 +670,6 @@ async function genTabSummary(tab) {
     setLoadingMsg(tab, 'done');
     await new Promise(r => setTimeout(r, 1000));
     stopLoadingMsg();
-    showQuizAnswer();
     renderTabSummary(tab, result);
     updateFrontPreview(tab, result.summary);
 
