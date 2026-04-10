@@ -260,70 +260,8 @@ const LOADING_MSGS = [
 ];
 
 // 경제 퀴즈 (50문항)
-const QUIZ_LIST = [
-  // ── 환율 (8) ──
-  { q:'원/달러 환율이 오르면, 원화의 가치는?', a:'하락 (원화 약세)', hint:'환율 상승 = 달러 1개에 더 많은 원화가 필요하다는 뜻이에요 💱' },
-  { q:'한국은행이 기준금리를 올리면, 원/달러 환율은?', a:'하락 (원화 강세)', hint:'한국 금리가 높아지면 외국 자금이 유입돼 원화 수요가 늘어요 🏦' },
-  { q:'미국 연준이 금리를 올리면, 원/달러 환율은?', a:'상승 (원화 약세)', hint:'미국 금리가 높아지면 달러 자산으로 자금이 이동해요 🇺🇸' },
-  { q:'수출이 크게 늘면, 원/달러 환율은?', a:'하락 (원화 강세)', hint:'수출 대금(달러)을 원화로 바꾸면서 원화 수요가 늘어나요 📦' },
-  { q:'원화 강세일 때 유리한 쪽은?', a:'수입업체·해외여행자', hint:'같은 원화로 더 많은 달러를 살 수 있으니까요 ✈️' },
-  { q:'원화 약세일 때 유리한 쪽은?', a:'수출기업', hint:'달러로 받은 수출 대금을 원화로 바꾸면 더 많아져요 🚢' },
-  { q:'환율이 급등할 때, 한국은행이 하는 조치는?', a:'외환시장 개입 (달러 매도)', hint:'보유 달러를 팔아 환율 상승을 억제하는 거예요 🛡' },
-  { q:'"안전자산 선호" 현상이 나타나면, 원/달러 환율은?', a:'상승 (원화 약세)', hint:'불확실할 때 투자자들이 달러·미국채로 이동해요 🏃' },
-  // ── 금리 (8) ──
-  { q:'물가가 빠르게 오를 때, 중앙은행은 보통 어떤 조치를 취할까요?', a:'기준금리 인상', hint:'금리를 올려 소비·투자를 줄이고 물가를 안정시켜요 🔧' },
-  { q:'기준금리가 오르면, 시중 대출 금리는?', a:'함께 상승', hint:'기준금리는 모든 금리의 출발점이에요 📊' },
-  { q:'기준금리가 오르면, 주식시장에는 일반적으로?', a:'하락 압력', hint:'돈이 예금·채권으로 이동하고 기업 이자 부담이 커져요 📉' },
-  { q:'채권 금리가 오르면, 채권 가격은?', a:'하락 (반비례 관계)', hint:'새 채권이 더 높은 이자를 주니 기존 채권 매력이 떨어져요 ⚖️' },
-  { q:'기준금리를 내리면, 시중에 돈은?', a:'늘어남 (유동성 증가)', hint:'대출이 싸지니 사람들이 돈을 더 빌려요 💧' },
-  { q:'"금리 동결"이란?', a:'기준금리를 올리지도 내리지도 않는 것', hint:'경제 상황을 좀 더 지켜보겠다는 신호예요 ⏸' },
-  { q:'한국은행 금통위는 무엇을 결정하는 기구인가요?', a:'기준금리', hint:'금융통화위원회 — 한국은행의 최고 의사결정 기구예요 🏛' },
-  { q:'실질금리란?', a:'명목금리에서 물가상승률을 뺀 것', hint:'금리 3%인데 물가 4% 오르면, 실질금리는 -1%예요 🧮' },
-  // ── 주식·증시 (7) ──
-  { q:'외국인 투자자가 한국 주식을 대량 매수하면, 원화에는?', a:'강세 요인', hint:'달러를 원화로 바꿔서 투자하니까 원화 수요가 늘어요 📈' },
-  { q:'코스피 지수란?', a:'한국 유가증권시장 상장사의 시가총액 지수', hint:'한국 증시의 "체온계" 같은 대표 지표예요 🇰🇷' },
-  { q:'PER(주가수익비율)이 높다는 건?', a:'현재 이익 대비 주가가 비싸다는 의미', hint:'PER = 주가 ÷ 주당순이익. 높을수록 고평가 신호예요 🔍' },
-  { q:'공매도란?', a:'주식을 빌려서 팔고, 나중에 싸게 사서 갚는 전략', hint:'주가 하락을 예상할 때 사용하는 투자 방법이에요 📉' },
-  { q:'"시가총액"이란?', a:'주가 × 발행 주식 수', hint:'그 회사의 시장에서의 전체 가치를 나타내요 💰' },
-  { q:'IPO란?', a:'기업공개 — 처음으로 주식시장에 상장하는 것', hint:'비상장 기업이 주식을 일반에 팔아 자금을 조달하는 거예요 🎉' },
-  { q:'코스닥과 코스피의 차이는?', a:'코스닥은 중소·벤처, 코스피는 대기업 중심', hint:'코스닥은 기술주가 많고, 코스피는 삼성전자 같은 대형주예요 🏢' },
-  // ── 물가·인플레이션 (5) ──
-  { q:'CPI(소비자물가지수)가 전년 대비 5% 올랐다면?', a:'1년 전보다 물건값이 평균 5% 비싸졌다는 뜻', hint:'CPI는 장바구니 물가 변화를 측정하는 대표 지표예요 🛒' },
-  { q:'스태그플레이션이란?', a:'경기 침체와 물가 상승이 동시에 오는 상황', hint:'경기가 나쁜데 물가까지 오르는 최악의 조합이에요 ⚠️' },
-  { q:'디플레이션은 좋은 걸까요?', a:'아니요 — 소비 위축과 경기 침체를 유발', hint:'물가가 떨어지면 "더 싸질 때 사자"며 소비가 멈춰요 🧊' },
-  { q:'"근원물가"란?', a:'변동 큰 식품·에너지를 제외한 물가', hint:'일시적 요인을 빼고 물가의 기본 추세를 보는 지표예요 🎯' },
-  { q:'물가가 오르면, 현금의 가치는?', a:'떨어짐', hint:'같은 만 원으로 살 수 있는 게 줄어드니까요 💸' },
-  // ── 중앙은행·통화정책 (6) ──
-  { q:'한국은행의 영문 약칭은?', a:'BOK (Bank of Korea)', hint:'우리나라 기준금리를 결정하는 중앙은행이에요 🏛' },
-  { q:'미국 연준(Fed)이 하는 가장 중요한 일은?', a:'미국 기준금리(연방기금금리) 결정', hint:'전 세계 금융시장에 가장 큰 영향을 미치는 기관이에요 🌍' },
-  { q:'"매파적(Hawkish)" 발언이란?', a:'금리 인상을 선호하는 강경한 입장', hint:'물가 안정을 최우선으로 보는 입장. 반대는 비둘기파 🦅' },
-  { q:'양적완화(QE)란?', a:'중앙은행이 채권을 사서 시중에 돈을 푸는 정책', hint:'금리 인하만으론 부족할 때 쓰는 비상 수단이에요 💵' },
-  { q:'양적긴축(QT)이란?', a:'중앙은행이 보유 채권을 줄여 시중 돈을 회수하는 것', hint:'양적완화의 반대. 풀었던 돈을 다시 거둬들이는 거예요 🧹' },
-  { q:'ECB는 어떤 기관인가요?', a:'유럽중앙은행 (European Central Bank)', hint:'유로존 20개국의 통화정책을 총괄하는 중앙은행이에요 🇪🇺' },
-  // ── 무역·국제 (5) ──
-  { q:'경상수지가 흑자라는 건?', a:'해외에서 벌어들인 돈이 나간 돈보다 많다는 뜻', hint:'수출·서비스·투자 등을 모두 합산한 대외 수지예요 📦' },
-  { q:'미국이 관세를 올리면, 한국 수출기업에는?', a:'부정적 (가격 경쟁력 하락)', hint:'수출품 가격이 올라 미국 내 판매가 줄어들 수 있어요 🚢' },
-  { q:'"무역수지"란?', a:'수출액에서 수입액을 뺀 것', hint:'플러스면 무역 흑자, 마이너스면 무역 적자예요 ⚖️' },
-  { q:'국제유가가 오르면, 한국 경제에는?', a:'부정적 (수입 비용 증가)', hint:'한국은 원유를 거의 전량 수입하는 에너지 수입국이에요 ⛽' },
-  { q:'OPEC이란?', a:'석유수출국기구 — 원유 생산량을 조절하는 카르텔', hint:'중동 산유국 중심으로 유가에 큰 영향을 미쳐요 🛢' },
-  // ── 부동산·가계 (4) ──
-  { q:'기준금리가 오르면, 부동산 시장에는?', a:'하락 압력', hint:'대출 이자가 늘어 매수 여력이 줄고 수요가 감소해요 🏠' },
-  { q:'LTV(주택담보대출비율)란?', a:'집값 대비 대출 가능한 최대 비율', hint:'LTV 70%면 10억 집에 최대 7억까지 빌릴 수 있어요 🔑' },
-  { q:'DSR(총부채원리금상환비율)이란?', a:'연소득 대비 전체 대출 원리금 상환 비율', hint:'DSR이 높으면 소득 대비 빚 갚는 부담이 크다는 뜻이에요 📋' },
-  { q:'가계부채가 늘면 경제에 어떤 위험이 있나요?', a:'소비 위축 + 금융 불안정', hint:'빚 갚느라 소비를 못 하고, 금리 오르면 연체 위험이 커져요 ⚡' },
-  // ── 기본 개념 (7) ──
-  { q:'GDP(국내총생산)란?', a:'한 나라에서 일정 기간 생산된 재화·서비스의 총 가치', hint:'나라 경제의 규모와 성장률을 보여주는 대표 지표예요 🌍' },
-  { q:'GDP가 2분기 연속 감소하면?', a:'기술적 경기 침체(리세션)', hint:'경제가 쪼그라들고 있다는 공식적 신호예요 📉' },
-  { q:'"유동성이 풍부하다"는 무슨 뜻?', a:'시중에 돈이 많이 풀려 있다는 의미', hint:'투자·소비가 활발해지지만 물가 상승 위험도 있어요 💧' },
-  { q:'"경기 연착륙"이란?', a:'급격한 침체 없이 경제가 서서히 안정되는 것', hint:'반대말은 "경착륙" — 갑자기 경제가 꺾이는 거예요 🛬' },
-  { q:'"블랙스완"이란?', a:'예측 불가능하고 파급력이 큰 사건', hint:'코로나, 리먼 브라더스 파산 같은 충격적 사건을 말해요 🦢' },
-  { q:'선행지표란?', a:'경기 변동보다 먼저 움직이는 경제 지표', hint:'건축 허가, 주가, 소비자 기대 등이 대표적이에요 🔮' },
-  { q:'"디커플링"이란?', a:'두 시장이 같이 움직이다가 방향이 갈라지는 현상', hint:'예: 미국 증시는 오르는데 한국 증시는 내리는 경우 🔀' },
-];
-
 let _loadingInterval = null;
 let _briefingController = null;
-let _currentQuiz = null; // 현재 로딩 중 표시 중인 퀴즈
 let _aiStepIndex = 0;    // AI 단계 진행 인덱스 (0~5)
 let _aiStepTimers = [];   // AI 단계 자동 전진 타이머들
 
@@ -339,9 +277,6 @@ function setLoadingMsg(tab, phase, count = null) {
   _aiStepTimers = [];
 
   // 퀴즈는 뉴스 수집 시작 시 고정
-  if (!_currentQuiz) {
-    _currentQuiz = QUIZ_LIST[Math.floor(Math.random() * QUIZ_LIST.length)];
-  }
 
   // phase='news' → step 0, phase='ai' → step 1부터 자동 전진, phase='fast' → 1초씩 5단계
   if (phase === 'news') {
@@ -422,12 +357,6 @@ function setLoadingMsg(tab, phase, count = null) {
       </div>`;
     }).join('');
 
-    const quizCard = _currentQuiz ? `
-      <div style="background:linear-gradient(135deg,#F0FDF4 0%,#FAFFFD 100%);border:1.5px solid rgba(26,122,69,0.2);border-radius:12px;padding:14px 16px;margin:0 0 16px;text-align:left;position:relative;">
-        <div style="position:absolute;top:-6px;right:8px;font-size:12px;opacity:0.5;">🌿</div>
-        <div style="font-size:10px;font-weight:700;color:#16A34A;letter-spacing:0.5px;margin-bottom:6px;">🌱 오늘의 퀴즈 — Biz Bite 준비 완료 시 정답 공개!</div>
-        <div style="font-size:13px;font-weight:700;color:#111827;line-height:1.5;">${_currentQuiz.q}</div>
-      </div>` : '';
 
     card.innerHTML = `
       <div style="padding:24px 20px;background:#FFFFFF;border-radius:16px;box-shadow:0 2px 16px rgba(90,10,20,0.06);">
@@ -438,7 +367,6 @@ function setLoadingMsg(tab, phase, count = null) {
         <div style="display:flex;flex-direction:column;gap:7px;margin-bottom:16px;">
           ${stepLabels}
         </div>
-        ${quizCard}
         <div style="text-align:center;padding-top:12px;border-top:1px solid var(--border);">
           <div class="dots" style="margin-bottom:8px;"><span></span><span></span><span></span></div>
           <div style="color:var(--text-muted);font-size:12px;font-weight:500;">${msgs[msgIdx % msgs.length]}</div>
@@ -466,45 +394,7 @@ function setLoadingMsg(tab, phase, count = null) {
   _loadingInterval = setInterval(renderLoading, 4000);
 }
 
-function showQuizAnswer() {
-  if (!_currentQuiz) return;
-  const quiz = _currentQuiz;
-  _currentQuiz = null;
-
-  const overlay = document.createElement('div');
-  overlay.style.cssText = `
-    position:fixed;inset:0;z-index:9994;
-    background:rgba(13,51,32,0.5);
-    display:flex;align-items:center;justify-content:center;
-    max-width:480px;margin:0 auto;
-    animation:fadeIn 0.2s ease;
-  `;
-
-  const card = document.createElement('div');
-  card.style.cssText = `
-    background:#fff;border-radius:16px;
-    padding:24px;max-width:300px;width:85%;
-    box-shadow:0 12px 40px rgba(13,51,32,0.25);
-    animation:slideUpBounce 0.35s ease-out;
-    font-family:var(--font-sans);text-align:center;
-  `;
-  card.innerHTML = `
-    <div style="font-size:32px;margin-bottom:12px;">💗</div>
-    <div style="font-size:10px;font-weight:700;color:var(--accent);letter-spacing:0.5px;margin-bottom:10px;">오늘의 퀴즈 정답!</div>
-    <div style="font-size:12px;color:var(--text-muted);margin-bottom:8px;line-height:1.5;">${quiz.q}</div>
-    <div style="font-size:15px;font-weight:800;color:var(--accent);margin-bottom:6px;">→ ${quiz.a}</div>
-    <div style="font-size:11px;color:var(--text-muted);margin-bottom:18px;line-height:1.5;">${quiz.hint}</div>
-    <button onclick="this.closest('div[style*=fixed]').remove()"
-      style="background:linear-gradient(135deg,#1A7A45,#22914F);color:#fff;border:none;border-radius:10px;
-             padding:10px 32px;font-size:13px;font-weight:700;
-             font-family:var(--font-sans);cursor:pointer;">
-      확인
-    </button>
-  `;
-  overlay.appendChild(card);
-  overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.remove(); });
-  document.body.appendChild(overlay);
-}
+function showQuizAnswer() {}
 
 function stopLoadingMsg() {
   if (_loadingInterval) { clearInterval(_loadingInterval); _loadingInterval = null; }
@@ -515,7 +405,6 @@ function stopLoadingMsg() {
 function cancelBriefing(tab) {
   stopLoadingMsg();
   if (_briefingController) { _briefingController.abort(); _briefingController = null; }
-  _currentQuiz = null;
   _aiStepIndex = 0;
   summaryCache[tab] = null;
   const card = document.getElementById(`${tab}-summary-card`);
