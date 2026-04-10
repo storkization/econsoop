@@ -1213,11 +1213,15 @@ function renderLandingBriefs() {
       ? `<img class="newspaper-card-img" src="${img}" alt="" loading="lazy" data-fallbackbg="${t.bg}" onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
          <div class="newspaper-card-img-placeholder" style="background:${t.bg};display:none;"></div>`
       : `<div class="newspaper-card-img-placeholder" style="background:${t.bg};"></div>`;
+    const sub = result?.subheading;
+    const loading = !headline;
     return `<div class="newspaper-card" onclick="switchTab('${t.key}')" style="border-top:3px solid ${t.color};">
       ${imgHtml}
       <div class="newspaper-card-body">
         <div class="newspaper-card-tab" style="color:${t.color};">${t.icon} ${t.label.toUpperCase()}</div>
         <div class="newspaper-card-headline">${headline || '브리핑 불러오는 중...'}</div>
+        ${sub && !loading ? `<div class="newspaper-card-sub">${sub}</div>` : ''}
+        ${!loading ? `<div class="newspaper-card-cta"><span style="background:${t.color};">읽기 →</span></div>` : ''}
       </div>
     </div>`;
   }).join('');
