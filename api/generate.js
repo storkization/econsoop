@@ -40,7 +40,8 @@ async function genComments(summary, label) {
       signal: AbortSignal.timeout(25000),
     });
     const j = await r.json();
-    const items = JSON.parse(j.content[0].text);
+    const raw = j.content[0].text.replace(/```json\s*/gi, '').replace(/```/g, '').trim();
+    const items = JSON.parse(raw);
     const shuffled = [...NICK_POOL].sort(() => Math.random() - 0.5);
     return items.slice(0, 4).map((item, i) => ({
       nick: shuffled[i],

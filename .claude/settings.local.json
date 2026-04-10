@@ -77,7 +77,8 @@
       "Bash(xargs wc:*)",
       "Bash(gh pr:*)",
       "mcp__claude_ai_Notion__notion-move-pages",
-      "Bash(cp:*)"
+      "Bash(cp:*)",
+      "Bash(python -m json.tool)"
     ]
   }
 }
