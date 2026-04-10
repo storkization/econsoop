@@ -789,6 +789,10 @@
     }
     .drawer-sub-item:active { background:var(--accent-dim); }
     .drawer-sub-item.active { color:var(--accent); font-weight:700; }
+    .drawer-brand { padding:20px 20px 8px 28px; margin-top:4px; border-top:1px solid var(--border); }
+    .drawer-brand-by { font-family:var(--font-sans); font-size:11px; font-weight:700; color:var(--text-muted); margin-bottom:2px; }
+    .drawer-brand-copy { font-family:var(--font-mono); font-size:9px; color:var(--text-dim); letter-spacing:0.3px; margin-bottom:3px; }
+    .drawer-brand-powered { font-family:var(--font-mono); font-size:9px; color:var(--text-dim); letter-spacing:0.3px; }
 
     /* ── 신문 1면 ── */
     .newspaper-masthead {
@@ -1480,7 +1484,9 @@
 
     /* ── 토스트 ── */
     .app-toast { position:fixed;bottom:80px;left:50%;transform:translateX(-50%);z-index:9999;background:#1A1A2E;color:#fff;padding:10px 20px;border-radius:20px;font-size:13px;font-weight:600;white-space:nowrap;pointer-events:none;animation:toastIn 0.3s ease; }
+    .app-toast-out { animation:toastOut 0.3s ease forwards; }
     @keyframes toastIn { from{opacity:0;transform:translateX(-50%) translateY(8px)} to{opacity:1;transform:translateX(-50%) translateY(0)} }
+    @keyframes toastOut { from{opacity:1;transform:translateX(-50%) translateY(0)} to{opacity:0;transform:translateX(-50%) translateY(8px)} }
 
     /* ── 방문 스트릭 ── */
     .streak-stat { display:flex;align-items:baseline;gap:6px;margin:10px 0 4px; }
@@ -1533,4 +1539,9 @@
       font-family:var(--font-mono);
       font-size:10px; color:var(--text-dim);
       letter-spacing:0.3px;
+    }
+    .app-footer-meta {
+      font-family:var(--font-mono);
+      font-size:9px; color:var(--text-dim);
+      letter-spacing:0.3px; margin-top:4px;
     }

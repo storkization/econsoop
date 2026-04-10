@@ -77,26 +77,31 @@ function showToast(msg) {
   t.className = 'app-toast';
   t.textContent = msg;
   document.body.appendChild(t);
+  setTimeout(() => t.classList.add('app-toast-out'), 2700);
   setTimeout(() => t.remove(), 3000);
 }
 
+function getKSTDate() {
+  return new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Seoul' }));
+}
+
 function getTodayKST() {
-  const kst = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Seoul' }));
+  const kst = getKSTDate();
   return `${kst.getFullYear()}${String(kst.getMonth()+1).padStart(2,'0')}${String(kst.getDate()).padStart(2,'0')}`;
 }
 
 function checkDailyStreak() {
-  const today = getTodayKST();
+  const kst = getKSTDate();
+  const fmt = d => `${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}`;
+  const today = fmt(kst);
   const last  = localStorage.getItem('eco_streak_last') || '';
   if (last === today) return;
 
+  kst.setDate(kst.getDate() - 1);
+  const yesterday = fmt(kst);
+
   let count = parseInt(localStorage.getItem('eco_streak_count') || '0');
   let total = parseInt(localStorage.getItem('eco_streak_total') || '0');
-
-  const kst = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Seoul' }));
-  kst.setDate(kst.getDate() - 1);
-  const yesterday = `${kst.getFullYear()}${String(kst.getMonth()+1).padStart(2,'0')}${String(kst.getDate()).padStart(2,'0')}`;
-
   count = last === yesterday ? count + 1 : 1;
   total += 1;
 
@@ -143,7 +148,7 @@ function renderStreakCard() {
 }
 
 /* ═══════════ CACHE VERSION ═══════════ */
-const CACHE_VERSION = 'v142';
+const CACHE_VERSION = 'v143';
 (function clearOldCache() {
   const savedVersion = localStorage.getItem('eco_cache_version');
   if (savedVersion !== CACHE_VERSION) {
@@ -1934,6 +1939,7 @@ const TAB_META = {
 };
 let archiveEditions = null;
 const editionDetailCache = {};
+const EDITION_CACHE_MAX = 20;
 
 async function loadArchive() {
   const root = document.getElementById('archive-root');
@@ -1960,6 +1966,8 @@ async function loadEditionDetail(id) {
   try {
     const r = await fetch(`/api/archive?action=edition&id=${encodeURIComponent(id)}`);
     const data = await r.json();
+    const keys = Object.keys(editionDetailCache);
+    if (keys.length >= EDITION_CACHE_MAX) delete editionDetailCache[keys[0]];
     editionDetailCache[id] = data;
     renderEditionDetail(data);
   } catch (e) {
