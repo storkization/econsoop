@@ -897,7 +897,7 @@ function renderTabSummary(tab, result) {
         ` : '';
         const gapImg = _imgSlots[i];
         const gapHtml = (gapImg && i < lines.length - 1) ? `
-          <div style="margin:4px 0 10px;border-radius:16px;overflow:hidden;height:160px;position:relative;">
+          <div style="margin:4px 0 10px;border-radius:16px;overflow:hidden;height:110px;position:relative;">
             <img src="${gapImg}" style="width:100%;height:100%;object-fit:cover;"
               onerror="this.parentElement.style.display='none'"
               onload="if(this.naturalWidth<300||this.naturalHeight<100)this.parentElement.style.display='none'"/>
