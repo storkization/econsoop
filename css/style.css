@@ -1246,7 +1246,7 @@
     }
     .cmt-reply-body { flex:1; min-width:0; }
     .cmt-reply-body .cmt-nick { display:block; margin-bottom:1px; }
-    .cmt-reply-body .cmt-text { font-size:12px; }
+    .cmt-reply-body .cmt-text { font-size:13px; }
 
     /* ── 랜딩페이지 ── */
     #tab-front { padding:0; background:#fff; }
