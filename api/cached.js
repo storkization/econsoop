@@ -47,13 +47,13 @@ export default async function handler(req, res) {
 
     if (!doc.exists) return res.status(404).json({ error: 'Not found' });
 
-    const { summary, footnotes, headline, subheading, heading2, subheading2, heading3, subheading3, heading4, subheading4, columnHook, columnSubhook, topImageUrl, comments, created_at } = doc.data();
+    const { summary, footnotes, headline, subheading, heading2, subheading2, heading3, subheading3, heading4, subheading4, columnHook, columnSubhook, topImageUrl, sectionImages, comments, created_at } = doc.data();
     if (!summary) return res.status(404).json({ error: 'No data' });
 
     const fresh = created_at >= getLastSlotTime();
     console.log(`[CACHED] ${tab} created_at=${new Date(created_at).toISOString()} fresh=${fresh}`);
 
-    res.status(200).json({ summary, footnotes: footnotes || '', headline: headline || '', subheading: subheading || '', heading2: heading2 || '', subheading2: subheading2 || '', heading3: heading3 || '', subheading3: subheading3 || '', heading4: heading4 || '', subheading4: subheading4 || '', columnHook: columnHook || '', columnSubhook: columnSubhook || '', topImageUrl: topImageUrl || '', comments: comments || [], created_at, fresh });
+    res.status(200).json({ summary, footnotes: footnotes || '', headline: headline || '', subheading: subheading || '', heading2: heading2 || '', subheading2: subheading2 || '', heading3: heading3 || '', subheading3: subheading3 || '', heading4: heading4 || '', subheading4: subheading4 || '', columnHook: columnHook || '', columnSubhook: columnSubhook || '', topImageUrl: topImageUrl || '', sectionImages: sectionImages || [], comments: comments || [], created_at, fresh });
   } catch(err) {
     console.error('[CACHED] error:', err.message);
     res.status(500).json({ error: err.message });

@@ -122,8 +122,15 @@ export default async function handler(req, res) {
         it.description ? `${it.title}\n   → ${it.description.slice(0, 100)}` : it.title
       );
 
-      // 2-a. 이미지 수집 (Unsplash 우선 → OG 폴백)
-      let topImageUrl = await fetchUnsplashImage(UNSPLASH_KW[tab]);
+      // 2-a. 이미지 수집 (Unsplash 3장 병렬 → topImageUrl OG 폴백)
+      const kw = UNSPLASH_KW[tab];
+      const [img0, img1, img2] = await Promise.all([
+        fetchUnsplashImage(kw),
+        fetchUnsplashImage(kw + ' chart data'),
+        fetchUnsplashImage(kw + ' office people'),
+      ]);
+      let topImageUrl = img0;
+      const sectionImages = [img1, img2].filter(Boolean);
       if (!topImageUrl) {
         const topUrl = unique[0]?.originallink || unique[0]?.link;
         if (topUrl) {
@@ -164,6 +171,7 @@ export default async function handler(req, res) {
         columnHook: columnHook || '',
         columnSubhook: columnSubhook || '',
         topImageUrl: topImageUrl || '',
+        sectionImages: sectionImages.length ? sectionImages : [],
         comments: comments.length ? comments : [],
         created_at: now,
       };

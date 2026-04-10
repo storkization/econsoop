@@ -74,7 +74,7 @@ function showToast(msg) {
 }
 
 /* ═══════════ CACHE VERSION ═══════════ */
-const CACHE_VERSION = 'v150';
+const CACHE_VERSION = 'v151';
 (function clearOldCache() {
   const savedVersion = localStorage.getItem('eco_cache_version');
   if (savedVersion !== CACHE_VERSION) {
@@ -460,6 +460,10 @@ const DEV_DUMMY = {
   columnHook: '💣 환율 1,500원인데 집 사도 된다고? 전문가들이 말 못 하는 속사정',
   columnSubhook: '오늘 뉴스 뒤에 숨겨진 2·3차 파급효과, 브리핑에선 못 다한 얘기',
   topImageUrl: 'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=800&q=80',
+  sectionImages: [
+    'https://images.unsplash.com/photo-1526304640581-d334cdbbf45e?w=800&q=80',
+    'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=800&q=80',
+  ],
   topNews: [
     { title: '[DEV] 원달러 환율 1,500원 돌파…17년 만의 최고치', source: '한국경제', date: new Date(), link: '#' },
     { title: '[DEV] 국제유가 110달러 돌파…중동 분쟁 격화', source: '매일경제', date: new Date(), link: '#' },
@@ -552,7 +556,7 @@ async function genTabSummary(tab) {
       const cf = await cfRes.json();
       if (cf.fresh && cf.summary) {
         console.log(`[CACHED] ${tab} 프리젠 데이터 사용 (created_at: ${new Date(cf.created_at).toLocaleTimeString()})`);
-        const result = { summary: cf.summary, oneliner: '', footnotes: cf.footnotes || '', headline: cf.headline || '', subheading: cf.subheading || '', heading2: cf.heading2 || '', subheading2: cf.subheading2 || '', heading3: cf.heading3 || '', subheading3: cf.subheading3 || '', heading4: cf.heading4 || '', subheading4: cf.subheading4 || '', columnHook: cf.columnHook || '', topImageUrl: cf.topImageUrl || '', comments: cf.comments || [], topNews: [] };
+        const result = { summary: cf.summary, oneliner: '', footnotes: cf.footnotes || '', headline: cf.headline || '', subheading: cf.subheading || '', heading2: cf.heading2 || '', subheading2: cf.subheading2 || '', heading3: cf.heading3 || '', subheading3: cf.subheading3 || '', heading4: cf.heading4 || '', subheading4: cf.subheading4 || '', columnHook: cf.columnHook || '', topImageUrl: cf.topImageUrl || '', sectionImages: cf.sectionImages || [], comments: cf.comments || [], topNews: [] };
         summaryCache[tab] = result;
         localStorage.setItem(cacheKey, JSON.stringify(result));
         localStorage.setItem(cacheTimeKey, cf.created_at.toString());
@@ -849,6 +853,12 @@ function renderTabSummary(tab, result) {
       return out;
     }
 
+    // 섹션 간 이미지 랜덤 배치 (0~2번 갭 중 최대 2개)
+    const _sImgs = (result.sectionImages || []).filter(Boolean).slice(0, 2);
+    const _gaps = [0, 1, 2].sort(() => Math.random() - 0.5);
+    const _imgSlots = {};
+    _sImgs.forEach((url, i) => { _imgSlots[_gaps[i]] = url; });
+
     card.innerHTML = `
       ${result.topImageUrl ? `<div style="margin:-16px -16px 16px;height:150px;border-radius:12px 12px 0 0;overflow:hidden;position:relative;">
         <img src="${result.topImageUrl}" style="width:100%;height:100%;object-fit:cover;"
@@ -885,12 +895,19 @@ function renderTabSummary(tab, result) {
           <div style="font-size:20px;font-weight:900;color:#000000;line-height:1.3;margin-bottom:6px;font-family:var(--font-sans);letter-spacing:-0.4px;">${hd.h}</div>
           ${hd.s ? `<div style="font-size:15px;font-weight:800;color:${cfg.color};line-height:1.5;margin-bottom:14px;font-family:var(--font-sans);letter-spacing:-0.2px;">${hd.s}</div>` : ''}
         ` : '';
+        const gapImg = _imgSlots[i];
+        const gapHtml = (gapImg && i < lines.length - 1) ? `
+          <div style="margin:4px 0 10px;border-radius:16px;overflow:hidden;height:160px;position:relative;">
+            <img src="${gapImg}" style="width:100%;height:100%;object-fit:cover;"
+              onerror="this.parentElement.style.display='none'"
+              onload="if(this.naturalWidth<300||this.naturalHeight<100)this.parentElement.style.display='none'"/>
+          </div>` : '';
         return `<div style="background:${cfg.bg};border-radius:20px;padding:18px 18px 16px;margin-bottom:10px;box-shadow:0 4px 20px ${cfg.shadow};">
           <div style="display:inline-flex;align-items:center;gap:5px;background:${cfg.color};color:#fff;padding:4px 12px;border-radius:8px;font-size:11px;font-weight:700;margin-bottom:12px;letter-spacing:-0.1px;">${cfg.label}</div>
           ${headlinePart}
           <div style="font-size:16px;line-height:2.1;color:#000000;font-family:var(--font-sans);">${bodyHtml}</div>
           ${fnHtml}
-        </div>`;
+        </div>${gapHtml}`;
       }).join('')}
     `;
   }
