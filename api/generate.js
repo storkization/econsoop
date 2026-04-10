@@ -57,6 +57,27 @@ async function genComments(summary, label) {
   }
 }
 
+// ── Unsplash 이미지 ────────────────────────────────────────
+const UNSPLASH_KW = {
+  economy:  'finance economy money korea',
+  industry: 'technology industry manufacturing',
+  global:   'world globe international business',
+  stocks:   'stock market trading investment',
+};
+async function fetchUnsplashImage(query) {
+  const key = process.env.UNSPLASH_ACCESS_KEY;
+  if (!key) return '';
+  try {
+    const r = await fetch(
+      `https://api.unsplash.com/photos/random?query=${encodeURIComponent(query)}&orientation=landscape&client_id=${key}`,
+      { signal: AbortSignal.timeout(8000) }
+    );
+    if (!r.ok) return '';
+    const j = await r.json();
+    return j?.urls?.regular || '';
+  } catch { return ''; }
+}
+
 // ── 탭 설정 ────────────────────────────────────────────────
 const SUMMARY_QUERIES = {
   economy:  ['한국은행 금리', '원달러 환율 외환', '코스피 증시 금융시장', '물가 인플레이션 소비', '수출 무역 경상수지', '가계부채 대출', '경제 오늘 주요뉴스'],
@@ -101,19 +122,21 @@ export default async function handler(req, res) {
         it.description ? `${it.title}\n   → ${it.description.slice(0, 100)}` : it.title
       );
 
-      // 2-a. 대표 기사 OG 이미지 추출
-      let topImageUrl = '';
-      const topUrl = unique[0]?.originallink || unique[0]?.link;
-      if (topUrl) {
-        try {
-          const ogRes = await fetch(`https://${host}/api/ogimage?url=${encodeURIComponent(topUrl)}`, {
-            signal: AbortSignal.timeout(6000),
-          });
-          if (ogRes.ok) {
-            const ogData = await ogRes.json();
-            topImageUrl = ogData.imageUrl || '';
-          }
-        } catch(e) { /* skip */ }
+      // 2-a. 이미지 수집 (Unsplash 우선 → OG 폴백)
+      let topImageUrl = await fetchUnsplashImage(UNSPLASH_KW[tab]);
+      if (!topImageUrl) {
+        const topUrl = unique[0]?.originallink || unique[0]?.link;
+        if (topUrl) {
+          try {
+            const ogRes = await fetch(`https://${host}/api/ogimage?url=${encodeURIComponent(topUrl)}`, {
+              signal: AbortSignal.timeout(6000),
+            });
+            if (ogRes.ok) {
+              const ogData = await ogRes.json();
+              topImageUrl = ogData.imageUrl || '';
+            }
+          } catch(e) { /* skip */ }
+        }
       }
 
       // 2-b. Claude 브리핑 생성
