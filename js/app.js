@@ -109,21 +109,16 @@ function checkDailyStreak() {
   localStorage.setItem('eco_streak_count', String(count));
   localStorage.setItem('eco_streak_total', String(total));
 
-  const milestone = STREAK_BADGES.find(b => b.days === count);
-  if (milestone) {
-    setTimeout(() => showToast(`${milestone.emoji} ${count}일 연속! '${milestone.label}' 배지 획득!`), 1200);
-  } else if (count > 1) {
-    setTimeout(() => showToast(`🔥 ${count}일 연속 방문 중!`), 1200);
-  }
+  setTimeout(showStreakPopup, 900);
 }
 
-function renderStreakCard() {
-  const root = document.getElementById('tab-settings');
-  if (!root || document.getElementById('streak-card')) return;
-
+function showStreakPopup() {
+  if (document.getElementById('streak-popup')) return;
   const count = parseInt(localStorage.getItem('eco_streak_count') || '0');
-  const total = parseInt(localStorage.getItem('eco_streak_total') || '0');
-  const badge = [...STREAK_BADGES].reverse().find(b => count >= b.days);
+  if (count < 1) return;
+
+  const badge    = [...STREAK_BADGES].reverse().find(b => count >= b.days);
+  const nextBadge = STREAK_BADGES.find(b => b.days > count);
 
   const badgesHtml = STREAK_BADGES.map(b => `
     <div class="streak-badge${count >= b.days ? ' earned' : ''}">
@@ -131,24 +126,32 @@ function renderStreakCard() {
       <span class="streak-badge-label">${b.days}일</span>
     </div>`).join('');
 
-  const card = document.createElement('div');
-  card.className = 'settings-card';
-  card.id = 'streak-card';
-  card.style.marginTop = '12px';
-  card.innerHTML = `
-    <div class="settings-label">🔥 방문 스트릭</div>
-    <div class="streak-stat">
-      <span class="streak-count">${count}</span>
-      <span class="streak-unit">일 연속${badge ? ` · ${badge.emoji} ${badge.label}` : ''}</span>
-    </div>
-    <div class="streak-total">누적 방문 ${total}일</div>
-    <div class="streak-badges">${badgesHtml}</div>`;
+  const overlay = document.createElement('div');
+  overlay.id = 'streak-popup';
+  overlay.className = 'streak-popup-overlay';
+  overlay.innerHTML = `
+    <div class="streak-popup-sheet">
+      <div class="streak-popup-handle"></div>
+      <div class="streak-popup-num">${count}</div>
+      <div class="streak-popup-unit">일 연속 방문${badge ? ` · ${badge.emoji} ${badge.label}` : ''}</div>
+      <div class="streak-popup-next">${nextBadge ? `다음 목표: ${nextBadge.emoji} ${nextBadge.days}일 ${nextBadge.label}` : '🏆 최고 등급 달성!'}</div>
+      <div class="streak-badges">${badgesHtml}</div>
+      <button class="streak-popup-btn" onclick="closeStreakPopup()">확인</button>
+    </div>`;
+  overlay.addEventListener('click', e => { if (e.target === overlay) closeStreakPopup(); });
+  document.body.appendChild(overlay);
+  setTimeout(closeStreakPopup, 6000);
+}
 
-  root.insertBefore(card, root.firstElementChild);
+function closeStreakPopup() {
+  const el = document.getElementById('streak-popup');
+  if (!el) return;
+  el.classList.add('streak-popup-closing');
+  setTimeout(() => el.remove(), 280);
 }
 
 /* ═══════════ CACHE VERSION ═══════════ */
-const CACHE_VERSION = 'v143';
+const CACHE_VERSION = 'v144';
 (function clearOldCache() {
   const savedVersion = localStorage.getItem('eco_cache_version');
   if (savedVersion !== CACHE_VERSION) {
@@ -255,7 +258,6 @@ document.addEventListener('DOMContentLoaded', () => {
   // 설정 초기화
   initSettings();
   checkDailyStreak();
-  renderStreakCard();
 
   // 헤더 축소 — 스크롤 내리면 header-sub 숨김
   const contentEl = document.querySelector('.content');
