@@ -43,8 +43,107 @@ const TAB_COLORS = {
   stocks:   { main:'#047857', bg1:'#F5FCF9', bg2:'#FAFFFD', shadow:'rgba(4,120,87,0.04)'  },
 };
 
+const TAB_ORDER = ['economy','industry','global','stocks'];
+const POINT_LABELS = ['핵심 이슈','배경','시장 영향','투자 전략'];
+const POINT_REGEXES = [
+  /포인트1:\s*(.+?)(?=\s*포인트2:|$)/s,
+  /포인트2:\s*(.+?)(?=\s*포인트3:|$)/s,
+  /포인트3:\s*(.+?)(?=\s*포인트4:|$)/s,
+  /포인트4:\s*(.+?)$/s,
+];
+function parseSummary(summary) {
+  if (!summary) return [];
+  const s = summary.replace(/\[\/?(SUMMARY|BRIEFING)\]/g,'').trim();
+  return POINT_REGEXES.map((re, i) => {
+    const m = s.match(re);
+    return m ? { label: POINT_LABELS[i], text: m[1].trim().replace(/\*\*/g,'') } : null;
+  }).filter(Boolean);
+}
+function formatDateKor(dateStr) {
+  if (!dateStr) return '';
+  return `${parseInt(dateStr.slice(0,4))}년 ${parseInt(dateStr.slice(4,6))}월 ${parseInt(dateStr.slice(6,8))}일`;
+}
+
+/* ═══════════ STREAK ═══════════ */
+const STREAK_BADGES = [
+  { days: 3,  emoji: '🌱', label: '새싹' },
+  { days: 7,  emoji: '🔥', label: '불꽃' },
+  { days: 14, emoji: '⚡', label: '번개' },
+  { days: 30, emoji: '👑', label: '왕관' },
+];
+
+function showToast(msg) {
+  const t = document.createElement('div');
+  t.className = 'app-toast';
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 3000);
+}
+
+function getTodayKST() {
+  const kst = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Seoul' }));
+  return `${kst.getFullYear()}${String(kst.getMonth()+1).padStart(2,'0')}${String(kst.getDate()).padStart(2,'0')}`;
+}
+
+function checkDailyStreak() {
+  const today = getTodayKST();
+  const last  = localStorage.getItem('eco_streak_last') || '';
+  if (last === today) return;
+
+  let count = parseInt(localStorage.getItem('eco_streak_count') || '0');
+  let total = parseInt(localStorage.getItem('eco_streak_total') || '0');
+
+  const kst = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Seoul' }));
+  kst.setDate(kst.getDate() - 1);
+  const yesterday = `${kst.getFullYear()}${String(kst.getMonth()+1).padStart(2,'0')}${String(kst.getDate()).padStart(2,'0')}`;
+
+  count = last === yesterday ? count + 1 : 1;
+  total += 1;
+
+  localStorage.setItem('eco_streak_last', today);
+  localStorage.setItem('eco_streak_count', String(count));
+  localStorage.setItem('eco_streak_total', String(total));
+
+  const milestone = STREAK_BADGES.find(b => b.days === count);
+  if (milestone) {
+    setTimeout(() => showToast(`${milestone.emoji} ${count}일 연속! '${milestone.label}' 배지 획득!`), 1200);
+  } else if (count > 1) {
+    setTimeout(() => showToast(`🔥 ${count}일 연속 방문 중!`), 1200);
+  }
+}
+
+function renderStreakCard() {
+  const root = document.getElementById('tab-settings');
+  if (!root || document.getElementById('streak-card')) return;
+
+  const count = parseInt(localStorage.getItem('eco_streak_count') || '0');
+  const total = parseInt(localStorage.getItem('eco_streak_total') || '0');
+  const badge = [...STREAK_BADGES].reverse().find(b => count >= b.days);
+
+  const badgesHtml = STREAK_BADGES.map(b => `
+    <div class="streak-badge${count >= b.days ? ' earned' : ''}">
+      <span class="streak-badge-emoji">${b.emoji}</span>
+      <span class="streak-badge-label">${b.days}일</span>
+    </div>`).join('');
+
+  const card = document.createElement('div');
+  card.className = 'settings-card';
+  card.id = 'streak-card';
+  card.style.marginTop = '12px';
+  card.innerHTML = `
+    <div class="settings-label">🔥 방문 스트릭</div>
+    <div class="streak-stat">
+      <span class="streak-count">${count}</span>
+      <span class="streak-unit">일 연속${badge ? ` · ${badge.emoji} ${badge.label}` : ''}</span>
+    </div>
+    <div class="streak-total">누적 방문 ${total}일</div>
+    <div class="streak-badges">${badgesHtml}</div>`;
+
+  root.insertBefore(card, root.firstElementChild);
+}
+
 /* ═══════════ CACHE VERSION ═══════════ */
-const CACHE_VERSION = 'v141';
+const CACHE_VERSION = 'v142';
 (function clearOldCache() {
   const savedVersion = localStorage.getItem('eco_cache_version');
   if (savedVersion !== CACHE_VERSION) {
@@ -150,6 +249,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // 설정 초기화
   initSettings();
+  checkDailyStreak();
+  renderStreakCard();
 
   // 헤더 축소 — 스크롤 내리면 header-sub 숨김
   const contentEl = document.querySelector('.content');
@@ -1832,11 +1933,12 @@ const TAB_META = {
   stocks:   { label: '증권', icon: '📈', color: '#047857' },
 };
 let archiveEditions = null;
+const editionDetailCache = {};
 
-async function loadArchive(force) {
+async function loadArchive() {
   const root = document.getElementById('archive-root');
   if (!root) return;
-  if (!force && archiveEditions) { renderEditionCards(archiveEditions); return; }
+  if (archiveEditions) { renderEditionCards(archiveEditions); return; }
 
   root.innerHTML = `<div class="loading-wrap"><div class="dots"><span></span><span></span><span></span></div><p style="margin-top:14px">아카이브를 불러오는 중...</p></div>`;
 
@@ -1853,10 +1955,12 @@ async function loadArchive(force) {
 async function loadEditionDetail(id) {
   const root = document.getElementById('archive-root');
   if (!root) return;
+  if (editionDetailCache[id]) { renderEditionDetail(editionDetailCache[id]); return; }
   root.innerHTML = `<div class="loading-wrap"><div class="dots"><span></span><span></span><span></span></div><p style="margin-top:14px">에디션 불러오는 중...</p></div>`;
   try {
     const r = await fetch(`/api/archive?action=edition&id=${encodeURIComponent(id)}`);
     const data = await r.json();
+    editionDetailCache[id] = data;
     renderEditionDetail(data);
   } catch (e) {
     root.innerHTML = `<div class="loading-wrap"><p style="color:var(--text-dim);">에디션을 불러올 수 없습니다.</p></div>`;
@@ -1866,29 +1970,6 @@ async function loadEditionDetail(id) {
 function renderEditionDetail(data) {
   const root = document.getElementById('archive-root');
   if (!root) return;
-
-  const TAB_ORDER = ['economy','industry','global','stocks'];
-  const TAB_LABEL_MAP = { economy:'경제', industry:'산업', global:'국제', stocks:'증권' };
-  const TAB_ICON_MAP  = { economy:'🏦', industry:'🏭', global:'🌐', stocks:'📈' };
-  const POINT_LABELS  = ['핵심 이슈','배경','시장 영향','투자 전략'];
-
-  const mo = data.date ? parseInt(data.date.slice(4,6)) : '';
-  const d  = data.date ? parseInt(data.date.slice(6,8)) : '';
-  const dateLabel = data.date ? `${parseInt(data.date.slice(0,4))}년 ${mo}월 ${d}일` : '';
-
-  function parseSummary(summary) {
-    if (!summary) return [];
-    const s = summary.replace(/\[\/?(SUMMARY|BRIEFING)\]/g,'').trim();
-    return [
-      /포인트1:\s*(.+?)(?=\s*포인트2:|$)/s,
-      /포인트2:\s*(.+?)(?=\s*포인트3:|$)/s,
-      /포인트3:\s*(.+?)(?=\s*포인트4:|$)/s,
-      /포인트4:\s*(.+?)$/s,
-    ].map((re, i) => {
-      const m = s.match(re);
-      return m ? { label: POINT_LABELS[i], text: m[1].trim().replace(/\*\*/g,'') } : null;
-    }).filter(Boolean);
-  }
 
   const tabSectionsHtml = TAB_ORDER.map(tab => {
     const tabData = data.tabs?.[tab];
@@ -1902,8 +1983,8 @@ function renderEditionDetail(data) {
       </div>`).join('');
     return `<div class="ed-detail-tab">
       <div class="ed-detail-tab-header">
-        <span class="ed-detail-tab-icon">${TAB_ICON_MAP[tab]}</span>
-        <span class="ed-detail-tab-name">${TAB_LABEL_MAP[tab]}</span>
+        <span class="ed-detail-tab-icon">${TAB_META[tab].icon}</span>
+        <span class="ed-detail-tab-name">${TAB_META[tab].label}</span>
       </div>
       <div class="ed-detail-points">${pointsHtml}</div>
     </div>`;
@@ -1917,10 +1998,10 @@ function renderEditionDetail(data) {
 
   root.innerHTML = `
     <div class="edition-wrap">
-      <button class="ed-detail-back" onclick="loadArchive(true)">← 목록으로</button>
+      <button class="ed-detail-back" onclick="loadArchive()">← 목록으로</button>
       <div class="edition-page-header">
         <div class="edition-page-eyebrow">VIVA Economy Archive</div>
-        <div class="edition-page-title">${dateLabel}</div>
+        <div class="edition-page-title">${formatDateKor(data.date)}</div>
         <div class="edition-page-desc">${data.period || data.slot}판</div>
       </div>
       <div class="ed-detail-tabs">${tabSectionsHtml}</div>
@@ -1946,22 +2027,16 @@ function renderEditionCards(items) {
     return;
   }
 
-  const TAB_ORDER = ['economy','industry','global','stocks'];
-  const TAB_LABEL_MAP = { economy:'경제', industry:'산업', global:'국제', stocks:'증권' };
-  const TAB_ICON_MAP  = { economy:'🏦', industry:'🏭', global:'🌐', stocks:'📈' };
-
   const cardsHtml = items.map(ed => {
-    const mo = ed.date ? parseInt(ed.date.slice(4,6)) : '';
-    const d  = ed.date ? parseInt(ed.date.slice(6,8)) : '';
-    const dateLabel = ed.date ? `${parseInt(ed.date.slice(0,4))}년 ${mo}월 ${d}일` : '';
+    const dateLabel = formatDateKor(ed.date);
 
     const tabRows = TAB_ORDER.map(tab => {
       const t = ed.tabs?.[tab];
       if (!t) return '';
       const teaser = (t.teaser || '').replace(/포인트\d+:\s*/g,'').trim();
       return `<div class="edition-tab-row">
-        <span class="edition-tab-icon">${TAB_ICON_MAP[tab]}</span>
-        <span class="edition-tab-name">${TAB_LABEL_MAP[tab]}</span>
+        <span class="edition-tab-icon">${TAB_META[tab].icon}</span>
+        <span class="edition-tab-name">${TAB_META[tab].label}</span>
         <span class="edition-tab-teaser">${teaser || '—'}</span>
       </div>`;
     }).join('');
