@@ -550,6 +550,7 @@ const DEV_DUMMY = {
   heading4: '🎯 지금 당장 확인해야 할 딱 한 가지',
   subheading4: '7월 금통위 전에 듀레이션부터 점검하라',
   columnHook: '💣 환율 1,500원인데 집 사도 된다고? 전문가들이 말 못 하는 속사정',
+  columnSubhook: '오늘 뉴스 뒤에 숨겨진 2·3차 파급효과, 브리핑에선 못 다한 얘기',
   topNews: [
     { title: '[DEV] 원달러 환율 1,500원 돌파…17년 만의 최고치', source: '한국경제', date: new Date(), link: '#' },
     { title: '[DEV] 국제유가 110달러 돌파…중동 분쟁 격화', source: '매일경제', date: new Date(), link: '#' },
@@ -994,19 +995,21 @@ function renderTabSummary(tab, result) {
   const columnEl = document.getElementById(`${tab}-column`);
   if (columnEl) {
     const hook = result.columnHook || `오늘의 ${TAB_LABEL[tab]} 심층 분석`;
+    const subhook = result.columnSubhook || '브리핑에서 말 못한 진짜 이유, 여기 있습니다';
     columnEl.innerHTML = `
-      <div onclick="openColumnTab('${tab}')"
-        style="margin:4px 0 14px;background:linear-gradient(135deg,#0F172A 0%,#1E3A5F 50%,#1A365D 100%);
-               border-radius:14px;padding:16px 18px;cursor:pointer;box-shadow:0 4px 20px rgba(15,23,42,0.22);">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
-          <div style="display:flex;align-items:center;gap:7px;">
-            <span style="font-size:13px;">📰</span>
-            <span style="font-size:10px;font-weight:700;color:rgba(255,255,255,0.55);font-family:var(--font-mono);letter-spacing:0.5px;">오늘의 ${TAB_LABEL[tab]} 칼럼 · by Shawn Kim</span>
-          </div>
+      <div style="margin:4px 0 14px;background:linear-gradient(135deg,#0F172A 0%,#1E3A5F 50%,#1A365D 100%);
+               border-radius:14px;padding:18px 18px 16px;box-shadow:0 4px 20px rgba(15,23,42,0.22);">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+          <span style="font-size:10px;font-weight:700;color:rgba(255,255,255,0.55);font-family:var(--font-mono);letter-spacing:0.5px;">📰 오늘의 ${TAB_LABEL[tab]} 칼럼</span>
           <span style="font-size:10px;font-weight:700;color:#FCD34D;background:rgba(252,211,77,0.12);padding:3px 9px;border-radius:20px;letter-spacing:0.5px;white-space:nowrap;">💎 PREMIUM</span>
         </div>
-        <div style="font-size:14px;font-weight:800;color:#FFFFFF;line-height:1.45;letter-spacing:-0.3px;">${hook}</div>
-        <div style="margin-top:10px;font-size:10px;font-weight:600;color:rgba(255,255,255,0.4);font-family:var(--font-mono);letter-spacing:0.5px;">TAP TO READ FULL COLUMN →</div>
+        <div style="font-size:17px;font-weight:900;color:#FFFFFF;line-height:1.4;letter-spacing:-0.4px;margin-bottom:8px;">${hook}</div>
+        <div style="font-size:13px;font-weight:600;color:rgba(255,255,255,0.7);line-height:1.5;margin-bottom:16px;">${subhook}</div>
+        <button onclick="openColumnTab('${tab}')"
+          style="width:100%;padding:12px;background:#D4A84B;border:none;border-radius:10px;
+                 font-size:13px;font-weight:800;color:#0F172A;letter-spacing:-0.2px;cursor:pointer;">
+          칼럼 읽기 →
+        </button>
       </div>`;
   }
   // 댓글 렌더
