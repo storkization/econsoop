@@ -44,7 +44,7 @@ const TAB_COLORS = {
 };
 
 /* ═══════════ CACHE VERSION ═══════════ */
-const CACHE_VERSION = 'v140';
+const CACHE_VERSION = 'v141';
 (function clearOldCache() {
   const savedVersion = localStorage.getItem('eco_cache_version');
   if (savedVersion !== CACHE_VERSION) {
@@ -1253,10 +1253,10 @@ function renderLandingBriefs() {
       ? `<img class="newspaper-card-img" src="${img}" alt="" loading="lazy" data-fallbackbg="${t.bg}" onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
          <div class="newspaper-card-img-placeholder" style="background:${t.bg};display:none;"></div>`
       : `<div class="newspaper-card-img-placeholder" style="background:${t.bg};"></div>`;
-    return `<div class="newspaper-card" onclick="switchTab('${t.key}')">
+    return `<div class="newspaper-card" onclick="switchTab('${t.key}')" style="border-top:3px solid ${t.color};">
       ${imgHtml}
       <div class="newspaper-card-body">
-        <div class="newspaper-card-tab">${t.icon} ${t.label.toUpperCase()}</div>
+        <div class="newspaper-card-tab" style="color:${t.color};">${t.icon} ${t.label.toUpperCase()}</div>
         <div class="newspaper-card-headline">${headline || '브리핑 불러오는 중...'}</div>
       </div>
     </div>`;
@@ -1317,24 +1317,40 @@ function renderAbout() {
     <div class="about-wrap">
       <div class="about-hero">
         <div class="about-eyebrow">The Viva Company</div>
-        <h1 class="about-title">경제를 읽는 법,<br>더 생생하고 더 깊이 있게</h1>
-        <p class="about-sub">수십 개의 경제 뉴스를 AI가 분석해<br>핵심만 3분 안에 읽을 수 있도록 만들었습니다.</p>
+        <h1 class="about-title">경제 뉴스,<br>3분으로 끝냅니다</h1>
+        <p class="about-sub">수십 개 기사를 AI가 분석해<br>핵심만 4포인트로 전달합니다</p>
+        <div class="about-stat-strip">
+          <div class="about-stat"><span class="about-stat-num">2회</span><span class="about-stat-label">매일 업데이트</span></div>
+          <div class="about-stat-sep">·</div>
+          <div class="about-stat"><span class="about-stat-num">4개</span><span class="about-stat-label">경제 분야</span></div>
+          <div class="about-stat-sep">·</div>
+          <div class="about-stat"><span class="about-stat-num">3분</span><span class="about-stat-label">독해 시간</span></div>
+        </div>
       </div>
       <div class="about-section">
-        <div class="about-section-title">이런 서비스예요</div>
-        <div class="about-features">
-          <div class="about-feature"><span class="about-feature-icon">🤖</span><div><div class="about-feature-title">AI가 대신 읽어줘요</div><div class="about-feature-desc">Claude AI가 수십 개 뉴스를 핵심이슈·배경·시장영향·투자전략 4가지로 정리합니다.</div></div></div>
-          <div class="about-feature"><span class="about-feature-icon">☀️</span><div><div class="about-feature-title">매일 아침 7시 자동 업데이트</div><div class="about-feature-desc">하루를 시작하기 전, 오늘의 경제 흐름을 먼저 파악하세요.</div></div></div>
-          <div class="about-feature"><span class="about-feature-icon">📚</span><div><div class="about-feature-title">지난 브리핑이 쌓여요</div><div class="about-feature-desc">아카이브에서 날짜별 브리핑을 다시 찾아보며 경제 흐름을 길게 읽을 수 있어요.</div></div></div>
+        <div class="about-section-title">이렇게 만들어져요</div>
+        <div class="about-flow">
+          <div class="about-flow-step">
+            <div class="about-flow-num">01</div>
+            <div><div class="about-flow-title">뉴스 수집</div><div class="about-flow-desc">경제·산업·국제·증권 분야 수십 개 기사를 매일 자동으로 모읍니다</div></div>
+          </div>
+          <div class="about-flow-step">
+            <div class="about-flow-num">02</div>
+            <div><div class="about-flow-title">AI 분석</div><div class="about-flow-desc">Claude AI가 핵심 이슈·배경·시장 영향·투자 전략 4포인트로 압축합니다</div></div>
+          </div>
+          <div class="about-flow-step">
+            <div class="about-flow-num">03</div>
+            <div><div class="about-flow-title">아카이브 누적</div><div class="about-flow-desc">07:00·17:00 브리핑이 쌓여 경제 흐름을 길게 볼 수 있습니다</div></div>
+          </div>
         </div>
       </div>
       <div class="about-section about-section-tinted">
-        <div class="about-section-title">이런 분들에게 딱이에요</div>
-        <div class="about-personas">
-          <div class="about-persona">⏰ 바빠서 뉴스 볼 시간이 없는 직장인</div>
-          <div class="about-persona">📈 투자는 하는데 큰 흐름을 놓치는 것 같은 분</div>
-          <div class="about-persona">🌏 미국·중국 이슈가 왜 한국 경제에 영향 주는지 궁금한 분</div>
-          <div class="about-persona">👨‍👩‍👧 경제 뉴스를 쉽게 이해하고 싶은 분</div>
+        <div class="about-section-title">이런 분이라면</div>
+        <div class="about-chips">
+          <span class="about-chip">⏰ 뉴스 볼 시간이 없는 직장인</span>
+          <span class="about-chip">📈 큰 흐름을 놓치는 것 같은 투자자</span>
+          <span class="about-chip">🌏 글로벌 이슈가 한국에 왜 영향 주는지 궁금한 분</span>
+          <span class="about-chip">👨‍👩‍👧 경제를 쉽게 이해하고 싶은 분</span>
         </div>
       </div>
       <div class="about-cta-wrap">
@@ -1817,10 +1833,10 @@ const TAB_META = {
 };
 let archiveEditions = null;
 
-async function loadArchive() {
+async function loadArchive(force) {
   const root = document.getElementById('archive-root');
   if (!root) return;
-  if (archiveEditions) { renderEditionCards(archiveEditions); return; }
+  if (!force && archiveEditions) { renderEditionCards(archiveEditions); return; }
 
   root.innerHTML = `<div class="loading-wrap"><div class="dots"><span></span><span></span><span></span></div><p style="margin-top:14px">아카이브를 불러오는 중...</p></div>`;
 
@@ -1832,6 +1848,84 @@ async function loadArchive() {
   } catch (e) {
     root.innerHTML = `<div class="loading-wrap"><p style="color:var(--text-dim);">아카이브를 불러올 수 없습니다.</p></div>`;
   }
+}
+
+async function loadEditionDetail(id) {
+  const root = document.getElementById('archive-root');
+  if (!root) return;
+  root.innerHTML = `<div class="loading-wrap"><div class="dots"><span></span><span></span><span></span></div><p style="margin-top:14px">에디션 불러오는 중...</p></div>`;
+  try {
+    const r = await fetch(`/api/archive?action=edition&id=${encodeURIComponent(id)}`);
+    const data = await r.json();
+    renderEditionDetail(data);
+  } catch (e) {
+    root.innerHTML = `<div class="loading-wrap"><p style="color:var(--text-dim);">에디션을 불러올 수 없습니다.</p></div>`;
+  }
+}
+
+function renderEditionDetail(data) {
+  const root = document.getElementById('archive-root');
+  if (!root) return;
+
+  const TAB_ORDER = ['economy','industry','global','stocks'];
+  const TAB_LABEL_MAP = { economy:'경제', industry:'산업', global:'국제', stocks:'증권' };
+  const TAB_ICON_MAP  = { economy:'🏦', industry:'🏭', global:'🌐', stocks:'📈' };
+  const POINT_LABELS  = ['핵심 이슈','배경','시장 영향','투자 전략'];
+
+  const mo = data.date ? parseInt(data.date.slice(4,6)) : '';
+  const d  = data.date ? parseInt(data.date.slice(6,8)) : '';
+  const dateLabel = data.date ? `${parseInt(data.date.slice(0,4))}년 ${mo}월 ${d}일` : '';
+
+  function parseSummary(summary) {
+    if (!summary) return [];
+    const s = summary.replace(/\[\/?(SUMMARY|BRIEFING)\]/g,'').trim();
+    return [
+      /포인트1:\s*(.+?)(?=\s*포인트2:|$)/s,
+      /포인트2:\s*(.+?)(?=\s*포인트3:|$)/s,
+      /포인트3:\s*(.+?)(?=\s*포인트4:|$)/s,
+      /포인트4:\s*(.+?)$/s,
+    ].map((re, i) => {
+      const m = s.match(re);
+      return m ? { label: POINT_LABELS[i], text: m[1].trim().replace(/\*\*/g,'') } : null;
+    }).filter(Boolean);
+  }
+
+  const tabSectionsHtml = TAB_ORDER.map(tab => {
+    const tabData = data.tabs?.[tab];
+    if (!tabData?.summary) return '';
+    const points = parseSummary(tabData.summary);
+    if (!points.length) return '';
+    const pointsHtml = points.map((pt, i) => `
+      <div class="ed-detail-point">
+        <div class="ed-detail-point-label">포인트${i+1} ${pt.label}</div>
+        <div class="ed-detail-point-text">${pt.text}</div>
+      </div>`).join('');
+    return `<div class="ed-detail-tab">
+      <div class="ed-detail-tab-header">
+        <span class="ed-detail-tab-icon">${TAB_ICON_MAP[tab]}</span>
+        <span class="ed-detail-tab-name">${TAB_LABEL_MAP[tab]}</span>
+      </div>
+      <div class="ed-detail-points">${pointsHtml}</div>
+    </div>`;
+  }).join('');
+
+  const columnHtml = data.column?.text ? `
+    <div class="ed-detail-column">
+      <div class="ed-detail-column-label">칼럼</div>
+      <div class="ed-detail-column-text">${data.column.text.replace(/\n/g,'<br>')}</div>
+    </div>` : '';
+
+  root.innerHTML = `
+    <div class="edition-wrap">
+      <button class="ed-detail-back" onclick="loadArchive(true)">← 목록으로</button>
+      <div class="edition-page-header">
+        <div class="edition-page-eyebrow">VIVA Economy Archive</div>
+        <div class="edition-page-title">${dateLabel}</div>
+        <div class="edition-page-desc">${data.period || data.slot}판</div>
+      </div>
+      <div class="ed-detail-tabs">${tabSectionsHtml}</div>
+      ${columnHtml}
+    </div>`;
 }
 
 function renderEditionCards(items) {
@@ -1878,7 +1972,7 @@ function renderEditionCards(items) {
         <span class="edition-column-teaser">"${ed.columnTeaser}"</span>
       </div>` : '';
 
-    return `<div class="edition-card">
+    return `<div class="edition-card" onclick="loadEditionDetail('${ed.id}')" style="cursor:pointer;">
       <div class="edition-card-header">
         <div class="edition-card-date">${dateLabel}</div>
         <div class="edition-card-badge">${ed.period || ed.slot}판</div>

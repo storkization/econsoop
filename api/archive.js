@@ -71,6 +71,13 @@ export default async function handler(req, res) {
       return res.status(200).json({ id: doc.id, ...doc.data() });
     }
 
+    // ── 에디션 단건 조회 ──────────────────────────
+    if (action === 'edition' && id) {
+      const doc = await db.collection('editions').doc(id).get();
+      if (!doc.exists) return res.status(404).json({ error: 'Not found' });
+      return res.status(200).json({ id: doc.id, ...doc.data() });
+    }
+
     return res.status(400).json({ error: 'action=list 또는 action=get&id=... 필요' });
   } catch (err) {
     console.error('[ARCHIVE]', err.message);
