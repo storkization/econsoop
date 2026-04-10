@@ -8,7 +8,12 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
    - **PC**: `cd /c/Users/dodoh/Downloads/ShawnDev/Project1/ecobrief`
    - **Laptop**: `cd /c/Users/dodoh/OneDrive/Desktop/Project101/ecobrief`
 2. Run `git pull` to sync the latest changes. If there are updates, summarize which files changed. If already up to date, confirm briefly.
-3. Report the current `CACHE_VERSION` value from `index.html` (search for `const CACHE_VERSION`).
+3. Report the current `CACHE_VERSION` value from `js/app.js` (search for `const CACHE_VERSION`).
+4. **Fetch Notion and brief the user like an assistant:**
+   - Fetch 개발 노트: `https://www.notion.so/33c0bdd69a5781f69080e133447fc382` — summarize the latest session's completed work (1~2줄)
+   - Fetch To-Do Claude!: `https://www.notion.so/33d0bdd69a5781b69161e32bccdf9469` — list all non-completed items by section
+   - Present as: "**지난 세션 요약**" + "**이번에 할 것 (우선순위순)**"
+   - Keep it concise — bullet points, no long prose
 
 Use the selected device path for all git commands, including the end-of-task push command.
 

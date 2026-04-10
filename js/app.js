@@ -64,14 +64,6 @@ function formatDateKor(dateStr) {
   return `${parseInt(dateStr.slice(0,4))}년 ${parseInt(dateStr.slice(4,6))}월 ${parseInt(dateStr.slice(6,8))}일`;
 }
 
-/* ═══════════ STREAK ═══════════ */
-const STREAK_BADGES = [
-  { days: 3,  emoji: '🌱', label: '새싹' },
-  { days: 7,  emoji: '🔥', label: '불꽃' },
-  { days: 14, emoji: '⚡', label: '번개' },
-  { days: 30, emoji: '👑', label: '왕관' },
-];
-
 function showToast(msg) {
   const t = document.createElement('div');
   t.className = 'app-toast';
@@ -81,77 +73,8 @@ function showToast(msg) {
   setTimeout(() => t.remove(), 3000);
 }
 
-function getKSTDate() {
-  return new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Seoul' }));
-}
-
-function getTodayKST() {
-  const kst = getKSTDate();
-  return `${kst.getFullYear()}${String(kst.getMonth()+1).padStart(2,'0')}${String(kst.getDate()).padStart(2,'0')}`;
-}
-
-function checkDailyStreak() {
-  const kst = getKSTDate();
-  const fmt = d => `${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}`;
-  const today = fmt(kst);
-  const last  = localStorage.getItem('eco_streak_last') || '';
-  if (last === today) return;
-
-  kst.setDate(kst.getDate() - 1);
-  const yesterday = fmt(kst);
-
-  let count = parseInt(localStorage.getItem('eco_streak_count') || '0');
-  let total = parseInt(localStorage.getItem('eco_streak_total') || '0');
-  count = last === yesterday ? count + 1 : 1;
-  total += 1;
-
-  localStorage.setItem('eco_streak_last', today);
-  localStorage.setItem('eco_streak_count', String(count));
-  localStorage.setItem('eco_streak_total', String(total));
-
-  setTimeout(showStreakPopup, 900);
-}
-
-function showStreakPopup() {
-  if (document.getElementById('streak-popup')) return;
-  const count = parseInt(localStorage.getItem('eco_streak_count') || '0');
-  if (count < 1) return;
-
-  const badge    = [...STREAK_BADGES].reverse().find(b => count >= b.days);
-  const nextBadge = STREAK_BADGES.find(b => b.days > count);
-
-  const badgesHtml = STREAK_BADGES.map(b => `
-    <div class="streak-badge${count >= b.days ? ' earned' : ''}">
-      <span class="streak-badge-emoji">${b.emoji}</span>
-      <span class="streak-badge-label">${b.days}일</span>
-    </div>`).join('');
-
-  const overlay = document.createElement('div');
-  overlay.id = 'streak-popup';
-  overlay.className = 'streak-popup-overlay';
-  overlay.innerHTML = `
-    <div class="streak-popup-sheet">
-      <div class="streak-popup-handle"></div>
-      <div class="streak-popup-num">${count}</div>
-      <div class="streak-popup-unit">일 연속 방문${badge ? ` · ${badge.emoji} ${badge.label}` : ''}</div>
-      <div class="streak-popup-next">${nextBadge ? `다음 목표: ${nextBadge.emoji} ${nextBadge.days}일 ${nextBadge.label}` : '🏆 최고 등급 달성!'}</div>
-      <div class="streak-badges">${badgesHtml}</div>
-      <button class="streak-popup-btn" onclick="closeStreakPopup()">확인</button>
-    </div>`;
-  overlay.addEventListener('click', e => { if (e.target === overlay) closeStreakPopup(); });
-  document.body.appendChild(overlay);
-  setTimeout(closeStreakPopup, 6000);
-}
-
-function closeStreakPopup() {
-  const el = document.getElementById('streak-popup');
-  if (!el) return;
-  el.classList.add('streak-popup-closing');
-  setTimeout(() => el.remove(), 280);
-}
-
 /* ═══════════ CACHE VERSION ═══════════ */
-const CACHE_VERSION = 'v144';
+const CACHE_VERSION = 'v145';
 (function clearOldCache() {
   const savedVersion = localStorage.getItem('eco_cache_version');
   if (savedVersion !== CACHE_VERSION) {
@@ -257,9 +180,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // 설정 초기화
   initSettings();
-  if (DEV_MODE) localStorage.removeItem('eco_streak_last');
-  checkDailyStreak();
-
   // 헤더 축소 — 스크롤 내리면 header-sub 숨김
   const contentEl = document.querySelector('.content');
   const headerEl  = document.querySelector('.header');

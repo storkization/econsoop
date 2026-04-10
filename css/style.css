@@ -790,9 +790,8 @@
     .drawer-sub-item:active { background:var(--accent-dim); }
     .drawer-sub-item.active { color:var(--accent); font-weight:700; }
     .drawer-brand { padding:20px 20px 8px 28px; margin-top:4px; border-top:1px solid var(--border); }
-    .drawer-brand-by { font-family:var(--font-sans); font-size:11px; font-weight:700; color:var(--text-muted); margin-bottom:2px; }
-    .drawer-brand-copy { font-family:var(--font-mono); font-size:9px; color:var(--text-dim); letter-spacing:0.3px; margin-bottom:3px; }
-    .drawer-brand-powered { font-family:var(--font-mono); font-size:9px; color:var(--text-dim); letter-spacing:0.3px; }
+    .drawer-brand-line { font-family:'Times New Roman',Times,serif; font-size:10px; color:#000; margin-bottom:3px; }
+    .footer-brand-viva { color:#A51C30; font-family:'Times New Roman',Times,serif; }
 
     /* ── 신문 1면 ── */
     .newspaper-masthead {
@@ -1488,26 +1487,6 @@
     @keyframes toastIn { from{opacity:0;transform:translateX(-50%) translateY(8px)} to{opacity:1;transform:translateX(-50%) translateY(0)} }
     @keyframes toastOut { from{opacity:1;transform:translateX(-50%) translateY(0)} to{opacity:0;transform:translateX(-50%) translateY(8px)} }
 
-    /* ── 방문 스트릭 팝업 ── */
-    .streak-popup-overlay { position:fixed;inset:0;z-index:500;background:rgba(0,0,0,0.45);display:flex;align-items:flex-end;justify-content:center;animation:fadeIn 0.2s ease; }
-    .streak-popup-overlay.streak-popup-closing { animation:fadeOut 0.28s ease forwards; }
-    @keyframes fadeIn  { from{opacity:0} to{opacity:1} }
-    @keyframes fadeOut { from{opacity:1} to{opacity:0} }
-    .streak-popup-sheet { background:var(--bg);border-radius:24px 24px 0 0;padding:12px 24px 40px;width:100%;max-width:480px;box-sizing:border-box;text-align:center;animation:sheetUp 0.28s cubic-bezier(0.34,1.2,0.64,1); }
-    .streak-popup-overlay.streak-popup-closing .streak-popup-sheet { animation:sheetDown 0.28s ease forwards; }
-    @keyframes sheetUp   { from{transform:translateY(100%)} to{transform:translateY(0)} }
-    @keyframes sheetDown { from{transform:translateY(0)} to{transform:translateY(100%)} }
-    .streak-popup-handle { width:36px;height:4px;background:var(--border);border-radius:2px;margin:0 auto 20px; }
-    .streak-popup-num { font-family:var(--font-serif);font-size:64px;font-weight:900;color:var(--accent);line-height:1;margin-bottom:6px; }
-    .streak-popup-unit { font-size:15px;font-weight:700;color:var(--text);margin-bottom:4px; }
-    .streak-popup-next { font-size:12px;color:var(--text-dim);margin-bottom:20px; }
-    .streak-badges { display:flex;gap:8px;justify-content:center;margin-bottom:24px; }
-    .streak-badge { display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px 12px;border-radius:12px;background:var(--bg-card2);border:1.5px solid var(--border);flex:1;max-width:70px;opacity:0.35;transition:opacity 0.2s; }
-    .streak-badge.earned { opacity:1;border-color:var(--accent); }
-    .streak-badge-emoji { font-size:20px; }
-    .streak-badge-label { font-family:var(--font-mono);font-size:9px;font-weight:700;color:var(--text-muted); }
-    .streak-popup-btn { width:100%;padding:14px;background:linear-gradient(135deg,var(--viva-deep),var(--viva-ink));color:#fff;border:none;border-radius:14px;font-size:15px;font-weight:700;font-family:var(--font-sans);cursor:pointer; }
-
     /* ── APP FOOTER ── */
     .app-footer {
       margin-top:16px;
@@ -1545,12 +1524,9 @@
     .app-footer-links button:active { color:var(--accent); }
     .app-footer-dot { color:var(--border); font-size:12px; }
     .app-footer-copy {
-      font-family:var(--font-mono);
-      font-size:10px; color:var(--text-dim);
-      letter-spacing:0.3px;
+      font-family:'Times New Roman',Times,serif;
+      font-size:11px; color:#000;
     }
-    .app-footer-meta {
-      font-family:var(--font-mono);
-      font-size:9px; color:var(--text-dim);
-      letter-spacing:0.3px; margin-top:4px;
+    .app-footer-year {
+      font-size:9px; color:#000; margin-top:3px;
     }
