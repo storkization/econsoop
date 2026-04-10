@@ -95,6 +95,21 @@ export default async function handler(req, res) {
   }
 
   const host = req.headers.host;
+
+  // 오늘 이미 생성했으면 스킵 (중복 API 호출 방지)
+  const kstNow = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Seoul' }));
+  const todayStr = String(kstNow.getFullYear()) +
+    String(kstNow.getMonth() + 1).padStart(2, '0') +
+    String(kstNow.getDate()).padStart(2, '0');
+  const force = req.query.force === '1';
+  if (!force) {
+    const existing = await db.collection('editions').doc(`${todayStr}_0700`).get();
+    if (existing.exists) {
+      console.log(`[GENERATE] 오늘(${todayStr}) 이미 생성됨 — 스킵. force=1 로 강제 실행 가능`);
+      return res.status(200).json({ done: true, skipped: true, reason: 'already_generated_today', ts: new Date().toISOString() });
+    }
+  }
+
   const results = [];
 
   for (const tab of ['economy', 'industry', 'global', 'stocks']) {
