@@ -62,6 +62,11 @@ const CACHE_VERSION = 'v138';
 /* ═══════════ STATE ═══════════ */
 let newsCache = {};       // key: "economy-policy" 등
 let summaryCache = {};    // key: "economy" | "industry" | "global"
+let marketCache = null;   // 홈 마켓 데이터 캐시
+let marketCacheTime = 0;
+let stocksCache = null;   // 증권 탭 데이터 캐시
+let stocksCacheTime = 0;
+const MARKET_TTL = 30 * 60 * 1000; // 30분
 let currentTab = 'front';
 let fxRates = null;
 
@@ -1536,6 +1541,17 @@ async function loadFrontMarket() {
   const el = document.getElementById('front-market');
   if (!el) return;
 
+  // 30분 캐시 — 유효하면 바로 렌더
+  if (marketCache && Date.now() - marketCacheTime < MARKET_TTL) {
+    let offset = 0;
+    el.innerHTML = MARKET_GROUPS.map(g => {
+      const html = buildFmSection(g, marketCache.results, marketCache.sparklines, offset);
+      offset += g.items.length;
+      return html;
+    }).join('');
+    return;
+  }
+
   // 로딩 스켈레톤
   el.innerHTML = MARKET_GROUPS.map(g => `
     <div class="fm-section-label">${g.icon} ${g.label}</div>
@@ -1570,11 +1586,25 @@ async function loadFrontMarket() {
     offset += g.items.length;
     return html;
   }).join('');
+
+  // 캐시 저장
+  if (!DEV_MODE) {
+    marketCache = { results, sparklines };
+    marketCacheTime = Date.now();
+  }
 }
 
 /* ═══════════ STOCKS ═══════════ */
 async function loadStocks(){
+  // 30분 캐시
+  if (stocksCache && Date.now() - stocksCacheTime < MARKET_TTL) {
+    renderIndices(stocksCache.slice(0, 4));
+    renderStockList(stocksCache.slice(4));
+    return;
+  }
   const results = await Promise.all([...INDICES,...STOCKS].map(s=>fetchQuote(s.sym)));
+  stocksCache = results;
+  stocksCacheTime = Date.now();
   renderIndices(results.slice(0,4));
   renderStockList(results.slice(4));
 }
