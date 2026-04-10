@@ -536,6 +536,7 @@ async function genTabSummary(tab) {
       const parsed = JSON.parse(cached);
       if (parsed.summary) {
         summaryCache[tab] = parsed;
+        renderLandingBriefs(); // 1면 카드 즉시 반영
         setLoadingMsg(tab, 'fast');
         setTimeout(() => {
           renderTabSummary(tab, summaryCache[tab]);
@@ -554,12 +555,13 @@ async function genTabSummary(tab) {
     if (cfRes.ok) {
       const cf = await cfRes.json();
       if (cf.fresh && cf.summary) {
-        console.log(`[CACHED] ${tab} 프리젠 데이터 사용 (created_at: ${new Date(cf.created_at).toLocaleTimeString()})`);
-        const result = { summary: cf.summary, oneliner: '', footnotes: cf.footnotes || '', headline: cf.headline || '', subheading: cf.subheading || '', heading2: cf.heading2 || '', subheading2: cf.subheading2 || '', heading3: cf.heading3 || '', subheading3: cf.subheading3 || '', heading4: cf.heading4 || '', subheading4: cf.subheading4 || '', columnHook: cf.columnHook || '', topImageUrl: cf.topImageUrl || '', sectionImages: cf.sectionImages || [], comments: cf.comments || [], topNews: [] };
+        if (DEV_MODE) console.log(`[CACHED] ${tab} 프리젠 데이터 사용 (created_at: ${new Date(cf.created_at).toLocaleTimeString()})`);
+        const result = { summary: cf.summary, oneliner: '', footnotes: cf.footnotes || '', frontHeadline: cf.frontHeadline || '', headline: cf.headline || '', subheading: cf.subheading || '', heading2: cf.heading2 || '', subheading2: cf.subheading2 || '', heading3: cf.heading3 || '', subheading3: cf.subheading3 || '', heading4: cf.heading4 || '', subheading4: cf.subheading4 || '', columnHook: cf.columnHook || '', topImageUrl: cf.topImageUrl || '', sectionImages: cf.sectionImages || [], comments: cf.comments || [], topNews: [] };
         summaryCache[tab] = result;
         localStorage.setItem(cacheKey, JSON.stringify(result));
         localStorage.setItem(cacheTimeKey, cf.created_at.toString());
-        // 로딩 애니메이션 5초 후 렌더링 → 렌더 완료 후 뉴스 백그라운드 로딩
+        renderLandingBriefs(); // 1면 카드 즉시 반영
+        // 로딩 애니메이션 5초 후 탭 렌더링
         setLoadingMsg(tab, 'fast');
         setTimeout(async () => {
           renderTabSummary(tab, result);
@@ -591,7 +593,7 @@ async function genTabSummary(tab) {
       }
     }
   } catch(e) {
-    console.log('[CACHED] Firestore 미사용, 직접 생성:', e.message);
+    if (DEV_MODE) console.log('[CACHED] Firestore 미사용, 직접 생성:', e.message);
   }
 
   // 뉴스 수집 — 병렬 fetch (순차 시 최대 56초 → 병렬로 5초 이내)
@@ -621,7 +623,7 @@ async function genTabSummary(tab) {
     .sort((a,b)=>new Date(b.date)-new Date(a.date))
     .slice(0, 18);
 
-  console.log("[DEBUG] allItems:", allItems.length, "/ unique:", unique.length);
+  if (DEV_MODE) console.log("[DEBUG] allItems:", allItems.length, "/ unique:", unique.length);
   newsCache[`${tab}-summary`] = unique;
 
   // AI 호출
@@ -646,7 +648,7 @@ async function genTabSummary(tab) {
     const headlines = unique.slice(0, 18).map(n =>
       n.description ? `${n.title}\n   → ${n.description.slice(0, 100)}` : n.title
     );
-    console.log('[BRIEFING] 1차 호출 시작 (SUMMARY+FOOTNOTES), headlines:', headlines.length);
+    if (DEV_MODE) console.log('[BRIEFING] 1차 호출 시작 (SUMMARY+FOOTNOTES), headlines:', headlines.length);
     _briefingController = new AbortController();
     const briefingTimer = setTimeout(() => { if (_briefingController) _briefingController.abort(); }, 55000);
     const res = await fetch('/api/briefing', {
@@ -657,9 +659,9 @@ async function genTabSummary(tab) {
     });
     clearTimeout(briefingTimer);
     _briefingController = null;
-    console.log('[BRIEFING] 1차 응답 상태:', res.status);
+    if (DEV_MODE) console.log('[BRIEFING] 1차 응답 상태:', res.status);
     const j = await res.json();
-    console.log('[BRIEFING] 1차 응답 키:', Object.keys(j), 'summary 길이:', (j.summary||'').length);
+    if (DEV_MODE) console.log('[BRIEFING] 1차 응답 키:', Object.keys(j), 'summary 길이:', (j.summary||'').length);
     if (!res.ok) {
       throw new Error(j.error || `API 오류 ${res.status}`);
     }
@@ -714,7 +716,7 @@ async function fetchInsight(tab, summary, footnotes, label, topNewsItems) {
   const cacheTimeKey = `eco_summary_time_${tab}`;
 
   try {
-    console.log('[INSIGHT] 2차 호출 시작 (ONELINER)');
+    if (DEV_MODE) console.log('[INSIGHT] 2차 호출 시작 (ONELINER)');
     const res = await fetch('/api/insight', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -722,7 +724,7 @@ async function fetchInsight(tab, summary, footnotes, label, topNewsItems) {
       signal: (() => { const c = new AbortController(); setTimeout(() => c.abort(), 55000); return c.signal; })()
     });
     const j = await res.json();
-    console.log('[INSIGHT] 2차 응답:', res.status, 'oneliner 길이:', (j.oneliner||'').length);
+    if (DEV_MODE) console.log('[INSIGHT] 2차 응답:', res.status, 'oneliner 길이:', (j.oneliner||'').length);
 
     if (res.ok && j.oneliner) {
       // summaryCache 업데이트
@@ -785,8 +787,6 @@ function renderTabSummary(tab, result) {
 
   const card = document.getElementById(`${tab}-summary-card`);
   if (card && result.summary) {
-    // 디버그: 실제 summary 포맷 확인
-    console.log('[SUMMARY RAW]', JSON.stringify(result.summary));
 
     // 줄1:/줄2:/줄3: 패턴 (한줄/멀티라인 모두 대응)
     const summaryClean = (result.summary || '')
@@ -1207,7 +1207,7 @@ function renderLandingBriefs() {
 
   const cardsHtml = TABS.map(t => {
     const result = summaryCache[t.key];
-    const headline = result?.headline;
+    const headline = result?.frontHeadline || result?.headline;
     const img = result?.topImageUrl;
     const imgHtml = img
       ? `<img class="newspaper-card-img" src="${img}" alt="" loading="lazy" data-fallbackbg="${t.bg}" onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
@@ -1561,35 +1561,12 @@ async function loadStocks(){
 
 async function fetchQuote(sym){
   try {
-    // Try Yahoo Finance v7 directly (CORS sometimes allowed)
-    const url = `https://query1.finance.yahoo.com/v7/finance/quote?symbols=${encodeURIComponent(sym)}&fields=regularMarketPrice,regularMarketChange,regularMarketChangePercent`;
-    const r = await fetch(url, {
-      signal: (function(){ const c = new AbortController(); setTimeout(()=>c.abort(), 7000); return c.signal; })(),
-      headers: { 'Accept': 'application/json' }
+    const r = await fetch(`/api/quote?sym=${encodeURIComponent(sym)}`, {
+      signal: AbortSignal.timeout(8000),
     });
-    const j = await r.json();
-    const q = j?.quoteResponse?.result?.[0];
-    if (!q) return null;
-    return {
-      price: q.regularMarketPrice,
-      chg:   q.regularMarketChange,
-      pct:   q.regularMarketChangePercent
-    };
-  } catch {
-    // Fallback: try v8 chart API
-    try {
-      const url2 = `https://query2.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(sym)}?interval=1d&range=1d`;
-      const r2 = await fetch(url2, { signal: (function(){ const c = new AbortController(); setTimeout(()=>c.abort(), 7000); return c.signal; })() });
-      const j2 = await r2.json();
-      const meta = j2?.chart?.result?.[0]?.meta;
-      if (!meta) return null;
-      const price = meta.regularMarketPrice ?? meta.chartPreviousClose;
-      const prev  = meta.chartPreviousClose ?? meta.previousClose;
-      const chg   = price - prev;
-      const pct   = prev ? (chg / prev) * 100 : 0;
-      return { price, chg, pct };
-    } catch { return null; }
-  }
+    if (!r.ok) return null;
+    return await r.json();
+  } catch { return null; }
 }
 
 function renderIndices(res){
