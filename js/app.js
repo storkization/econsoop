@@ -439,6 +439,7 @@ const DEV_DUMMY = {
   subheading4: '7월 금통위 전에 듀레이션부터 점검하라',
   columnHook: '💣 환율 1,500원인데 집 사도 된다고? 전문가들이 말 못 하는 속사정',
   columnSubhook: '오늘 뉴스 뒤에 숨겨진 2·3차 파급효과, 브리핑에선 못 다한 얘기',
+  topImageUrl: 'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=800&q=80',
   topNews: [
     { title: '[DEV] 원달러 환율 1,500원 돌파…17년 만의 최고치', source: '한국경제', date: new Date(), link: '#' },
     { title: '[DEV] 국제유가 110달러 돌파…중동 분쟁 격화', source: '매일경제', date: new Date(), link: '#' },
