@@ -74,7 +74,7 @@ function showToast(msg) {
 }
 
 /* ═══════════ CACHE VERSION ═══════════ */
-const CACHE_VERSION = 'v147';
+const CACHE_VERSION = 'v148';
 (function clearOldCache() {
   const savedVersion = localStorage.getItem('eco_cache_version');
   if (savedVersion !== CACHE_VERSION) {
@@ -703,9 +703,9 @@ async function genTabSummary(tab) {
     const card = document.getElementById(`${tab}-summary-card`);
     if (card) card.innerHTML = `
       <div class="status-card">
-        <div class="status-card-icon">💗</div>
-        <div class="status-card-title">브리핑 준비 중입니다</div>
-        <div class="status-card-desc">살아있는 브리핑을 준비하고 있어요.<br>잠시 후 다시 확인해 주세요.</div>
+        <div class="status-card-icon">🔧</div>
+        <div class="status-card-title">서비스 점검 중입니다</div>
+        <div class="status-card-desc">잠시 후 다시 확인해 주세요.</div>
         <button class="retry-btn" onclick="summaryCache['${tab}']=null;genTabSummary('${tab}')">🔄 다시 시도</button>
       </div>`;
   }
