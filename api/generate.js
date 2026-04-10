@@ -97,10 +97,12 @@ export default async function handler(req, res) {
   const host = req.headers.host;
 
   // 오늘 이미 생성했으면 스킵 (중복 API 호출 방지)
-  const kstNow = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Seoul' }));
-  const todayStr = String(kstNow.getFullYear()) +
-    String(kstNow.getMonth() + 1).padStart(2, '0') +
-    String(kstNow.getDate()).padStart(2, '0');
+  const _kst = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Seoul' }));
+  const todayStr = String(_kst.getFullYear()) +
+    String(_kst.getMonth() + 1).padStart(2, '0') +
+    String(_kst.getDate()).padStart(2, '0');
+  const todayMonth = `${_kst.getFullYear()}-${String(_kst.getMonth() + 1).padStart(2, '0')}`;
+  const todayYear = String(_kst.getFullYear());
   const force = req.query.force === '1';
   if (!force) {
     const existing = await db.collection('editions').doc(`${todayStr}_0700`).get();
@@ -194,19 +196,14 @@ export default async function handler(req, res) {
 
       // 4. 아카이브 저장 (날짜 기준 — 매 실행마다 저장, archiveId로 중복 방지)
       try {
-        const kst = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Seoul' }));
-        const dateStr = String(kst.getFullYear()) +
-          String(kst.getMonth() + 1).padStart(2, '0') +
-          String(kst.getDate()).padStart(2, '0');
-        const archiveId = `${tab}_${dateStr}_0700`;
-        const month = `${kst.getFullYear()}-${String(kst.getMonth() + 1).padStart(2, '0')}`;
+        const archiveId = `${tab}_${todayStr}_0700`;
         await db.collection('archive').doc(archiveId).set({
           ...briefingData,
           tab,
-          date: dateStr,
+          date: todayStr,
           slot: '07:00',
-          month,
-          year: String(kst.getFullYear()),
+          month: todayMonth,
+          year: todayYear,
         });
         console.log(`[GENERATE] ${tab} 아카이브 저장: ${archiveId}`);
       } catch (archiveErr) {
@@ -223,67 +220,59 @@ export default async function handler(req, res) {
 
   // ── 에디션 저장 (매 실행마다 저장, editionId로 중복 방지) ──
   try {
-    const kst = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Seoul' }));
-    {
-      const dateStr = String(kst.getFullYear()) +
-        String(kst.getMonth() + 1).padStart(2, '0') +
-        String(kst.getDate()).padStart(2, '0');
-      const editionId = `${dateStr}_0700`;
-      const matchedSlot = { label: '0700', period: '오전' };
-      const month = `${kst.getFullYear()}-${String(kst.getMonth() + 1).padStart(2, '0')}`;
+    const editionId = `${todayStr}_0700`;
 
-      // 탭별 티저 추출 (포인트1 첫 문장)
-      function extractTeaser(summary) {
-        if (!summary) return '';
-        const m = summary.match(/포인트1:\s*(.+?)(?=\s*포인트2:|$)/s);
-        const raw = m ? m[1].trim() : summary.split('\n').find(l => l.trim().length > 10) || summary;
-        return raw.replace(/\*\*/g, '').trim().slice(0, 80);
-      }
-
-      const tabs = {};
-      for (const r of results) {
-        if (r.ok && r.summary) {
-          tabs[r.tab] = { summary: r.summary, teaser: extractTeaser(r.summary) };
-        }
-      }
-
-      // 칼럼 생성 (경제 탭 기반)
-      let columnText = '';
-      let columnTeaser = '';
-      const econResult = results.find(r => r.ok && r.tab === 'economy');
-      if (econResult?.summary) {
-        try {
-          const colRes = await fetch(`https://${host}/api/column`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ summary: econResult.summary, oneliner: '', label: '경제' }),
-          });
-          if (colRes.ok) {
-            const colData = await colRes.json();
-            if (colData.column) {
-              columnText = colData.column;
-              const firstLine = columnText.split('\n')
-                .find(l => l.trim().length > 5 && !l.startsWith('---') && !l.startsWith('by.') && !l.startsWith('###'));
-              columnTeaser = (firstLine || '').replace(/^#+\s*/, '').replace(/[📈🚨💡📉⚠️🔥💰🏦]/g, '').trim().slice(0, 70);
-            }
-          }
-        } catch(e) {
-          console.error('[GENERATE] 칼럼 생성 실패:', e.message);
-        }
-      }
-
-      await db.collection('editions').doc(editionId).set({
-        date: dateStr,
-        slot: `${matchedSlot.label.slice(0, 2)}:${matchedSlot.label.slice(2)}`,
-        period: matchedSlot.period,
-        month,
-        year: String(kst.getFullYear()),
-        created_at: Date.now(),
-        tabs,
-        column: { text: columnText, teaser: columnTeaser },
-      });
-      console.log(`[GENERATE] 에디션 저장: ${editionId}`);
+    // 탭별 티저 추출 (포인트1 첫 문장)
+    function extractTeaser(summary) {
+      if (!summary) return '';
+      const m = summary.match(/포인트1:\s*(.+?)(?=\s*포인트2:|$)/s);
+      const raw = m ? m[1].trim() : summary.split('\n').find(l => l.trim().length > 10) || summary;
+      return raw.replace(/\*\*/g, '').trim().slice(0, 80);
     }
+
+    const tabs = {};
+    for (const r of results) {
+      if (r.ok && r.summary) {
+        tabs[r.tab] = { summary: r.summary, teaser: extractTeaser(r.summary) };
+      }
+    }
+
+    // 칼럼 생성 (경제 탭 기반)
+    let columnText = '';
+    let columnTeaser = '';
+    const econResult = results.find(r => r.ok && r.tab === 'economy');
+    if (econResult?.summary) {
+      try {
+        const colRes = await fetch(`https://${host}/api/column`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ summary: econResult.summary, oneliner: '', label: '경제' }),
+        });
+        if (colRes.ok) {
+          const colData = await colRes.json();
+          if (colData.column) {
+            columnText = colData.column;
+            const firstLine = columnText.split('\n')
+              .find(l => l.trim().length > 5 && !l.startsWith('---') && !l.startsWith('by.') && !l.startsWith('###'));
+            columnTeaser = (firstLine || '').replace(/^#+\s*/, '').replace(/[📈🚨💡📉⚠️🔥💰🏦]/g, '').trim().slice(0, 70);
+          }
+        }
+      } catch(e) {
+        console.error('[GENERATE] 칼럼 생성 실패:', e.message);
+      }
+    }
+
+    await db.collection('editions').doc(editionId).set({
+      date: todayStr,
+      slot: '07:00',
+      period: '오전',
+      month: todayMonth,
+      year: todayYear,
+      created_at: Date.now(),
+      tabs,
+      column: { text: columnText, teaser: columnTeaser },
+    });
+    console.log(`[GENERATE] 에디션 저장: ${editionId}`);
   } catch(e) {
     console.error('[GENERATE] 에디션 저장 실패:', e.message);
   }

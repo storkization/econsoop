@@ -8,7 +8,6 @@
     "api/cached.js":    { "maxDuration": 30 }
   },
   "crons": [
-    { "path": "/api/generate", "schedule": "0 22 * * *" },
-    { "path": "/api/generate", "schedule": "0 8 * * *"  }
+    { "path": "/api/generate", "schedule": "0 22 * * *" }
   ]
 }
