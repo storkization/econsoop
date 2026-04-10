@@ -27,7 +27,7 @@
 
       /* ── Typography ── */
       --font-display: 'Black Han Sans', 'Noto Sans KR', sans-serif;
-      --font-serif:   'Cormorant Garamond', Georgia, serif;
+      --font-serif:   'Noto Serif KR', 'Noto Serif', serif;
       --font-sans:    'Pretendard', 'Noto Sans KR', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', sans-serif;
       --font-mono:    'IBM Plex Mono', 'SF Mono', Menlo, Consolas, monospace;
       --font-emoji:   'Segoe UI Emoji', 'Apple Color Emoji', 'Noto Color Emoji', sans-serif;

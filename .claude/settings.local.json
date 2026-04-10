@@ -75,7 +75,8 @@
       "Bash(vercel --version)",
       "mcp__claude_ai_Notion__notion-update-page",
       "Bash(xargs wc:*)",
-      "Bash(gh pr:*)"
+      "Bash(gh pr:*)",
+      "mcp__claude_ai_Notion__notion-move-pages"
     ]
   }
 }
