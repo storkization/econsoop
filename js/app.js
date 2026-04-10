@@ -74,7 +74,7 @@ function showToast(msg) {
 }
 
 /* ═══════════ CACHE VERSION ═══════════ */
-const CACHE_VERSION = 'v146';
+const CACHE_VERSION = 'v147';
 (function clearOldCache() {
   const savedVersion = localStorage.getItem('eco_cache_version');
   if (savedVersion !== CACHE_VERSION) {
@@ -1343,7 +1343,7 @@ function renderAbout() {
       <div class="about-hero">
         <div class="about-eyebrow">The Viva Company</div>
         <h1 class="about-title">경제 뉴스,<br>3분으로 끝냅니다</h1>
-        <p class="about-sub">수십 개 기사를 AI가 분석해<br>핵심만 4포인트로 전달합니다</p>
+        <p class="about-sub">최신 경제 뉴스와 급변하는 트렌드<br>쉽고 빠르게 정리해드립니다.</p>
         <div class="about-stat-strip">
           <div class="about-stat"><span class="about-stat-num">2회</span><span class="about-stat-label">매일 업데이트</span></div>
           <div class="about-stat-sep">·</div>
@@ -1380,7 +1380,7 @@ function renderAbout() {
       </div>
       <div class="about-cta-wrap">
         <button class="about-cta" onclick="switchTab('economy')">오늘의 브리핑 읽기 →</button>
-        <div class="about-copyright">© 2025 The Viva Company · Publisher Shawn Kim</div>
+        <div class="about-copyright">© 2026 The Viva Company · Publisher Shawn Kim</div>
       </div>
     </div>`;
 }

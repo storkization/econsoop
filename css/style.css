@@ -966,29 +966,29 @@
     /* ── 서비스 소개 (about) ── */
     .about-wrap { padding:8px 0 40px; }
     .about-hero { text-align:center; padding:16px 0 28px; }
-    .about-eyebrow { font-family:var(--font-mono); font-size:9px; font-weight:700; letter-spacing:2px; color:var(--accent); margin-bottom:10px; }
+    .about-eyebrow { font-family:var(--font-sans); font-size:9px; font-weight:700; letter-spacing:2px; color:var(--accent); margin-bottom:10px; }
     .about-title { font-family:var(--font-serif); font-size:26px; font-weight:900; color:var(--text); letter-spacing:-0.5px; line-height:1.25; margin-bottom:10px; }
-    .about-sub { font-size:13px; color:var(--text-dim); line-height:1.7; margin-bottom:20px; }
+    .about-sub { font-family:var(--font-sans); font-size:14px; color:var(--text); line-height:1.75; margin-bottom:20px; }
     .about-stat-strip { display:flex; align-items:center; justify-content:center; gap:10px; margin-top:4px; }
     .about-stat { display:flex; flex-direction:column; align-items:center; gap:2px; }
-    .about-stat-num { font-family:var(--font-serif); font-size:20px; font-weight:900; color:var(--accent); line-height:1; }
-    .about-stat-label { font-family:var(--font-mono); font-size:9px; color:var(--text-muted); letter-spacing:0.3px; }
+    .about-stat-num { font-family:var(--font-sans); font-size:20px; font-weight:900; color:var(--accent); line-height:1; }
+    .about-stat-label { font-family:var(--font-sans); font-size:10px; color:var(--text); letter-spacing:0.2px; }
     .about-stat-sep { font-size:16px; color:var(--border); font-weight:300; }
     .about-section { margin-bottom:16px; }
     .about-section-tinted { background:var(--bg-card2); border-radius:16px; padding:20px; }
-    .about-section-title { font-size:11px; font-weight:700; font-family:var(--font-mono); letter-spacing:0.8px; color:var(--text-muted); text-transform:uppercase; margin-bottom:16px; }
+    .about-section-title { font-size:11px; font-weight:700; font-family:var(--font-sans); letter-spacing:0.8px; color:var(--text); text-transform:uppercase; margin-bottom:16px; }
     .about-flow { display:flex; flex-direction:column; gap:0; }
     .about-flow-step { display:flex; align-items:flex-start; gap:16px; padding:14px 0; border-bottom:1px solid var(--border); }
     .about-flow-step:last-child { border-bottom:none; }
-    .about-flow-num { font-family:var(--font-mono); font-size:11px; font-weight:700; color:var(--accent); opacity:0.6; flex-shrink:0; padding-top:2px; min-width:20px; }
-    .about-flow-title { font-size:14px; font-weight:700; color:var(--text); margin-bottom:3px; }
-    .about-flow-desc { font-size:12px; color:var(--text-dim); line-height:1.6; }
+    .about-flow-num { font-family:var(--font-sans); font-size:11px; font-weight:700; color:var(--accent); flex-shrink:0; padding-top:2px; min-width:20px; }
+    .about-flow-title { font-family:var(--font-sans); font-size:14px; font-weight:700; color:var(--text); margin-bottom:3px; }
+    .about-flow-desc { font-family:var(--font-sans); font-size:13px; color:var(--text); line-height:1.6; }
     .about-chips { display:flex; flex-wrap:wrap; gap:8px; }
-    .about-chip { display:inline-block; padding:7px 12px; background:var(--bg-card); border:1px solid var(--border); border-radius:20px; font-size:12px; color:var(--text); font-weight:500; line-height:1.4; }
+    .about-chip { display:inline-block; padding:7px 12px; background:var(--bg-card); border:1px solid var(--border); border-radius:20px; font-family:var(--font-sans); font-size:12px; color:var(--text); font-weight:500; line-height:1.4; }
     .about-cta-wrap { text-align:center; margin-top:24px; }
     .about-cta { display:inline-block; padding:14px 28px; background:linear-gradient(135deg, var(--viva-deep), var(--viva-ink)); color:#fff; border:none; border-radius:14px; font-size:15px; font-weight:700; font-family:var(--font-sans); cursor:pointer; transition:opacity 0.15s; }
     .about-cta:active { opacity:0.85; }
-    .about-copyright { margin-top:16px; font-family:var(--font-mono); font-size:10px; color:var(--text-dim); }
+    .about-copyright { margin-top:16px; font-family:var(--font-sans); font-size:10px; color:var(--text); }
 
     /* ── NEWSROOM ── */
     .newsroom-wrap { padding:20px 16px 40px; }
