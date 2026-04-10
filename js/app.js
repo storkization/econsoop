@@ -273,7 +273,6 @@ function switchTab(id) {
     loadColumnTab();
   }
   if (id==='archive') {
-    if (!isPremiumUnlocked()) { renderPremiumGate('archive'); return; }
     loadArchive();
   }
 }
