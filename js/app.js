@@ -74,7 +74,7 @@ function showToast(msg) {
 }
 
 /* ═══════════ CACHE VERSION ═══════════ */
-const CACHE_VERSION = 'v148';
+const CACHE_VERSION = 'v149';
 (function clearOldCache() {
   const savedVersion = localStorage.getItem('eco_cache_version');
   if (savedVersion !== CACHE_VERSION) {
@@ -408,12 +408,6 @@ function setLoadingMsg(tab, phase, count = null) {
         </div>
       </div>`;
     msgIdx++;
-
-    // ECG clip rect 애니메이션 트리거
-    requestAnimationFrame(() => {
-      const cr = document.getElementById(`cliprect-${ecgId}`);
-      if (cr) cr.style.width = `${revealX}px`;
-    });
   }
 
   renderLoading();
@@ -1145,80 +1139,6 @@ async function loadColumnTab() {
   }
 }
 
-async function loadColumn(tab) {
-  const body = document.getElementById(`${tab}-column-body`);
-  const btn  = document.getElementById(`${tab}-column-btn`);
-  if (!body) return;
-
-  // 토글
-  if (body.style.display === 'block') {
-    body.style.display = 'none';
-    btn.querySelector('span:last-child').textContent = '▼';
-    return;
-  }
-
-  body.style.display = 'block';
-  btn.querySelector('span:last-child').textContent = '▲';
-
-  // 개발모드: 더미 칼럼
-  if (DEV_MODE) {
-    renderColumn(tab, DEV_DUMMY.column);
-    return;
-  }
-
-  // 캐시 확인 (메모리 → localStorage, 스케줄 기반)
-  if (columnCache[tab]) {
-    renderColumn(tab, columnCache[tab]);
-    return;
-  }
-  const colCacheKey = `eco_column_${tab}`;
-  const colCacheTimeKey = `eco_column_time_${tab}`;
-  const savedCol = localStorage.getItem(colCacheKey);
-  const savedColTime = localStorage.getItem(colCacheTimeKey);
-  if (savedCol && savedColTime) {
-    const lastSchedule = getLastScheduleTime();
-    if (Number(savedColTime) >= lastSchedule) {
-      columnCache[tab] = savedCol;
-      renderColumn(tab, savedCol);
-      return;
-    }
-  }
-
-  // 로딩
-  body.innerHTML = `
-    <div class="status-card">
-      <div class="dots" style="margin-bottom:12px;"><span></span><span></span><span></span></div>
-      <div class="status-card-desc" style="margin-bottom:0;">칼럼 작성 중...</div>
-    </div>`;
-
-  const cached = summaryCache[tab];
-  if (!cached?.summary) {
-    body.innerHTML = `<div class="status-card"><div class="status-card-desc" style="color:var(--red);margin-bottom:0;">브리핑을 먼저 생성해주세요.</div></div>`;
-    return;
-  }
-
-  try {
-    const res = await fetch('/api/column', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ summary: cached.summary, oneliner: cached.oneliner, label: TAB_LABEL[tab] }),
-      signal: (() => { const c = new AbortController(); setTimeout(() => c.abort(), 55000); return c.signal; })()
-    });
-    const j = await res.json();
-    if (!res.ok) throw new Error(j.error || `오류 ${res.status}`);
-    columnCache[tab] = j.column;
-    localStorage.setItem(colCacheKey, j.column);
-    localStorage.setItem(colCacheTimeKey, Date.now());
-    renderColumn(tab, j.column);
-  } catch(err) {
-    body.innerHTML = `
-      <div class="status-card">
-        <div style="font-size:13px;color:var(--red);margin-bottom:12px;">⚠️ ${err.message}</div>
-        <button class="retry-btn" onclick="columnCache['${tab}']=null;loadColumn('${tab}')">🔄 다시 시도</button>
-      </div>`;
-  }
-}
-
 function renderColumn(tab, text, bodyEl) {
   const body = bodyEl || document.getElementById(`${tab}-column-body`);
   if (!body) return;
@@ -1408,32 +1328,16 @@ function renderPremiumGate(tabId) {
     </div>`;
 }
 
-/* ═══════════ 서브칩 뉴스 ═══════════ */
-
-function renderNewsList(items, el) {
-  el.innerHTML = '';
-}
-
-
 /* ═══════════ BREAKING NEWS ═══════════ */
 let breakingCache = null;
-let breakingLoaded = false;
 
 async function loadBreaking(force = false) {
   const el = document.getElementById('breaking-news-list');
   if (el) el.innerHTML = '';
-  return;
 }
 
 
 /* ═══════════ FRONT MARKET DASHBOARD ═══════════ */
-const COMMODITIES = [
-  { sym:'GC=F',     label:'금 Gold',    sub:'달러/트로이온스', dot:'#D4A520', kr:false },
-  { sym:'SI=F',     label:'은 Silver',  sub:'달러/트로이온스', dot:'#9CA3AF', kr:false },
-  { sym:'CL=F',     label:'WTI 유가',   sub:'달러/배럴',       dot:'#374151', kr:false },
-  { sym:'USDKRW=X', label:'달러 환율',  sub:'USD/KRW',         dot:'#2563EB', kr:true  },
-];
-
 function fmtChg(q) {
   if (!q) return { cls:'flat', txt:'—' };
   const cls = q.chg > 0 ? 'up' : q.chg < 0 ? 'down' : 'flat';

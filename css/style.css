@@ -1330,10 +1330,6 @@
       background-size:200% 100%; border-radius:16px; margin-bottom:10px;
       animation:shimmer 1.4s infinite;
     }
-    @keyframes shimmer {
-      0% { background-position:200% 0; }
-      100% { background-position:-200% 0; }
-    }
 
     /* 서비스 특징 */
     .lp-features { display:flex; flex-direction:column; gap:14px; }
