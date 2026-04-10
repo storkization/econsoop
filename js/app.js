@@ -570,14 +570,14 @@ const DEV_DUMMY = {
 ---
 by. Shawn Kim`,
   comments: [
-    { nick: 'thesomeaudio', text: '오늘 브리핑 진짜 핵심만 딱 정리됐네요. 다른 데선 이렇게 깔끔하게 못 봤어요', likes: 24,
-      replies: [{ nick: '수익왕', text: '맞아요 저도 매일 아침 여기 먼저 봐요' }, { nick: 'Rodus23', text: '요약이 너무 잘 돼 있어서 출근길에 딱이에요' }] },
-    { nick: '청소의왕',     text: '환율 1,500원이면 수입물가 또 오르겠네... 그래도 이 정도로 빠르게 읽을 수 있는 곳이 없어서 계속 보게 됨', likes: 17,
-      replies: [{ nick: '꼬북이', text: '달러 미리 살걸 ㅠ 근데 이런 분석 덕분에 빠르게 파악하네요' }] },
-    { nick: 'k_investor',   text: '투자 전략 파트 특히 좋았어요. 그냥 뉴스 전달이 아니라 "그래서 나는 어떻게 해야 하나"까지 짚어줘서', likes: 19,
-      replies: [{ nick: '파란하늘82', text: '맞아요 실제로 행동으로 연결되는 느낌' }, { nick: '경제요정', text: '이 부분 때문에 구독하려고요' }] },
-    { nick: 'minJi_fin',    text: '경제 공부 막 시작했는데 각주 설명이 진짜 도움 많이 됩니다. ECB 같은 용어 이제 이해해요', likes: 13,
-      replies: [{ nick: 'atlas_kr', text: '저도 처음엔 몰랐는데 여기서 많이 배웠어요' }] },
+    { nick: '청소의왕', text: '환율 1,500원이면 라면값 또 오르겠네... 이제 진짜 편의점도 못 가겠다', likes: 31,
+      replies: [{ nick: 'Rodus23', text: '마트 영수증 볼 때마다 현타옴' }, { nick: '꼬북이', text: '달러 미리 살걸 ㅠㅠ' }] },
+    { nick: 'k_investor', text: '금리 동결이라는데 내 이자는 왜 안 내려가냐고 ㅋㅋ', likes: 18,
+      replies: [{ nick: '파란하늘82', text: '은행이 내릴 생각이 없는 거죠 뭐' }] },
+    { nick: 'thesomeaudio', text: '코스피 2400 깨지면 진짜 어떻게 되는 거예요? 그냥 계속 존버하면 되나', likes: 14,
+      replies: [{ nick: '수익왕', text: '저도 그게 제일 궁금함' }, { nick: 'minJi_fin', text: '저는 그냥 적금 박았어요 ㅠ' }] },
+    { nick: '경제요정', text: '유가 110달러면 이번 여름 여행 경비 진짜 걱정되네요', likes: 9,
+      replies: [] },
   ]
 };
 
