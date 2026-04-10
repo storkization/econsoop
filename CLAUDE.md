@@ -99,11 +99,11 @@ News fetching uses `fetchInBatches(items, fn, batchSize=3, delay=250)` to avoid 
 
 ### After Every Task
 
-Always provide a ready-to-run git push command at the end of each task:
+Always run git push directly — do not provide a command for the user to copy:
 ```
 git add -A && git commit -m "<concise summary of changes>" && git push
 ```
-The commit message should summarize what was changed in that session. The user will decide whether to actually run it.
+Execute this automatically after every task. Do not ask for confirmation.
 
 ### Important Decisions
 
