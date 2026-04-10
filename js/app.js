@@ -303,7 +303,7 @@ function shuffled(arr) {
   return [...arr].sort(() => Math.random() - 0.5);
 }
 
-function setLoadingMsg(tab, phase, count = null) {
+function setLoadingMsg(tab, phase) {
   const card = document.getElementById(`${tab}-summary-card`);
   if (!card) return;
   if (_loadingInterval) { clearInterval(_loadingInterval); _loadingInterval = null; }
@@ -561,15 +561,15 @@ async function genTabSummary(tab) {
         setTimeout(async () => {
           renderTabSummary(tab, result);
           updateFrontPreview(tab, result.summary);
-          // 뉴스 목록 백그라운드 로딩 (렌더 완료 후 시작)
-          const allItems = [];
-          for (const q of SUMMARY_QUERIES[tab]) {
+          // 뉴스 목록 백그라운드 로딩 (렌더 완료 후 시작, 배치 병렬)
+          const bgFetch = async (q) => {
             try {
               const r = await fetch(`/api/news?query=${encodeURIComponent(q)}&display=7`);
               const j = await r.json();
-              if (j.items) allItems.push(...j.items);
-            } catch(e) {}
-          }
+              return j.items || [];
+            } catch(e) { return []; }
+          };
+          const allItems = (await fetchInBatches(SUMMARY_QUERIES[tab], bgFetch, 3, 250)).flat();
           const seen2 = new Set();
           const skipKw2 = ['구직','채용','취업','자립준비','희망디딤돌','주요기사'];
           const unique2 = allItems
@@ -1102,12 +1102,12 @@ async function loadColumnTab() {
   const bodyEl = document.getElementById('column-tab-body');
 
   // 캐시 확인
-  if (columnCache[tab]) { renderColumn(tab, columnCache[tab], bodyEl); return; }
+  if (columnCache[tab]) { renderColumn(columnCache[tab], bodyEl); return; }
   const savedCol = localStorage.getItem(`eco_column_${tab}`);
   const savedColTime = localStorage.getItem(`eco_column_time_${tab}`);
   if (savedCol && savedColTime && Number(savedColTime) >= getLastScheduleTime()) {
     columnCache[tab] = savedCol;
-    renderColumn(tab, savedCol, bodyEl);
+    renderColumn(savedCol, bodyEl);
     return;
   }
 
@@ -1130,7 +1130,7 @@ async function loadColumnTab() {
     columnCache[tab] = j.column;
     localStorage.setItem(`eco_column_${tab}`, j.column);
     localStorage.setItem(`eco_column_time_${tab}`, Date.now());
-    renderColumn(tab, j.column, bodyEl);
+    renderColumn(j.column, bodyEl);
   } catch(err) {
     bodyEl.innerHTML = `<div class="status-card">
       <div style="font-size:13px;color:var(--red);margin-bottom:12px;">⚠️ ${err.message}</div>
@@ -1139,9 +1139,8 @@ async function loadColumnTab() {
   }
 }
 
-function renderColumn(tab, text, bodyEl) {
-  const body = bodyEl || document.getElementById(`${tab}-column-body`);
-  if (!body) return;
+function renderColumn(text, bodyEl) {
+  if (!bodyEl) return;
 
   // 마크다운 → HTML 변환
   const lines = text.split('\n');
@@ -1167,7 +1166,7 @@ function renderColumn(tab, text, bodyEl) {
     return `<p class="column-body">${content}</p>`;
   }).join('');
 
-  body.innerHTML = `<div class="column-wrap">${html}</div>`;
+  bodyEl.innerHTML = `<div class="column-wrap">${html}</div>`;
 }
 
 function updateFrontPreview(tab, summary) {
@@ -1329,9 +1328,7 @@ function renderPremiumGate(tabId) {
 }
 
 /* ═══════════ BREAKING NEWS ═══════════ */
-let breakingCache = null;
-
-async function loadBreaking(force = false) {
+async function loadBreaking() {
   const el = document.getElementById('breaking-news-list');
   if (el) el.innerHTML = '';
 }
