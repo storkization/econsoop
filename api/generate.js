@@ -124,7 +124,7 @@ export default async function handler(req, res) {
       });
       if (!briefingRes.ok) throw new Error(`briefing API 오류 ${briefingRes.status}`);
 
-      const { summary, footnotes, headline, subheading, heading2, subheading2, heading3, subheading3, heading4, subheading4, columnHook } = await briefingRes.json();
+      const { summary, footnotes, headline, subheading, heading2, subheading2, heading3, subheading3, heading4, subheading4, columnHook, columnSubhook } = await briefingRes.json();
       if (!summary) throw new Error('브리핑 파싱 실패');
 
       // 3. Firestore 저장 (최신 캐시 — 덮어쓰기)
@@ -139,6 +139,7 @@ export default async function handler(req, res) {
         heading3: heading3 || '', subheading3: subheading3 || '',
         heading4: heading4 || '', subheading4: subheading4 || '',
         columnHook: columnHook || '',
+        columnSubhook: columnSubhook || '',
         topImageUrl: topImageUrl || '',
         comments: comments.length ? comments : [],
         created_at: now,

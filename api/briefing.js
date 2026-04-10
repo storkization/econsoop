@@ -66,7 +66,12 @@ ${headlineText}
 [COLUMN_HOOK]
 POINT1~4 기반 심층 칼럼 예고. 감정 자극 표현 사용. 이모티콘 1개. 40자 이내.
 예: "💣 금리 동결인데 집값 또 오른다? 당신이 모르는 진짜 이유"
-[/COLUMN_HOOK]`
+[/COLUMN_HOOK]
+
+[COLUMN_SUBHOOK]
+COLUMN_HOOK의 서브타이틀. 브리핑에서 못 다한 2·3차 파급효과를 암시하는 한 줄. 이모티콘 없이. 35자 이내.
+예: "오늘 뉴스 뒤에 숨겨진 진짜 변수, 여기서만 공개합니다"
+[/COLUMN_SUBHOOK]`
         }]
       })
     });
@@ -119,13 +124,16 @@ POINT1~4 기반 심층 칼럼 예고. 감정 자극 표현 사용. 이모티콘 
     const columnHookMatch = fullText.match(/\[COLUMN_HOOK\]([\s\S]*?)\[\/COLUMN_HOOK\]/);
     const columnHook = columnHookMatch ? columnHookMatch[1].trim() : '';
 
+    const columnSubhookMatch = fullText.match(/\[COLUMN_SUBHOOK\]([\s\S]*?)\[\/COLUMN_SUBHOOK\]/);
+    const columnSubhook = columnSubhookMatch ? columnSubhookMatch[1].trim() : '';
+
     console.log('[BRIEFING] 파싱 — summary:', summary.length, 'headline:', headline.length, 'columnHook:', columnHook.length);
 
     if (!summary) {
       console.error('[BRIEFING] 파싱 실패! fullText 앞 500자:', fullText.slice(0, 500));
     }
 
-    res.status(200).json({ summary, footnotes, headline, subheading, heading2, subheading2, heading3, subheading3, heading4, subheading4, columnHook });
+    res.status(200).json({ summary, footnotes, headline, subheading, heading2, subheading2, heading3, subheading3, heading4, subheading4, columnHook, columnSubhook });
 
   } catch (err) {
     res.status(500).json({ error: err.message });
