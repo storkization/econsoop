@@ -74,7 +74,7 @@ function showToast(msg) {
 }
 
 /* ═══════════ CACHE VERSION ═══════════ */
-const CACHE_VERSION = 'v149';
+const CACHE_VERSION = 'v150';
 (function clearOldCache() {
   const savedVersion = localStorage.getItem('eco_cache_version');
   if (savedVersion !== CACHE_VERSION) {
@@ -1264,11 +1264,11 @@ function renderAbout() {
         <h1 class="about-title">경제 뉴스,<br>3분으로 끝냅니다</h1>
         <p class="about-sub">최신 경제 뉴스와 급변하는 트렌드<br>쉽고 빠르게 정리해드립니다.</p>
         <div class="about-stat-strip">
-          <div class="about-stat"><span class="about-stat-num">2회</span><span class="about-stat-label">매일 업데이트</span></div>
+          <div class="about-stat"><span class="about-stat-num">매일</span><span class="about-stat-label">업데이트</span></div>
           <div class="about-stat-sep">·</div>
           <div class="about-stat"><span class="about-stat-num">4개</span><span class="about-stat-label">경제 분야</span></div>
           <div class="about-stat-sep">·</div>
-          <div class="about-stat"><span class="about-stat-num">3분</span><span class="about-stat-label">독해 시간</span></div>
+          <div class="about-stat"><span class="about-stat-num">AI</span><span class="about-stat-label">자동 생성</span></div>
         </div>
       </div>
       <div class="about-section">
@@ -1284,7 +1284,7 @@ function renderAbout() {
           </div>
           <div class="about-flow-step">
             <div class="about-flow-num">03</div>
-            <div><div class="about-flow-title">아카이브 누적</div><div class="about-flow-desc">07:00·17:00 브리핑이 쌓여 경제 흐름을 길게 볼 수 있습니다</div></div>
+            <div><div class="about-flow-title">아카이브 누적</div><div class="about-flow-desc">매일 07:00 브리핑이 쌓여 경제 흐름을 길게 볼 수 있습니다</div></div>
           </div>
         </div>
       </div>
