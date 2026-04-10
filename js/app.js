@@ -44,7 +44,7 @@ const TAB_COLORS = {
 };
 
 /* ═══════════ CACHE VERSION ═══════════ */
-const CACHE_VERSION = 'v138';
+const CACHE_VERSION = 'v140';
 (function clearOldCache() {
   const savedVersion = localStorage.getItem('eco_cache_version');
   if (savedVersion !== CACHE_VERSION) {
@@ -311,47 +311,39 @@ function setLoadingMsg(tab, phase, count = null) {
     { label:'브리핑 집필 중', icon:'✍️', desc:'살아있는 브리핑을 쓰고 있어요' },
     { label:'발행 준비 완료', icon:'💗', desc:'오늘의 브리핑이 뛰고 있습니다' },
   ];
+  const VIVA_COLOR = TAB_COLORS.economy.main;
+  const VIVA_LETTERS = ['V','I','V','A','!'];
+  const VIVA_BOUNCE_DELAYS = VIVA_LETTERS.map((_, i) => (i * 0.13).toFixed(2));
+  const VIVA_PULSE_DELAYS  = VIVA_LETTERS.map((_, i) => (i * 0.09).toFixed(2));
 
   function renderLoading() {
     const ci = _aiStepIndex;
     const totalSteps = ALL_STEPS.length;
     const isComplete = ci >= totalSteps;
 
-    // WiFi 신호 애니메이션 (VIVA = 세상과 연결)
-    const wifiColor = '#A51C30';
-    const WIFI_ARCS = [12, 24, 37, 51, 65];
-    const WCX = 140, WCY = 83;
-    const litCount = Math.min(ci, WIFI_ARCS.length);
+    const litCount = Math.min(ci, VIVA_LETTERS.length);
+    const bounceSpeed = ci <= 1 ? '1.3s' : ci <= 3 ? '0.9s' : '0.65s';
 
-    function arcPath(r) {
-      return `M ${WCX - r} ${WCY} A ${r} ${r} 0 0 1 ${WCX + r} ${WCY}`;
-    }
-
-    const wifiViz = `
-      <div style="margin:8px -4px 16px;position:relative;text-align:center;">
-        <svg viewBox="0 0 280 90" width="100%" style="display:block;overflow:visible;">
-          ${WIFI_ARCS.map((r, i) => `
-            <path d="${arcPath(r)}" fill="none"
-              stroke="${i < litCount ? wifiColor : '#E5E7EB'}"
-              stroke-width="3.5" stroke-linecap="round"
-              style="transition:stroke 0.6s ease;"/>
-          `).join('')}
-          <circle cx="${WCX}" cy="${WCY}" r="5"
-            fill="${litCount >= 1 ? wifiColor : '#E5E7EB'}"
-            style="transition:fill 0.6s ease;"/>
-          ${isComplete ? `
-          <circle cx="${WCX}" cy="${WCY}" r="8" fill="${wifiColor}" opacity="0.1">
-            <animate attributeName="r" values="6;20;6" dur="1.6s" repeatCount="indefinite"/>
-            <animate attributeName="opacity" values="0.12;0.03;0.12" dur="1.6s" repeatCount="indefinite"/>
-          </circle>` : ''}
-        </svg>
+    const vivaViz = `
+      <div style="margin:20px 0 22px;text-align:center;letter-spacing:6px;line-height:1;">
+        ${VIVA_LETTERS.map((letter, i) => {
+          const isLit = i < litCount;
+          const anim = isComplete
+            ? `vivaPulse 1.8s ${VIVA_PULSE_DELAYS[i]}s ease-in-out infinite`
+            : isLit
+              ? `vivaBounce ${bounceSpeed} ${VIVA_BOUNCE_DELAYS[i]}s ease-in-out infinite`
+              : 'none';
+          const color = isLit ? VIVA_COLOR : '#DCDFE4';
+          const size = isComplete ? '40px' : isLit ? '38px' : '34px';
+          const shadow = isLit && !isComplete ? `0 2px 12px rgba(165,28,48,0.25)` : 'none';
+          return `<span style="display:inline-block;font-family:var(--font-mono);font-size:${size};font-weight:900;color:${color};text-shadow:${shadow};transition:color 0.5s ease;animation:${anim};">${letter}</span>`;
+        }).join('')}
       </div>`;
 
-    // 단계 레이블
     const stepLabels = ALL_STEPS.map((s, idx) => {
       const done = idx < ci;
       const active = idx === ci;
-      const color = (done || active) ? wifiColor : '#C4C9CF';
+      const color = (done || active) ? VIVA_COLOR : '#C4C9CF';
       const weight = (done || active) ? '700' : '400';
       const opacity = done ? '1' : active ? '1' : '0.35';
       const icon = done ? '✓' : active ? s.icon : '·';
@@ -365,10 +357,10 @@ function setLoadingMsg(tab, phase, count = null) {
 
     card.innerHTML = `
       <div style="padding:24px 20px;background:#FFFFFF;border-radius:16px;box-shadow:0 2px 16px rgba(90,10,20,0.06);">
-        <div style="font-family:var(--font-mono);font-size:9px;font-weight:700;color:${isComplete?'#A51C30':'var(--text)'};letter-spacing:2px;margin-bottom:2px;">
-          ${isComplete ? '📶 VIVA · 연결 완료' : '📶 VIVA · 연결 중'}
+        <div style="font-family:var(--font-mono);font-size:9px;font-weight:700;color:${isComplete?VIVA_COLOR:'var(--text-dim)'};letter-spacing:2.5px;margin-bottom:0;text-align:center;">
+          ${isComplete ? 'ECONOMY IS ALIVE' : `LOADING · ${ci} / ${ALL_STEPS.length}`}
         </div>
-        ${wifiViz}
+        ${vivaViz}
         <div style="display:flex;flex-direction:column;gap:7px;margin-bottom:16px;">
           ${stepLabels}
         </div>
