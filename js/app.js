@@ -353,14 +353,14 @@ function setLoadingMsg(tab, phase, count = null) {
       return `<div style="display:flex;align-items:center;gap:8px;opacity:${opacity};transition:opacity 0.4s;">
         <span style="font-size:${active?'13':'11'}px;min-width:16px;text-align:center;color:${color};">${icon}</span>
         <span style="font-size:12px;font-weight:${weight};color:${color};font-family:var(--font-sans);">${s.label}</span>
-        ${active ? `<span style="font-size:11px;color:var(--text-dim);">— ${s.desc}</span>` : ''}
+        ${active ? `<span style="font-size:11px;color:var(--text);">— ${s.desc}</span>` : ''}
       </div>`;
     }).join('');
 
 
     card.innerHTML = `
       <div style="padding:24px 20px;background:#FFFFFF;border-radius:16px;box-shadow:0 2px 16px rgba(90,10,20,0.06);">
-        <div style="font-family:var(--font-mono);font-size:9px;font-weight:700;color:${isComplete?'#A51C30':'var(--text-dim)'};letter-spacing:2px;margin-bottom:2px;">
+        <div style="font-family:var(--font-mono);font-size:9px;font-weight:700;color:${isComplete?'#A51C30':'var(--text)'};letter-spacing:2px;margin-bottom:2px;">
           ${isComplete ? '📶 VIVA · 연결 완료' : '📶 VIVA · 연결 중'}
         </div>
         ${wifiViz}
@@ -369,13 +369,13 @@ function setLoadingMsg(tab, phase, count = null) {
         </div>
         <div style="text-align:center;padding-top:12px;border-top:1px solid var(--border);">
           <div class="dots" style="margin-bottom:8px;"><span></span><span></span><span></span></div>
-          <div style="color:var(--text-muted);font-size:12px;font-weight:500;">${msgs[msgIdx % msgs.length]}</div>
-          <div style="font-size:10px;color:#9CA3AF;font-family:var(--font-mono);margin-top:6px;">뉴스 양에 따라 10~30초 정도 걸릴 수 있어요</div>
+          <div style="color:var(--text);font-size:12px;font-weight:500;">${msgs[msgIdx % msgs.length]}</div>
+          <div style="font-size:10px;color:var(--text);font-family:var(--font-mono);margin-top:6px;">뉴스 양에 따라 10~30초 정도 걸릴 수 있어요</div>
         </div>
         <div style="text-align:center;margin-top:14px;">
           <button onclick="cancelBriefing('${tab}')"
             style="background:transparent;border:1.5px solid var(--border);border-radius:8px;
-                   padding:7px 18px;font-size:11px;font-weight:600;color:var(--text-dim);
+                   padding:7px 18px;font-size:11px;font-weight:600;color:var(--text);
                    font-family:var(--font-sans);cursor:pointer;">
             ✕ 브리핑 건너뛰기
           </button>
@@ -1071,7 +1071,7 @@ async function loadColumnTab() {
     <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 4px 14px;">
       <div>
         <div style="font-family:var(--font-serif);font-size:20px;font-weight:900;color:var(--text);letter-spacing:-0.3px;">📰 오늘의 ${label} 칼럼</div>
-        <div style="font-size:10px;font-family:var(--font-mono);color:var(--text-dim);margin-top:3px;letter-spacing:0.3px;">by Shawn Kim · Daily Editorial</div>
+        <div style="font-size:10px;font-family:var(--font-mono);color:var(--text);margin-top:3px;letter-spacing:0.3px;">Daily Editorial</div>
       </div>
       <span style="font-size:11px;font-weight:700;color:#B45309;background:#FFF7ED;padding:5px 12px;border-radius:20px;letter-spacing:0.8px;white-space:nowrap;">💎 PREMIUM</span>
     </div>
