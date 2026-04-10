@@ -807,7 +807,7 @@
     /* ── 1면 섹션 구분 ── */
     .front-section-divider {
       display:flex; align-items:center; gap:10px;
-      margin:16px 0 10px;
+      margin:28px 0 10px;
     }
     .front-section-divider::before,
     .front-section-divider::after {
