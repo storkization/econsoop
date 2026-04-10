@@ -257,6 +257,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // 설정 초기화
   initSettings();
+  if (DEV_MODE) localStorage.removeItem('eco_streak_last');
   checkDailyStreak();
 
   // 헤더 축소 — 스크롤 내리면 header-sub 숨김
