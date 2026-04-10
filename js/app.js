@@ -223,6 +223,7 @@ function switchTab(id) {
 
   const isNewsTab = ['economy','industry','global','stocks'].includes(id);
   if (isNewsTab && !summaryCache[id]) genTabSummary(id);
+  if (isNewsTab && DEV_MODE) renderTabSummary(id, DEV_DUMMY);
   if (id==='market') loadStocks();
   if (id==='fx' && !fxRates) loadFX();
   if (id==='breaking') loadBreaking();
