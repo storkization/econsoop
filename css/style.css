@@ -1197,8 +1197,8 @@
       border:1px solid var(--border);
     }
     .cmt-header {
-      font-size:11px; font-weight:700; letter-spacing:0.08em;
-      color:var(--text-dim); text-transform:uppercase;
+      font-size:15px; font-weight:800; letter-spacing:-0.3px;
+      color:var(--text);
       margin-bottom:12px;
     }
     .cmt-item {
