@@ -79,7 +79,26 @@
       "mcp__claude_ai_Notion__notion-move-pages",
       "Bash(cp:*)",
       "Bash(python -m json.tool)",
-      "Bash(grep:*)"
+      "Bash(grep:*)",
+      "WebFetch(domain:econsoop.vercel.app)",
+      "Bash(node:*)",
+      "Bash(python -c \"import sys,json; d=json.load\\(sys.stdin\\); [print\\(r['created_at'], r['conclusion'] or r['status'], r['event'], r['display_title'][:60]\\) for r in d['workflow_runs']]\")",
+      "Bash(git fetch:*)",
+      "Bash(unzip -p /c/Users/dodoh/run_logs.zip)",
+      "Bash(npx vercel:*)",
+      "Read(//g//**)",
+      "Read(//g/내 드라이브//**)",
+      "Bash(cp \"/g/내 드라이브/claude-settings/CLAUDE.md\" /c/Users/dodoh/.claude/CLAUDE.md)",
+      "Bash(cp \"/g/내 드라이브/claude-settings/settings.json\" /c/Users/dodoh/.claude/settings.json)",
+      "Bash(wait b8p40vo33:*)",
+      "Bash(cp /c/Users/dodoh/.claude/projects/C--Users-dodoh-OneDrive-Desktop-Project101-ecobrief/memory/MEMORY.md \"/g/내 드라이브/claude-settings/projects/C--Users-dodoh-Downloads-ShawnDev-Project1-ecobrief/memory/MEMORY.md\")",
+      "Bash(cp /c/Users/dodoh/.claude/projects/C--Users-dodoh-OneDrive-Desktop-Project101-ecobrief/memory/feedback_sw_version.md \"/g/내 드라이브/claude-settings/projects/C--Users-dodoh-Downloads-ShawnDev-Project1-ecobrief/memory/\")",
+      "Bash(cp /c/Users/dodoh/.claude/projects/C--Users-dodoh-OneDrive-Desktop-Project101-ecobrief/memory/project_ux_overhaul.md \"/g/내 드라이브/claude-settings/projects/C--Users-dodoh-Downloads-ShawnDev-Project1-ecobrief/memory/\")",
+      "Bash(cp /c/Users/dodoh/.claude/CLAUDE.md \"/g/내 드라이브/claude-settings/CLAUDE.md\")",
+      "Bash(cp /c/Users/dodoh/.claude/settings.json \"/g/내 드라이브/claude-settings/settings.json\")",
+      "Bash(rm -rf \"/g/내 드라이브/claude-settings/plugins\")",
+      "Bash(cp -r /c/Users/dodoh/.claude/plugins \"/g/내 드라이브/claude-settings/plugins\")",
+      "Bash(cp /c/Users/dodoh/.claude/projects/C--Users-dodoh-OneDrive-Desktop-Project101-ecobrief/memory/*.md \"/g/내 드라이브/claude-settings/projects/C--Users-dodoh-Downloads-ShawnDev-Project1-ecobrief/memory/\")"
     ]
   }
 }
