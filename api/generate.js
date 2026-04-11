@@ -108,8 +108,13 @@ export default async function handler(req, res) {
   if (!force) {
     const existing = await db.collection('editions').doc(`${todayStr}_0700`).get();
     if (existing.exists) {
-      console.log(`[GENERATE] 오늘(${todayStr}) 이미 생성됨 — 스킵. force=1 로 강제 실행 가능`);
-      return res.status(200).json({ done: true, skipped: true, reason: 'already_generated_today', ts: new Date().toISOString() });
+      const existingTabs = existing.data()?.tabs || {};
+      const successCount = Object.keys(existingTabs).length;
+      if (successCount > 0) {
+        console.log(`[GENERATE] 오늘(${todayStr}) 이미 생성됨 (탭 ${successCount}개) — 스킵`);
+        return res.status(200).json({ done: true, skipped: true, reason: 'already_generated_today', ts: new Date().toISOString() });
+      }
+      console.log(`[GENERATE] 오늘(${todayStr}) 빈 에디션 발견 — 재생성 진행`);
     }
   }
 
@@ -237,6 +242,12 @@ export default async function handler(req, res) {
       if (r.ok && r.summary) {
         tabs[r.tab] = { summary: r.summary, teaser: extractTeaser(r.summary) };
       }
+    }
+
+    // 모든 탭 실패 시 에디션 저장 건너뛰기 (다음 크론이 재시도할 수 있도록)
+    if (Object.keys(tabs).length === 0) {
+      console.error(`[GENERATE] 모든 탭 실패 — 에디션 저장 스킵 (재시도 가능)`);
+      return res.status(500).json({ done: false, results, reason: 'all_tabs_failed', ts: new Date().toISOString() });
     }
 
     // 칼럼 생성 (경제 탭 기반)
