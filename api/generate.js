@@ -111,10 +111,19 @@ export default async function handler(req, res) {
       const existingTabs = existing.data()?.tabs || {};
       const successCount = Object.keys(existingTabs).length;
       if (successCount > 0) {
-        console.log(`[GENERATE] 오늘(${todayStr}) 이미 생성됨 (탭 ${successCount}개) — 스킵`);
-        return res.status(200).json({ done: true, skipped: true, reason: 'already_generated_today', ts: new Date().toISOString() });
+        // 에디션이 있어도 briefing 데이터가 오늘 7시 슬롯 이전이면 재생성
+        const slotToday = new Date(_kst);
+        slotToday.setHours(7, 0, 0, 0);
+        const slotMs = slotToday.getTime() - (_kst.getTime() - new Date().getTime());
+        const editionCreated = existing.data()?.created_at || 0;
+        if (editionCreated >= slotMs) {
+          console.log(`[GENERATE] 오늘(${todayStr}) 7시 이후 생성됨 (탭 ${successCount}개) — 스킵`);
+          return res.status(200).json({ done: true, skipped: true, reason: 'already_generated_today', ts: new Date().toISOString() });
+        }
+        console.log(`[GENERATE] 오늘(${todayStr}) 에디션 있지만 7시 이전 생성 (${new Date(editionCreated).toISOString()}) — 재생성`);
+      } else {
+        console.log(`[GENERATE] 오늘(${todayStr}) 빈 에디션 발견 — 재생성 진행`);
       }
-      console.log(`[GENERATE] 오늘(${todayStr}) 빈 에디션 발견 — 재생성 진행`);
     }
   }
 

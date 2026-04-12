@@ -74,7 +74,7 @@ function showToast(msg) {
 }
 
 /* ═══════════ CACHE VERSION ═══════════ */
-const CACHE_VERSION = 'v152';
+const CACHE_VERSION = 'v153';
 (function clearOldCache() {
   const savedVersion = localStorage.getItem('eco_cache_version');
   if (savedVersion !== CACHE_VERSION) {
@@ -99,6 +99,7 @@ let stocksCacheTime = 0;
 const MARKET_TTL = 30 * 60 * 1000; // 30분
 let currentTab = 'front';
 let fxRates = null;
+const _loadingTabs = new Set(); // 탭별 중복 로딩 방지
 
 /* ═══════════ INIT ═══════════ */
 document.addEventListener('DOMContentLoaded', () => {
@@ -516,6 +517,14 @@ function getLastScheduleTime() {
 }
 
 async function genTabSummary(tab) {
+  // 중복 로딩 방지
+  if (_loadingTabs.has(tab)) return;
+  _loadingTabs.add(tab);
+
+  try { await _genTabSummaryInner(tab); } finally { _loadingTabs.delete(tab); }
+}
+
+async function _genTabSummaryInner(tab) {
   // 개발모드: AI 호출 없이 더미 데이터로 렌더링
   if (DEV_MODE) {
     summaryCache[tab] = DEV_DUMMY;
@@ -529,7 +538,7 @@ async function genTabSummary(tab) {
   const cached = localStorage.getItem(cacheKey);
   const cachedTime = localStorage.getItem(cacheTimeKey);
 
-  // 스케줄 기반 캐시 체크 (07:00 / 17:00 KST)
+  // 스케줄 기반 캐시 체크 (07:00 KST)
   if (cached && cachedTime) {
     const lastSchedule = getLastScheduleTime();
     if (Number(cachedTime) >= lastSchedule) {
@@ -549,13 +558,14 @@ async function genTabSummary(tab) {
 
   const label = TAB_LABEL[tab];
 
-  // Firestore 프리젠 캐시 체크 (크론이 07:00/17:00 KST에 미리 생성)
+  // Firestore 프리젠 캐시 체크 (크론이 07:00 KST에 미리 생성)
   try {
     const cfRes = await fetch(`/api/cached?tab=${tab}`);
     if (cfRes.ok) {
       const cf = await cfRes.json();
-      if (cf.fresh && cf.summary) {
-        if (DEV_MODE) console.log(`[CACHED] ${tab} 프리젠 데이터 사용 (created_at: ${new Date(cf.created_at).toLocaleTimeString()})`);
+      // fresh든 stale이든 데이터가 있으면 즉시 표시 (빈 화면 방지)
+      if (cf.summary) {
+        if (DEV_MODE) console.log(`[CACHED] ${tab} 데이터 사용 (fresh=${cf.fresh}, created_at: ${new Date(cf.created_at).toLocaleTimeString()})`);
         const result = { summary: cf.summary, oneliner: '', footnotes: cf.footnotes || '', frontHeadline: cf.frontHeadline || '', headline: cf.headline || '', subheading: cf.subheading || '', heading2: cf.heading2 || '', subheading2: cf.subheading2 || '', heading3: cf.heading3 || '', subheading3: cf.subheading3 || '', heading4: cf.heading4 || '', subheading4: cf.subheading4 || '', columnHook: cf.columnHook || '', topImageUrl: cf.topImageUrl || '', sectionImages: cf.sectionImages || [], comments: cf.comments || [], topNews: [] };
         summaryCache[tab] = result;
         localStorage.setItem(cacheKey, JSON.stringify(result));

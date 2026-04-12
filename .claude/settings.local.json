@@ -98,7 +98,11 @@
       "Bash(cp /c/Users/dodoh/.claude/settings.json \"/g/내 드라이브/claude-settings/settings.json\")",
       "Bash(rm -rf \"/g/내 드라이브/claude-settings/plugins\")",
       "Bash(cp -r /c/Users/dodoh/.claude/plugins \"/g/내 드라이브/claude-settings/plugins\")",
-      "Bash(cp /c/Users/dodoh/.claude/projects/C--Users-dodoh-OneDrive-Desktop-Project101-ecobrief/memory/*.md \"/g/내 드라이브/claude-settings/projects/C--Users-dodoh-Downloads-ShawnDev-Project1-ecobrief/memory/\")"
+      "Bash(cp /c/Users/dodoh/.claude/projects/C--Users-dodoh-OneDrive-Desktop-Project101-ecobrief/memory/*.md \"/g/내 드라이브/claude-settings/projects/C--Users-dodoh-Downloads-ShawnDev-Project1-ecobrief/memory/\")",
+      "Bash(bash:*)",
+      "Bash(cat .github/workflows/*.yml)",
+      "Bash(\"/c/Program Files/GitHub CLI/gh.exe\" run list --workflow=\"Prebuild Briefings\" --limit=5)",
+      "Bash(\"/c/Users/dodoh/AppData/Local/Programs/gh/bin/gh.exe\" run:*)"
     ]
   }
 }
