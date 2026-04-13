@@ -106,7 +106,9 @@
       "Bash(python -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\('createdAt:', d.get\\('createdAt'\\)\\); print\\('date:', d.get\\('date'\\)\\); print\\('fresh:', d.get\\('fresh'\\)\\); print\\('editionDate:', d.get\\('editionDate'\\)\\)\")",
       "Bash(\"/c/Program Files/GitHub CLI/gh.exe\" --version)",
       "Bash(/c/Program Files/GitHub CLI/gh.exe workflow:*)",
-      "Bash(\"/c/Program Files/GitHub CLI/gh.exe\" run watch 24321542116 --exit-status)"
+      "Bash(\"/c/Program Files/GitHub CLI/gh.exe\" run watch 24321542116 --exit-status)",
+      "Bash(awk '{print $5, $9}')",
+      "Bash(wc -l api/*.js)"
     ]
   }
 }
