@@ -99,14 +99,13 @@ document.addEventListener('DOMContentLoaded', () => {
   const versionEl = document.getElementById('settings-version');
   if (versionEl) versionEl.textContent = CACHE_VERSION;
 
-  // 백그라운드 → 포그라운드 복귀 시, 캐시가 어제 슬롯이면 1회 reload (iOS PWA·Android 공통)
+  // Why: 부모님이 PWA를 밤새 백그라운드에 둔 채 아침에 켜면 JS 재실행이 안 돼 어제 DOM이 그대로 남는다.
   document.addEventListener('visibilitychange', () => {
     if (document.visibilityState !== 'visible') return;
-    if (sessionStorage.getItem('eco_reloaded_this_session')) return;
-    const tabs = ['economy', 'industry', 'global', 'stocks'];
-    const latest = Math.max(...tabs.map(t => Number(localStorage.getItem(`eco_summary_time_${t}`) || 0)));
+    if (sessionStorage.getItem('eco_reloaded')) return;
+    const latest = Math.max(...TAB_ORDER.map(t => Number(localStorage.getItem(`eco_summary_time_${t}`) || 0)));
     if (latest > 0 && latest < getLastScheduleTime()) {
-      sessionStorage.setItem('eco_reloaded_this_session', '1');
+      sessionStorage.setItem('eco_reloaded', '1');
       location.reload();
     }
   });
