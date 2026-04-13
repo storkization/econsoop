@@ -67,7 +67,7 @@ function showToast(msg) {
 }
 
 /* ═══════════ CACHE VERSION ═══════════ */
-const CACHE_VERSION = 'v164';
+const CACHE_VERSION = 'v165';
 (function clearOldCache() {
   const savedVersion = localStorage.getItem('eco_cache_version');
   if (savedVersion !== CACHE_VERSION) {
@@ -1011,10 +1011,10 @@ function fmtChg(q) {
   return { cls, txt: `${arr}${Math.abs(q.pct).toFixed(2)}%` };
 }
 
-// 모든 지표 통합 목록 (3열 그리드)
+// 모든 지표 통합 목록 (횡스크롤 flex, 카드 너비 통일)
 const MARKET_GROUPS = [
   {
-    label: '환율', icon: '💱', cols: 4,
+    label: '환율', icon: '💱',
     items: [
       { sym:'USDKRW=X', label:'달러 USD', dot:'#2563EB', kr:true },
       { sym:'EURKRW=X', label:'유로 EUR',  dot:'#059669', kr:true },
@@ -1022,7 +1022,7 @@ const MARKET_GROUPS = [
     ],
   },
   {
-    label: '원자재', icon: '🛢', cols: 4,
+    label: '원자재', icon: '🛢',
     items: [
       { sym:'GC=F', label:'금 Gold',   dot:'#D4A520', kr:false },
       { sym:'SI=F', label:'은 Silver', dot:'#9CA3AF', kr:false },
@@ -1030,14 +1030,14 @@ const MARKET_GROUPS = [
     ],
   },
   {
-    label: '한국 증시', icon: '🇰🇷', cols: 4,
+    label: '한국 증시', icon: '🇰🇷',
     items: [
       { sym:'^KS11', label:'KOSPI',  dot:'#A51C30', kr:true },
       { sym:'^KQ11', label:'KOSDAQ', dot:'#A51C30', kr:true },
     ],
   },
   {
-    label: '미국 증시', icon: '🇺🇸', cols: 4,
+    label: '미국 증시', icon: '🇺🇸',
     items: [
       { sym:'^DJI',  label:'다우존스', dot:'#1D4ED8', kr:false },
       { sym:'^IXIC', label:'NASDAQ',  dot:'#1D4ED8', kr:false },
@@ -1045,7 +1045,7 @@ const MARKET_GROUPS = [
     ],
   },
   {
-    label: '가상화폐', icon: '₿', cols: 4,
+    label: '가상화폐', icon: '₿',
     items: [
       { sym:'BTC-USD', label:'비트코인',  dot:'#F97316', kr:false },
       { sym:'ETH-USD', label:'이더리움',  dot:'#6366F1', kr:false },
@@ -1114,13 +1114,12 @@ function fmtMarketVal(price, kr) {
     : price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 
-function buildFmCard(item, q, cols, sparkline) {
+function buildFmCard(item, q, sparkline) {
   const prev = q ? q.price - q.chg : null;
   const { cls, txt } = fmtChg(q);
   const chgAmt = q ? `${q.chg >= 0 ? '+' : ''}${fmtMarketVal(q.chg, item.kr)}` : '—';
-  const compact = cols >= 4;
   const sparkSvg = sparkline ? buildSparklineSvg(sparkline, cls) : '';
-  return `<div class="fm-card${compact ? ' fm-card-compact' : ''}">
+  return `<div class="fm-card">
     <div class="fm-card-top">
       <div class="fm-card-dot" style="background:${item.dot}"></div>
       <div class="fm-card-label">${item.label}</div>
@@ -1133,11 +1132,10 @@ function buildFmCard(item, q, cols, sparkline) {
 }
 
 function buildFmSection(group, results, sparklines, offset) {
-  const cols = group.cols || 2;
-  const cards = group.items.map((item, i) => buildFmCard(item, results[offset + i], cols, sparklines?.[offset + i])).join('');
+  const cards = group.items.map((item, i) => buildFmCard(item, results[offset + i], sparklines?.[offset + i])).join('');
   return `
     <div class="fm-section-label">${group.icon} ${group.label}</div>
-    <div class="fm-grid fm-grid-${cols}">${cards}</div>`;
+    <div class="fm-grid">${cards}</div>`;
 }
 
 async function loadFrontMarket() {
@@ -1158,7 +1156,7 @@ async function loadFrontMarket() {
   // 로딩 스켈레톤
   el.innerHTML = MARKET_GROUPS.map(g => `
     <div class="fm-section-label">${g.icon} ${g.label}</div>
-    <div class="fm-grid fm-grid-2">${g.items.map(item =>
+    <div class="fm-grid">${g.items.map(item =>
       `<div class="fm-card">
         <div class="fm-card-top"><div class="fm-card-dot" style="background:${item.dot}"></div><div class="fm-card-label">${item.label}</div></div>
         <div class="fm-card-val">—</div>

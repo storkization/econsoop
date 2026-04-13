@@ -108,7 +108,9 @@
       "Bash(/c/Program Files/GitHub CLI/gh.exe workflow:*)",
       "Bash(\"/c/Program Files/GitHub CLI/gh.exe\" run watch 24321542116 --exit-status)",
       "Bash(awk '{print $5, $9}')",
-      "Bash(wc -l api/*.js)"
+      "Bash(wc -l api/*.js)",
+      "Bash(\"/c/Program Files/GitHub CLI/gh.exe\" workflow run cron.yml -f force=true --repo storkization/econsoop)",
+      "Bash(\"/c/Program Files/GitHub CLI/gh.exe\" run list --workflow cron.yml --limit 3 --repo storkization/econsoop)"
     ]
   }
 }

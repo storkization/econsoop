@@ -830,15 +830,17 @@
       margin-bottom:-4px;
     }
     .fm-grid {
-      display:grid; gap:7px;
+      display:flex; gap:7px;
+      overflow-x:auto; -webkit-overflow-scrolling:touch;
+      scroll-snap-type:x proximity;
+      scrollbar-width:none;
+      padding:2px 0;
+      scroll-padding-left:2px;
     }
-    .fm-grid-2 { grid-template-columns:repeat(2,1fr); }
-    .fm-grid-3 { grid-template-columns:repeat(3,1fr); }
-    .fm-grid-4 { grid-template-columns:repeat(4,1fr); }
-    .fm-card-compact { padding:9px 7px 8px; }
-    .fm-card-compact .fm-card-val { font-size:14px; }
-    .fm-card-compact .fm-card-chg { font-size:11px; margin-top:2px; }
+    .fm-grid::-webkit-scrollbar { display:none; }
     .fm-card {
+      flex:0 0 calc((100% - 18px) / 3.2);
+      scroll-snap-align:start;
       background:var(--bg-card); border-radius:12px;
       padding:11px 10px 10px; border:1px solid var(--border);
       display:flex; flex-direction:column; gap:2px;
