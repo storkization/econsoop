@@ -110,7 +110,10 @@
       "Bash(awk '{print $5, $9}')",
       "Bash(wc -l api/*.js)",
       "Bash(\"/c/Program Files/GitHub CLI/gh.exe\" workflow run cron.yml -f force=true --repo storkization/econsoop)",
-      "Bash(\"/c/Program Files/GitHub CLI/gh.exe\" run list --workflow cron.yml --limit 3 --repo storkization/econsoop)"
+      "Bash(\"/c/Program Files/GitHub CLI/gh.exe\" run list --workflow cron.yml --limit 3 --repo storkization/econsoop)",
+      "Bash(tee /tmp/old_bak.txt)",
+      "Read(//tmp/**)",
+      "Bash(find /c/Users/dodoh -maxdepth 1 -name \".claude.bak-*\" -type d -mtime +14 -print -exec rm -rf {} +)"
     ]
   }
 }
