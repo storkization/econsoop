@@ -99,6 +99,18 @@ document.addEventListener('DOMContentLoaded', () => {
   const versionEl = document.getElementById('settings-version');
   if (versionEl) versionEl.textContent = CACHE_VERSION;
 
+  // 백그라운드 → 포그라운드 복귀 시, 캐시가 어제 슬롯이면 1회 reload (iOS PWA·Android 공통)
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState !== 'visible') return;
+    if (sessionStorage.getItem('eco_reloaded_this_session')) return;
+    const tabs = ['economy', 'industry', 'global', 'stocks'];
+    const latest = Math.max(...tabs.map(t => Number(localStorage.getItem(`eco_summary_time_${t}`) || 0)));
+    if (latest > 0 && latest < getLastScheduleTime()) {
+      sessionStorage.setItem('eco_reloaded_this_session', '1');
+      location.reload();
+    }
+  });
+
   // 개발모드 배너
   if (DEV_MODE) {
     // ① 상단 고정 배너
