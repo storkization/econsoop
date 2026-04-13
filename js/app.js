@@ -1213,28 +1213,39 @@ async function loadFrontMarket() {
 }
 
 function attachDragScroll(el) {
-  let down = false, startX = 0, startScroll = 0, moved = 0;
+  let down = false, startX = 0, startY = 0, startScroll = 0, moved = 0, locked = null;
   el.addEventListener('pointerdown', (e) => {
-    if (e.pointerType === 'touch') return;
-    down = true; moved = 0;
-    startX = e.clientX; startScroll = el.scrollLeft;
+    if (e.button && e.button !== 0) return;
+    down = true; moved = 0; locked = null;
+    startX = e.clientX; startY = e.clientY;
+    startScroll = el.scrollLeft;
     el.classList.add('dragging');
-    el.setPointerCapture(e.pointerId);
+    try { el.setPointerCapture(e.pointerId); } catch {}
   });
   el.addEventListener('pointermove', (e) => {
     if (!down) return;
     const dx = e.clientX - startX;
+    const dy = e.clientY - startY;
+    if (locked === null && (Math.abs(dx) > 6 || Math.abs(dy) > 6)) {
+      locked = Math.abs(dx) > Math.abs(dy) ? 'x' : 'y';
+    }
+    if (locked === 'y') return;
+    if (locked === 'x') e.preventDefault();
     moved = Math.max(moved, Math.abs(dx));
     el.scrollLeft = startScroll - dx;
   });
-  const end = () => {
+  const end = (e) => {
     if (!down) return;
     down = false;
+    try { if (e && e.pointerId != null) el.releasePointerCapture(e.pointerId); } catch {}
     setTimeout(() => el.classList.remove('dragging'), 0);
   };
   el.addEventListener('pointerup', end);
   el.addEventListener('pointercancel', end);
-  el.addEventListener('pointerleave', end);
+  el.addEventListener('lostpointercapture', end);
+  el.addEventListener('click', (e) => {
+    if (moved > 6) { e.stopPropagation(); e.preventDefault(); }
+  }, true);
 }
 
 /* ═══════════ STOCKS ═══════════ */
