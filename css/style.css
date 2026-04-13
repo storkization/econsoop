@@ -640,15 +640,17 @@
 
     /* ── HAMBURGER BUTTON ── */
     .hamburger-btn {
-      background:none; border:none; cursor:pointer;
-      padding:4px 8px 4px 0;
+      background:none; cursor:pointer;
+      padding:4px 10px;
       margin-left:14px;
       font-size:22px; line-height:1;
       color:rgba(255,255,255,0.85); flex-shrink:0;
       display:flex; align-items:center;
-      transition:opacity 0.2s;
+      border:1.5px solid rgba(255,255,255,0.7);
+      border-radius:6px;
+      transition:opacity 0.2s, background 0.2s;
     }
-    .hamburger-btn:active { opacity:0.6; }
+    .hamburger-btn:active { opacity:0.6; background:rgba(255,255,255,0.15); }
 
     /* ── DRAWER OVERLAY ── */
     .drawer-overlay {
