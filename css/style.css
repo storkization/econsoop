@@ -884,23 +884,22 @@
     .newspaper-card {
       border-radius:14px; overflow:hidden;
       cursor:pointer; border:none;
-      display:flex; flex-direction:row;
+      display:flex; flex-direction:row; align-items:center; gap:14px;
+      padding:12px 14px;
       background:var(--bg-card);
       transition:opacity 0.15s;
-      min-height:140px;
     }
     .newspaper-card:nth-child(even) { flex-direction:row-reverse; }
     .newspaper-card:active { opacity:0.82; }
     .newspaper-card-img {
-      width:38%; height:auto; object-fit:cover;
-      display:block; flex-shrink:0; align-self:stretch;
+      width:112px; height:78px; object-fit:cover;
+      border-radius:10px; flex-shrink:0; display:block;
     }
     .newspaper-card-img-placeholder {
-      width:38%; flex-shrink:0; align-self:stretch;
+      width:112px; height:78px; border-radius:10px; flex-shrink:0;
     }
     .newspaper-card-body {
-      padding:14px 16px; display:flex;
-      flex-direction:column; flex:1; gap:0; min-width:0;
+      display:flex; flex-direction:column; flex:1; gap:0; min-width:0;
     }
     .newspaper-card-tab {
       font-size:11px; font-weight:700; letter-spacing:1.2px;
