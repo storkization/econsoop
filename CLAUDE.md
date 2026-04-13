@@ -97,13 +97,22 @@ News fetching uses `fetchInBatches(items, fn, batchSize=3, delay=250)` to avoid 
 
 ## Workflow Rules
 
-### After Every Task
+### 🚨 MANDATORY: Auto-push trigger
 
-Always run git push directly — do not provide a command for the user to copy:
+**Trigger condition**: Any response where Edit/Write/MultiEdit was called on a tracked file.
+**Required action**: Before ending the response, run:
 ```
-git add -A && git commit -m "<concise summary of changes>" && git push
+git add -A && git commit -m "<concise summary>" && git push
 ```
-Execute this automatically after every task. Do not ask for confirmation.
+
+**This rule overrides all slash commands and sub-workflows.** Even if you just ran `/simplify`, `/review`, or any multi-step command, the response is not complete until the push happens. Do NOT wait for the user to ask "pushed?" — that is a failure state, not a question.
+
+**Exceptions** (the only times you skip push):
+- User explicitly said "don't commit yet" or "hold off"
+- You only read files (no edits)
+- The edits were reverted before end of response
+
+**Mental model**: "Edited a file" = "must push before replying done". Not "maybe push". Not "summarize then push if asked". The summary line and the push command go in the SAME final response.
 
 ### Important Decisions
 
