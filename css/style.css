@@ -830,27 +830,31 @@
       margin-bottom:-4px;
     }
     .fm-grid {
-      display:flex; gap:7px;
+      display:flex; gap:8px;
       overflow-x:auto; -webkit-overflow-scrolling:touch;
       scrollbar-width:none;
-      padding:2px 0;
+      padding:2px 14px;
+      scroll-padding-left:14px;
+      scroll-snap-type:x mandatory;
+      scroll-behavior:smooth;
       touch-action:pan-y;
       cursor:grab;
       user-select:none;
       -webkit-user-select:none;
     }
-    .fm-grid.dragging { cursor:grabbing; }
+    .fm-grid.dragging { scroll-behavior:auto; cursor:grabbing; }
     .fm-grid::-webkit-scrollbar { display:none; }
     .fm-card {
-      /* 3.2 = 카드 3개 + 0.2 엿보기: "더 있다" 시각 단서 */
-      flex:0 0 calc((100% - 18px) / 3.2);
+      /* 3개 고정 너비 (gap 8px × 2 + 좌우 padding 28px 제외) */
+      flex:0 0 calc((100% - 44px) / 3);
       scroll-snap-align:start;
       background:var(--bg-card); border-radius:12px;
-      padding:11px 10px 10px; border:1px solid var(--border);
+      padding:10px 10px 10px; border:1px solid var(--border);
       display:flex; flex-direction:column; gap:2px;
+      height:112px; box-sizing:border-box;
     }
     .fm-card-top {
-      display:flex; align-items:center; gap:5px; margin-bottom:5px;
+      display:flex; align-items:center; gap:5px; margin-bottom:4px;
     }
     .fm-card-dot {
       width:6px; height:6px; border-radius:50%; flex-shrink:0;
@@ -861,25 +865,29 @@
       white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
     }
     .fm-card-price-row {
-      display:flex; align-items:baseline; gap:6px; flex-wrap:wrap;
+      display:flex; align-items:baseline; gap:5px; flex-wrap:nowrap;
+      min-width:0;
     }
     .fm-card-val {
-      font-family:var(--font-sans); font-size:22px; font-weight:900;
-      color:var(--text); letter-spacing:-0.8px; line-height:1.1;
+      font-family:var(--font-sans); font-size:18px; font-weight:900;
+      color:var(--text); letter-spacing:-0.6px; line-height:1.1;
+      white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+      min-width:0;
     }
     .fm-card-prev {
-      font-family:var(--font-mono); font-size:10px; color:var(--text-dim);
+      font-family:var(--font-mono); font-size:9px; color:var(--text-dim);
+      white-space:nowrap;
     }
     .fm-card-chg {
-      font-family:var(--font-sans); font-size:13px; font-weight:700;
-      margin-top:4px;
+      font-family:var(--font-sans); font-size:12px; font-weight:700;
+      margin-top:3px;
     }
     .fm-card-chg.up   { color:#16A34A; }
     .fm-card-chg.down { color:#DC2626; }
     .fm-card-chg.flat { color:var(--text-dim); }
     .fm-sparkline {
-      display:block; width:100%; height:28px;
-      margin-top:6px; overflow:visible;
+      display:block; width:100%; height:24px;
+      margin-top:auto; overflow:visible;
     }
     /* ── 1면 히어로 + 리스트 레이아웃 ── */
     .front-layout { display:flex; flex-direction:column; gap:20px; }
@@ -898,30 +906,30 @@
     .front-hero-img-placeholder {
       width:100%; aspect-ratio:16/9; display:block;
     }
-    .front-hero-body { padding:18px 18px 18px; }
+    .front-hero-body { padding:20px 18px 18px; }
     .front-hero-label {
       display:inline-block;
       background:#DC2626; color:#fff;
       font-family:var(--font-mono);
       font-size:10px; font-weight:900; letter-spacing:1.8px;
       padding:4px 9px; border-radius:3px;
-      margin-bottom:12px;
+      margin-bottom:16px;
     }
     .front-hero-tab {
       font-family:var(--font-mono);
       font-size:12px; font-weight:900; letter-spacing:1.5px;
-      margin-bottom:10px;
+      margin-bottom:14px;
     }
     .front-hero-headline {
       font-size:24px; font-weight:900;
-      line-height:1.3; letter-spacing:-0.6px;
-      color:var(--text); margin-bottom:12px;
+      line-height:1.35; letter-spacing:-0.6px;
+      color:var(--text); margin-bottom:16px;
       word-break:keep-all; overflow-wrap:break-word;
     }
     .front-hero-sub {
       font-size:15px; font-weight:500;
-      line-height:1.55; color:var(--text);
-      margin-bottom:14px;
+      line-height:1.6; color:var(--text);
+      margin-bottom:18px;
       word-break:keep-all; overflow-wrap:break-word;
     }
     .front-hero-cta { display:flex; justify-content:flex-end; }
@@ -948,7 +956,7 @@
     }
     .front-sub-body {
       flex:1; min-width:0;
-      display:flex; flex-direction:column; gap:6px;
+      display:flex; flex-direction:column; gap:10px;
     }
     .front-sub-tab {
       font-family:var(--font-mono);
@@ -956,14 +964,14 @@
     }
     .front-sub-headline {
       font-size:16px; font-weight:800;
-      line-height:1.4; letter-spacing:-0.3px;
+      line-height:1.5; letter-spacing:-0.3px;
       color:var(--text);
       word-break:keep-all; overflow-wrap:break-word;
       overflow:hidden; display:-webkit-box;
       -webkit-line-clamp:2; -webkit-box-orient:vertical;
     }
     .front-sub-cta {
-      margin-top:12px;
+      margin-top:14px;
       display:flex; justify-content:flex-end;
     }
     .front-sub-cta span {
