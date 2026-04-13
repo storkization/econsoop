@@ -192,6 +192,9 @@ export default async function handler(req, res) {
           } catch(e) { /* skip */ }
         }
       }
+      if (!topImageUrl && sectionImages.length) {
+        topImageUrl = sectionImages.shift();
+      }
 
       // 3. Firestore 저장 (최신 캐시 — 덮어쓰기)
       const comments = await genComments(summary, TAB_LABEL[tab]);
