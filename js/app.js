@@ -2,13 +2,6 @@
 const DEV_MODE = new URLSearchParams(window.location.search).get('dev') === 'true';
 
 
-const SUMMARY_QUERIES = {
-  economy: ['한국은행 금리', '원달러 환율 외환', '코스피 증시 금융시장', '물가 인플레이션 소비', '수출 무역 경상수지', '가계부채 대출', '경제 오늘 주요뉴스'],
-  industry:['반도체 전자', '자동차 배터리 전기차', '바이오 헬스 제약', '건설 부동산', '경영 재계 M&A'],
-  global:  ['미국 연준 Fed 관세 무역', '중국 경제 위안화 무역분쟁', '일본 엔화 닛케이 일본은행', '유럽 ECB 유로존 독일', '국제유가 OPEC 중동 에너지', '국제경제 오늘 주요뉴스'],
-  stocks:  ['삼성전자 SK하이닉스 주가 전망', '코스피 코스닥 증시 오늘', '미국주식 나스닥 S&P500', '증권사 투자 리포트 목표주가', '공모주 IPO 상장', '외국인 기관 수급 매수매도'],
-};
-
 const INDICES = [
   { sym:'^KS11',  name:'KOSPI',   tag:'kr' },
   { sym:'^KQ11',  name:'KOSDAQ',  tag:'kr' },
@@ -74,7 +67,7 @@ function showToast(msg) {
 }
 
 /* ═══════════ CACHE VERSION ═══════════ */
-const CACHE_VERSION = 'v159';
+const CACHE_VERSION = 'v160';
 (function clearOldCache() {
   const savedVersion = localStorage.getItem('eco_cache_version');
   if (savedVersion !== CACHE_VERSION) {
@@ -90,7 +83,6 @@ const CACHE_VERSION = 'v159';
 })();
 
 /* ═══════════ STATE ═══════════ */
-let newsCache = {};       // key: "economy-policy" 등
 let summaryCache = {};    // key: "economy" | "industry" | "global"
 let marketCache = null;   // 홈 마켓 데이터 캐시
 let marketCacheTime = 0;
@@ -241,20 +233,6 @@ function ago(d){
   return Math.floor(h/24)+'일 전';
 }
 
-/* ═══════════ BATCH FETCH (429 방지) ═══════════ */
-async function fetchInBatches(items, fn, batchSize = 3, delay = 250) {
-  const results = [];
-  for (let i = 0; i < items.length; i += batchSize) {
-    const batch = items.slice(i, i + batchSize);
-    const batchResults = await Promise.all(batch.map(fn));
-    results.push(...batchResults);
-    if (i + batchSize < items.length) {
-      await new Promise(r => setTimeout(r, delay));
-    }
-  }
-  return results;
-}
-
 /* ═══════════ TAB SWITCHING ═══════════ */
 function switchTab(id) {
   currentTab = id;
@@ -305,41 +283,25 @@ const LOADING_MSGS = [
   '오늘의 브리핑이 곧 심장을 뛰게 할 거예요...',
 ];
 
-// 경제 퀴즈 (50문항)
 let _loadingInterval = null;
-let _briefingController = null;
-let _aiStepIndex = 0;    // AI 단계 진행 인덱스 (0~5)
-let _aiStepTimers = [];   // AI 단계 자동 전진 타이머들
+let _aiStepIndex = 0;
+let _aiStepTimers = [];
 
 function shuffled(arr) {
   return [...arr].sort(() => Math.random() - 0.5);
 }
 
-function setLoadingMsg(tab, phase) {
+function setLoadingMsg(tab) {
   const card = document.getElementById(`${tab}-summary-card`);
   if (!card) return;
   if (_loadingInterval) { clearInterval(_loadingInterval); _loadingInterval = null; }
   _aiStepTimers.forEach(t => clearTimeout(t));
   _aiStepTimers = [];
 
-  // 퀴즈는 뉴스 수집 시작 시 고정
-
-  // phase='news' → step 0, phase='ai' → step 1부터 자동 전진, phase='fast' → 1초씩 5단계
-  if (phase === 'news') {
-    _aiStepIndex = 0;
-  } else if (phase === 'ai') {
-    _aiStepIndex = 1;
-    // 타이머로 자동 전진 (실제 AI 처리와 무관한 체감 진행)
-    _aiStepTimers.push(setTimeout(() => { _aiStepIndex = 2; renderLoading(); }, 4000));
-    _aiStepTimers.push(setTimeout(() => { _aiStepIndex = 3; renderLoading(); }, 10000));
-    _aiStepTimers.push(setTimeout(() => { _aiStepIndex = 4; renderLoading(); }, 18000));
-  } else if (phase === 'fast') {
-    _aiStepIndex = 0;
-    // 캐시 히트 시: 1초마다 한 단계씩 (총 5초)
-    [1, 2, 3, 4, 5].forEach(step => {
-      _aiStepTimers.push(setTimeout(() => { _aiStepIndex = step; renderLoading(); }, step * 1000));
-    });
-  }
+  _aiStepIndex = 0;
+  [1, 2, 3, 4, 5].forEach(step => {
+    _aiStepTimers.push(setTimeout(() => { _aiStepIndex = step; renderLoading(); }, step * 1000));
+  });
 
   const msgs = shuffled(LOADING_MSGS);
   let msgIdx = 0;
@@ -410,14 +372,6 @@ function setLoadingMsg(tab, phase) {
           <div style="color:var(--text);font-size:12px;font-weight:500;">${msgs[msgIdx % msgs.length]}</div>
           <div style="font-size:10px;color:var(--text);font-family:var(--font-mono);margin-top:6px;">뉴스 양에 따라 10~30초 정도 걸릴 수 있어요</div>
         </div>
-        <div style="text-align:center;margin-top:14px;">
-          <button onclick="cancelBriefing('${tab}')"
-            style="background:transparent;border:1.5px solid var(--border);border-radius:8px;
-                   padding:7px 18px;font-size:11px;font-weight:600;color:var(--text);
-                   font-family:var(--font-sans);cursor:pointer;">
-            ✕ 브리핑 건너뛰기
-          </button>
-        </div>
       </div>`;
     msgIdx++;
   }
@@ -431,21 +385,6 @@ function stopLoadingMsg() {
   if (_loadingInterval) { clearInterval(_loadingInterval); _loadingInterval = null; }
   _aiStepTimers.forEach(t => clearTimeout(t));
   _aiStepTimers = [];
-}
-
-function cancelBriefing(tab) {
-  stopLoadingMsg();
-  if (_briefingController) { _briefingController.abort(); _briefingController = null; }
-  _aiStepIndex = 0;
-  summaryCache[tab] = null;
-  const card = document.getElementById(`${tab}-summary-card`);
-  if (card) card.innerHTML = `
-    <div class="status-card">
-      <div class="status-card-icon">⏭</div>
-      <div class="status-card-title">브리핑 건너뜀</div>
-      <div class="status-card-desc">서브칩에서 뉴스를 직접 볼 수 있어요.</div>
-      <button class="retry-btn" onclick="genTabSummary('${tab}')">🔄 다시 생성</button>
-    </div>`;
 }
 
 const DEV_DUMMY = {
@@ -558,7 +497,7 @@ async function _genTabSummaryInner(tab) {
       if (parsed.summary) {
         summaryCache[tab] = parsed;
         renderLandingBriefs();
-        setLoadingMsg(tab, 'fast');
+        setLoadingMsg(tab);
         setTimeout(() => {
           renderTabSummary(tab, summaryCache[tab]);
           updateFrontPreview(tab, parsed.summary);
@@ -583,33 +522,10 @@ async function _genTabSummaryInner(tab) {
         localStorage.setItem(cacheKey, JSON.stringify(result));
         localStorage.setItem(cacheTimeKey, cf.created_at.toString());
         renderLandingBriefs();
-        // 로딩 애니메이션 5초 후 탭 렌더링
-        setLoadingMsg(tab, 'fast');
-        setTimeout(async () => {
+        setLoadingMsg(tab);
+        setTimeout(() => {
           renderTabSummary(tab, result);
           updateFrontPreview(tab, result.summary);
-          // 뉴스 목록 백그라운드 로딩 (렌더 완료 후 시작, 배치 병렬)
-          const bgFetch = async (q) => {
-            try {
-              const r = await fetch(`/api/news?query=${encodeURIComponent(q)}&display=7`);
-              const j = await r.json();
-              return j.items || [];
-            } catch(e) { return []; }
-          };
-          const allItems = (await fetchInBatches(SUMMARY_QUERIES[tab], bgFetch, 3, 250)).flat();
-          const seen2 = new Set();
-          const skipKw2 = ['구직','채용','취업','자립준비','희망디딤돌','주요기사'];
-          const unique2 = allItems
-            .filter(it => !skipKw2.some(kw => it.title.includes(kw)))
-            .filter(it => { const k = it.title.slice(0,15); if(seen2.has(k)) return false; seen2.add(k); return true; })
-            .slice(0, 15);
-          if (unique2.length) {
-            result.topNews = unique2;
-            newsCache[`${tab}-summary`] = unique2;
-            summaryCache[tab] = result;
-            localStorage.setItem(cacheKey, JSON.stringify(result));
-            renderTabSummary(tab, result);
-          }
         }, 5500);
         return;
       }
@@ -618,8 +534,7 @@ async function _genTabSummaryInner(tab) {
     if (DEV_MODE) console.log('[CACHED] Firestore fetch 실패:', e.message);
   }
 
-  // Firestore 캐시에 데이터가 없음 — 클라이언트에서 Claude 직접 호출 금지 (API 비용 방지)
-  // 크론이 매일 07:00 KST에 생성하므로, 여기 도달 = 아직 크론 실행 전이거나 장애
+  // Why: 클라이언트의 Claude 직접 호출을 금지해 API 비용 유출을 차단. 데이터는 크론만 생성.
   stopLoadingMsg();
   const card = document.getElementById(`${tab}-summary-card`);
   if (card) card.innerHTML = `
@@ -628,75 +543,6 @@ async function _genTabSummaryInner(tab) {
       <div class="status-card-title">오늘의 브리핑 준비 중</div>
       <div class="status-card-desc">매일 아침 7시에 새 브리핑이 올라옵니다.<br>잠시 후 다시 확인해 주세요.</div>
     </div>`;
-}
-
-/* ═══════════ 2차: ONELINER 백그라운드 호출 ═══════════ */
-async function fetchInsight(tab, summary, footnotes, label, topNewsItems) {
-  const cacheKey = `eco_summary_${tab}`;
-  const cacheTimeKey = `eco_summary_time_${tab}`;
-
-  try {
-    if (DEV_MODE) console.log('[INSIGHT] 2차 호출 시작 (ONELINER)');
-    const res = await fetch('/api/insight', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ summary, footnotes, label, headlines: topNewsItems.map(n => n.title) }),
-      signal: (() => { const c = new AbortController(); setTimeout(() => c.abort(), 55000); return c.signal; })()
-    });
-    const j = await res.json();
-    if (DEV_MODE) console.log('[INSIGHT] 2차 응답:', res.status, 'oneliner 길이:', (j.oneliner||'').length);
-
-    if (res.ok && j.oneliner) {
-      // summaryCache 업데이트
-      if (summaryCache[tab]) {
-        summaryCache[tab].oneliner = j.oneliner;
-      }
-      // localStorage 저장 (summary + oneliner 합쳐서)
-      localStorage.setItem(cacheKey, JSON.stringify(summaryCache[tab]));
-      localStorage.setItem(cacheTimeKey, Date.now());
-      // 인사이트 렌더 (renderTabSummary 내부의 insight 렌더 로직 재활용)
-      renderInsightSection(tab, j.oneliner);
-    } else {
-      console.warn('[INSIGHT] ONELINER 없음 또는 에러', res.status, JSON.stringify(j));
-      showInsightRetry(tab, topNewsItems, summary, footnotes, label);
-    }
-  } catch(err) {
-    console.warn('[INSIGHT ERROR]', err.message);
-    showInsightRetry(tab, topNewsItems, summary, footnotes, label);
-  }
-}
-
-function showInsightRetry(tab, topNewsItems, summary, footnotes, label) {
-  const insightEl = document.getElementById(`${tab}-insight`);
-  if (insightEl) {
-    insightEl.innerHTML = `
-      <div class="insight-section-label">💡 쓰리포인트 요약 by Shawn</div>
-      <div style="background:#F7FBF8;border-radius:14px;padding:20px;text-align:center;">
-        <div style="font-size:13px;color:var(--text-muted);margin-bottom:12px;">인사이트를 불러오지 못했어요</div>
-        <button class="retry-btn" onclick="retryInsight('${tab}')" style="font-size:12px;padding:8px 20px;">🔄 다시 시도</button>
-      </div>`;
-  }
-  // 캐시는 저장
-  const cacheKey = `eco_summary_${tab}`;
-  const cacheTimeKey = `eco_summary_time_${tab}`;
-  localStorage.setItem(cacheKey, JSON.stringify(summaryCache[tab]));
-  localStorage.setItem(cacheTimeKey, Date.now());
-}
-
-function retryInsight(tab) {
-  const cached = summaryCache[tab];
-  if (!cached) return;
-  const insightEl = document.getElementById(`${tab}-insight`);
-  if (insightEl) {
-    insightEl.innerHTML = `
-      <div class="insight-section-label">💡 쓰리포인트 요약 by Shawn</div>
-      <div style="background:#F7FBF8;border-radius:14px;padding:20px;text-align:center;">
-        <div class="dots" style="margin-bottom:10px;"><span></span><span></span><span></span></div>
-        <div style="font-size:12px;color:var(--text-muted);">인사이트 분석 중...</div>
-      </div>`;
-  }
-  const label = TAB_LABEL[tab];
-  fetchInsight(tab, cached.summary, cached.footnotes || '', label, cached.topNews || []);
 }
 
 function renderTabSummary(tab, result) {
@@ -909,102 +755,6 @@ function toggleCmtLike(btn, tab, idx, baseLikes) {
   }
 }
 
-/* ═══════════ INSIGHT 렌더 (독립 함수) ═══════════ */
-function renderInsightSection(tab, oneliner) {
-  const insightEl = document.getElementById(`${tab}-insight`);
-  if (!insightEl || !oneliner) return;
-
-  const cleanOneliner = (oneliner || '')
-    .replace(/\*\*/g, '').replace(/^#+\s*/gm, '').replace(/^---+\s*/gm, '');
-
-  function extractPoint(raw, label, nextLabel) {
-    const pattern = nextLabel
-      ? new RegExp(`${label}:\\s*([\\s\\S]*?)(?=${nextLabel}:|$)`)
-      : new RegExp(`${label}:\\s*([\\s\\S]*?)$`);
-    const m = raw.match(pattern);
-    if (!m) return { text: '', footnotes: [] };
-    const block = m[1].trim();
-    const lines = block.split('\n');
-    const textParts = [];
-    const footnotes = [];
-    lines.forEach(l => {
-      const trimmed = l.trim();
-      if (trimmed.startsWith('※각주:')) {
-        footnotes.push(trimmed.replace(/^※각주:\s*/, '').trim());
-      } else if (trimmed.startsWith('※') && trimmed.includes('—')) {
-        footnotes.push(trimmed);
-      } else {
-        // 본문 중간에 ※가 붙어있는 경우 분리
-        const fnIdx = l.indexOf('※');
-        if (fnIdx > 0 && l.slice(fnIdx).includes('—')) {
-          textParts.push(l.slice(0, fnIdx).trim());
-          footnotes.push(l.slice(fnIdx).trim());
-        } else {
-          textParts.push(l);
-        }
-      }
-    });
-    const text = textParts.join(' ').replace(/\s+/g,' ').trim();
-    return { text, footnotes };
-  }
-
-  const p1 = extractPoint(cleanOneliner, '배경\\(상황\\)Why', '시장 영향So What');
-  const p2 = extractPoint(cleanOneliner, '시장 영향So What', '주목할 점Next Move');
-  const p3 = extractPoint(cleanOneliner, '주목할 점Next Move', null);
-  const points = [p1, p2, p3].filter(p => p.text.length > 0);
-
-  function underlineInsight(text, fns) {
-    if (!fns.length) return text;
-    let result = text;
-    fns.forEach(fn => {
-      const raw = fn.split('—')[0].replace(/^※\s*/, '').trim();
-      if (!raw) return;
-      const core = raw.split(/[(\[（【]/)[0].trim();
-      if (!core) return;
-      const escaped = core.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-      result = result.replace(
-        new RegExp(escaped, 'g'),
-        `<span style="text-decoration:underline;text-decoration-color:rgba(255,255,255,0.7);text-underline-offset:3px;font-weight:700;">${core}</span>`
-      );
-    });
-    return result;
-  }
-
-  const labels = [
-    { ko: '배경(상황) 🌍', en: 'Why' },
-    { ko: '시장 영향 📉',  en: 'So What' },
-    { ko: '주목할 점 🔍', en: 'Focus' },
-  ];
-  const colors = ['#1A7A45', '#8B4513', '#1A5CAD'];
-
-  insightEl.innerHTML = `
-    <div class="insight-section-label">💡 쓰리포인트 요약 by Shawn</div>
-    <div class="insight-card" style="animation:panelIn 0.4s ease forwards;">
-      ${points.map((p, i) => {
-        const fnHtml = p.footnotes.length
-          ? p.footnotes.map(fn => {
-              const parts = fn.split('—');
-              if (parts.length >= 2) {
-                const term = parts[0].replace(/^※\s*/, '').trim();
-                const desc = parts.slice(1).join('—').trim();
-                return `<div style="margin-top:8px;padding:8px 10px;background:rgba(255,255,255,0.1);border-left:2px solid rgba(255,255,255,0.3);border-radius:0 6px 6px 0;font-size:11px;color:rgba(255,255,255,0.85);line-height:1.6;">※ <span style="font-weight:700;text-decoration:underline;text-decoration-color:rgba(255,255,255,0.6);text-underline-offset:3px;">${term}</span> — ${desc}</div>`;
-              }
-              return `<div style="margin-top:8px;padding:8px 10px;background:rgba(255,255,255,0.1);border-left:2px solid rgba(255,255,255,0.3);border-radius:0 6px 6px 0;font-size:11px;color:rgba(255,255,255,0.85);line-height:1.6;">${fn}</div>`;
-            }).join('')
-          : '';
-        return `
-        <div class="insight-line insight-point-anim" style="flex-direction:column;gap:8px;margin-bottom:${i < points.length - 1 ? '26px' : '0'};">
-          <span style="background:${colors[i]};display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border-radius:6px;align-self:flex-start;">
-            <span style="font-size:13px;font-weight:800;letter-spacing:-0.2px;color:#fff;">${labels[i].ko}</span>
-            <span style="font-size:11px;opacity:0.85;font-weight:600;letter-spacing:0.3px;color:#fff;">${labels[i].en}</span>
-          </span>
-          <span class="insight-text" style="font-size:14px;line-height:1.85;">${underlineInsight(p.text, p.footnotes)}</span>
-          ${fnHtml}
-        </div>`;
-      }).join('')}
-    </div>`;
-}
-
 /* ═══════════ 칼럼 ═══════════ */
 const columnCache = {};
 let _columnForTab = 'economy';
@@ -1047,8 +797,7 @@ async function loadColumnTab() {
     return;
   }
 
-  // 캐시에 없으면 "준비 중" 안내 — 클라이언트에서 Claude 직접 호출 금지
-  // 칼럼은 매일 07:00 KST 크론에서 editions 컬렉션에 생성됨
+  // Why: 클라이언트의 Claude 직접 호출을 금지해 API 비용 유출을 차단. 데이터는 크론만 생성.
   bodyEl.innerHTML = `<div class="status-card">
     <div class="status-card-icon">☕</div>
     <div class="status-card-title">오늘의 칼럼 준비 중</div>
