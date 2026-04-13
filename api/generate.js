@@ -154,12 +154,24 @@ export default async function handler(req, res) {
         it.description ? `${it.title}\n   → ${it.description.slice(0, 100)}` : it.title
       );
 
-      // 2-a. 이미지 수집 (Unsplash 3장 병렬 → topImageUrl OG 폴백)
-      const kw = UNSPLASH_KW[tab];
+      // 2-a. Claude 브리핑 생성 (imageQuery 포함)
+      const briefingRes = await fetch(`https://${host}/api/briefing`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ headlines, tab, label: TAB_LABEL[tab] }),
+      });
+      if (!briefingRes.ok) throw new Error(`briefing API 오류 ${briefingRes.status}`);
+
+      const { summary, footnotes, frontHeadline, imageQuery, headline, subheading, heading2, subheading2, heading3, subheading3, heading4, subheading4, columnHook, columnSubhook } = await briefingRes.json();
+      if (!summary) throw new Error('브리핑 파싱 실패');
+
+      // 2-b. 이미지 수집 — 브리핑이 생성한 imageQuery 사용 (폴백: 탭 기본 키워드)
+      const fallbackKw = UNSPLASH_KW[tab];
+      const topKw = imageQuery || fallbackKw;
       const [img0, img1, img2] = await Promise.all([
-        fetchUnsplashImage(kw),
-        fetchUnsplashImage(kw + ' chart data'),
-        fetchUnsplashImage(kw + ' office people'),
+        fetchUnsplashImage(topKw),
+        fetchUnsplashImage(fallbackKw + ' chart data'),
+        fetchUnsplashImage(fallbackKw + ' office people'),
       ]);
       let topImageUrl = img0;
       const sectionImages = [img1, img2].filter(Boolean);
@@ -177,17 +189,6 @@ export default async function handler(req, res) {
           } catch(e) { /* skip */ }
         }
       }
-
-      // 2-b. Claude 브리핑 생성
-      const briefingRes = await fetch(`https://${host}/api/briefing`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ headlines, tab, label: TAB_LABEL[tab] }),
-      });
-      if (!briefingRes.ok) throw new Error(`briefing API 오류 ${briefingRes.status}`);
-
-      const { summary, footnotes, frontHeadline, headline, subheading, heading2, subheading2, heading3, subheading3, heading4, subheading4, columnHook, columnSubhook } = await briefingRes.json();
-      if (!summary) throw new Error('브리핑 파싱 실패');
 
       // 3. Firestore 저장 (최신 캐시 — 덮어쓰기)
       const comments = await genComments(summary, TAB_LABEL[tab]);

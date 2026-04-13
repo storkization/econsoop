@@ -1242,7 +1242,7 @@ function renderLandingBriefs() {
         <div class="newspaper-card-tab" style="color:${t.color};">${t.icon} ${t.label.toUpperCase()}</div>
         <div class="newspaper-card-headline">${headline || '브리핑 불러오는 중...'}</div>
         ${sub && headline ? `<div class="newspaper-card-sub">${sub}</div>` : ''}
-        ${headline ? `<div class="newspaper-card-cta"><span style="background:${t.color};">읽기 →</span></div>` : ''}
+        ${headline ? `<div class="newspaper-card-cta"><span style="background:${t.color};">더 보기 →</span></div>` : ''}
       </div>
     </div>`;
   }).join('');
