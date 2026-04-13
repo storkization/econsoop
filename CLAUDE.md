@@ -59,6 +59,7 @@
    curl -s "https://econsoop.vercel.app/api/cached?tab=economy" | node -e "let d='';process.stdin.on('data',c=>d+=c).on('end',()=>{const j=JSON.parse(d);const dt=new Date(j.created_at);console.log('KST:',dt.toLocaleString('ko-KR',{timeZone:'Asia/Seoul'}),'fresh:',j.fresh)})"
    ```
    판정: 오늘 KST 날짜 + `fresh:true` → ✅ 정상. 둘 중 하나라도 어긋나면 알림.
+   **단, 현재 KST가 07:00 이전이면 전날 데이터 + `fresh:false`가 정상** (아직 오늘 슬롯 안 지남).
 3. 브리핑 채우기:
    - `{전용 체크}` → "오늘 7시 브리핑: ✅ 정상" 또는 문제 내용
    - `{버전 또는 상태 요약}` → `vN, {clean | uncommitted N개}`
