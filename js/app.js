@@ -855,36 +855,62 @@ function renderLandingBriefs() {
     { key: 'stocks',   label: '증권', icon: '📈', color: '#047857', bg: 'linear-gradient(160deg,#064E3B 0%,#047857 100%)' },
   ];
 
-  const cardsHtml = TABS.map(t => {
-    const result = summaryCache[t.key];
-    const headline = result?.frontHeadline || result?.headline;
-    const img = result?.topImageUrl;
-    const imgHtml = img
-      ? `<img class="newspaper-card-img" src="${img}" alt="" loading="lazy" data-fallbackbg="${t.bg}" onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
-         <div class="newspaper-card-img-placeholder" style="background:${t.bg};display:none;"></div>`
-      : `<div class="newspaper-card-img-placeholder" style="background:${t.bg};"></div>`;
-    const sub = result?.subheading;
-    return `<div class="newspaper-card" onclick="switchTab('${t.key}')" style="border-top:3px solid ${t.color};">
-      ${imgHtml}
-      <div class="newspaper-card-body">
-        <div class="newspaper-card-tab" style="color:${t.color};">${t.icon} ${t.label.toUpperCase()}</div>
-        <div class="newspaper-card-headline">${headline || '브리핑 불러오는 중...'}</div>
-        ${sub && headline ? `<div class="newspaper-card-sub">${sub}</div>` : ''}
-        ${headline ? `<div class="newspaper-card-cta"><span style="background:${t.color};">더 보기 →</span></div>` : ''}
+  const leadKey = TABS.map(t => summaryCache[t.key]?.leadTab).find(Boolean) || 'economy';
+  const leadTab = TABS.find(t => t.key === leadKey) || TABS[0];
+  const subTabs = TABS.filter(t => t.key !== leadTab.key);
+
+  const lead = summaryCache[leadTab.key] || {};
+  const heroHeadline = lead.frontHeadline || lead.headline || '브리핑 불러오는 중...';
+  const heroSub = lead.subheading || '';
+  const heroImg = lead.topImageUrl;
+  const heroImgHtml = heroImg
+    ? `<img class="front-hero-img" src="${heroImg}" alt="" loading="eager" onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
+       <div class="front-hero-img-placeholder" style="background:${leadTab.bg};display:none;"></div>`
+    : `<div class="front-hero-img-placeholder" style="background:${leadTab.bg};"></div>`;
+
+  const heroHtml = `
+    <div class="front-hero" onclick="switchTab('${leadTab.key}')">
+      ${heroImgHtml}
+      <div class="front-hero-body">
+        <div class="front-hero-label">🔴 TODAY'S TOP</div>
+        <div class="front-hero-tab" style="color:${leadTab.color};">${leadTab.icon} ${leadTab.label.toUpperCase()}</div>
+        <div class="front-hero-headline">${heroHeadline}</div>
+        ${heroSub && (lead.frontHeadline || lead.headline) ? `<div class="front-hero-sub">${heroSub}</div>` : ''}
+        <div class="front-hero-cta"><span style="background:${leadTab.color};">더 보기 →</span></div>
       </div>
     </div>`;
+
+  const subHtml = subTabs.map(t => {
+    const r = summaryCache[t.key] || {};
+    const h = r.frontHeadline || r.headline || '브리핑 불러오는 중...';
+    const img = r.topImageUrl;
+    const imgHtml = img
+      ? `<img class="front-sub-img" src="${img}" alt="" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
+         <div class="front-sub-img-placeholder" style="background:${t.bg};display:none;"></div>`
+      : `<div class="front-sub-img-placeholder" style="background:${t.bg};"></div>`;
+    return `
+      <div class="front-sub-card" onclick="switchTab('${t.key}')">
+        <div class="front-sub-body">
+          <div class="front-sub-tab" style="color:${t.color};">${t.icon} ${t.label.toUpperCase()}</div>
+          <div class="front-sub-headline">${h}</div>
+        </div>
+        ${imgHtml}
+      </div>`;
   }).join('');
 
-  root.innerHTML = `<div class="newspaper-card-grid">${cardsHtml}</div>`;
+  root.innerHTML = `
+    <div class="front-layout">
+      ${heroHtml}
+      <div class="front-subs">${subHtml}</div>
+    </div>`;
 
   // 이미지 크기 검증 — 너무 작은 이미지(로고·아이콘)는 플레이스홀더로 대체
-  root.querySelectorAll('.newspaper-card-img').forEach(imgEl => {
-    const onSmall = () => {
-      imgEl.style.display = 'none';
-      imgEl.nextElementSibling.style.display = 'block';
-    };
+  root.querySelectorAll('.front-hero-img, .front-sub-img').forEach(imgEl => {
     imgEl.addEventListener('load', () => {
-      if (imgEl.naturalWidth < 300 || imgEl.naturalHeight < 150) onSmall();
+      if (imgEl.naturalWidth < 300 || imgEl.naturalHeight < 150) {
+        imgEl.style.display = 'none';
+        if (imgEl.nextElementSibling) imgEl.nextElementSibling.style.display = 'block';
+      }
     });
   });
 }

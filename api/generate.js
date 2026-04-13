@@ -88,6 +88,37 @@ const SUMMARY_QUERIES = {
 };
 const TAB_LABEL = { economy: '경제', industry: '산업', global: '국제', stocks: '증권' };
 
+async function pickLeadTab(headlines) {
+  const apiKey = process.env.ANTHROPIC_API_KEY;
+  if (!apiKey) return 'economy';
+  try {
+    const r = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+        'content-type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'claude-haiku-4-5-20251001',
+        max_tokens: 20,
+        messages: [{
+          role: 'user',
+          content: `오늘 아침 한국 경제 브리핑 4개의 톱 헤드라인입니다.\n\n경제: ${headlines.economy || ''}\n산업: ${headlines.industry || ''}\n국제: ${headlines.global || ''}\n증권: ${headlines.stocks || ''}\n\n이 중 "오늘의 톱 뉴스"로 신문 1면 히어로에 올릴 하나를 고르세요. 기준: 파급력·긴급성·독자 관심도.\n답: economy / industry / global / stocks 중 하나만 단어로. 설명 금지.`,
+        }],
+      }),
+      signal: AbortSignal.timeout(10000),
+    });
+    const j = await r.json();
+    const raw = (j.content?.[0]?.text || '').trim().toLowerCase();
+    const m = raw.match(/(economy|industry|global|stocks)/);
+    return m ? m[1] : 'economy';
+  } catch(e) {
+    console.error('[GENERATE] leadTab 판정 실패:', e.message);
+    return 'economy';
+  }
+}
+
 // ── 메인 핸들러 ────────────────────────────────────────────
 export default async function handler(req, res) {
   const auth = req.headers['authorization'];
@@ -233,12 +264,29 @@ export default async function handler(req, res) {
         console.error(`[GENERATE] ${tab} 아카이브 저장 실패:`, archiveErr.message);
       }
 
-      results.push({ tab, ok: true, len: summary.length, summary });
+      results.push({ tab, ok: true, len: summary.length, summary, frontHeadline: frontHeadline || '', headline: headline || '' });
       console.log(`[GENERATE] ${tab} 완료 (${summary.length}자)`);
     } catch(err) {
       console.error(`[GENERATE] ${tab} 실패:`, err.message);
       results.push({ tab, ok: false, error: err.message });
     }
+  }
+
+  // ── 오늘의 톱 탭 판정 (신문 1면 히어로) ──
+  let leadTab = 'economy';
+  const successfulTabs = results.filter(r => r.ok);
+  if (successfulTabs.length >= 2) {
+    const headlineMap = {};
+    for (const r of successfulTabs) {
+      headlineMap[r.tab] = r.frontHeadline || r.headline || '';
+    }
+    leadTab = await pickLeadTab(headlineMap);
+    if (!successfulTabs.some(r => r.tab === leadTab)) leadTab = successfulTabs[0].tab;
+    console.log(`[GENERATE] leadTab 선정: ${leadTab}`);
+    await Promise.all(successfulTabs.map(r =>
+      db.collection('briefings').doc(r.tab).set({ leadTab }, { merge: true })
+        .catch(e => console.error(`[GENERATE] ${r.tab} leadTab update 실패:`, e.message))
+    ));
   }
 
   // ── 에디션 저장 (매 실행마다 저장, editionId로 중복 방지) ──
@@ -302,6 +350,7 @@ export default async function handler(req, res) {
       year: todayYear,
       created_at: Date.now(),
       tabs,
+      leadTab,
       column: { text: columnText, teaser: columnTeaser },
     });
     console.log(`[GENERATE] 에디션 저장: ${editionId}`);

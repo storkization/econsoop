@@ -883,56 +883,88 @@
       display:block; width:100%; height:28px;
       margin-top:6px; overflow:visible;
     }
-    .newspaper-card-grid {
-      display:grid; grid-template-columns:1fr; gap:10px;
-    }
-    .newspaper-card {
+    /* ── 1면 히어로 + 리스트 레이아웃 ── */
+    .front-layout { display:flex; flex-direction:column; gap:20px; }
+
+    .front-hero {
+      display:flex; flex-direction:column;
       border-radius:14px; overflow:hidden;
-      cursor:pointer; border:none;
-      display:flex; flex-direction:row-reverse; align-items:stretch; gap:14px;
-      padding:14px;
-      background:var(--bg-card);
-      transition:opacity 0.15s;
-      min-height:116px;
+      background:var(--bg-card); border:none;
+      cursor:pointer; transition:opacity 0.15s;
     }
-    .newspaper-card:active { opacity:0.82; }
-    .newspaper-card-img {
-      width:126px; height:88px; object-fit:cover;
-      border-radius:10px; flex-shrink:0; display:block;
-      align-self:center;
+    .front-hero:active { opacity:0.85; }
+    .front-hero-img {
+      width:100%; aspect-ratio:16/9;
+      object-fit:cover; display:block;
     }
-    .newspaper-card-img-placeholder {
-      width:126px; height:88px; border-radius:10px; flex-shrink:0;
-      align-self:center;
+    .front-hero-img-placeholder {
+      width:100%; aspect-ratio:16/9; display:block;
     }
-    .newspaper-card-body {
-      display:flex; flex-direction:column; flex:1; min-width:0;
+    .front-hero-body { padding:18px 18px 18px; }
+    .front-hero-label {
+      display:inline-block;
+      background:#DC2626; color:#fff;
+      font-family:var(--font-mono);
+      font-size:10px; font-weight:900; letter-spacing:1.8px;
+      padding:4px 9px; border-radius:3px;
+      margin-bottom:12px;
     }
-    .newspaper-card-tab {
-      font-size:11px; font-weight:900; letter-spacing:1.2px;
-      margin-bottom:10px; font-family:var(--font-mono);
-      color:var(--text-dim);
+    .front-hero-tab {
+      font-family:var(--font-mono);
+      font-size:12px; font-weight:900; letter-spacing:1.5px;
+      margin-bottom:10px;
     }
-    .newspaper-card-headline {
-      font-size:17px; font-weight:800; color:var(--text);
+    .front-hero-headline {
+      font-size:24px; font-weight:900;
+      line-height:1.3; letter-spacing:-0.6px;
+      color:var(--text); margin-bottom:12px;
+    }
+    .front-hero-sub {
+      font-size:15px; font-weight:500;
+      line-height:1.55; color:var(--text);
+      margin-bottom:14px;
+    }
+    .front-hero-cta { display:flex; justify-content:flex-end; }
+    .front-hero-cta span {
+      font-size:12px; font-weight:700; color:#fff;
+      padding:6px 14px; border-radius:20px;
+    }
+
+    .front-subs {
+      display:flex; flex-direction:column;
+      border-top:1px solid var(--border);
+    }
+    .front-sub-card {
+      display:flex; flex-direction:row; align-items:center;
+      gap:14px; padding:16px 2px;
+      border-bottom:1px solid var(--border);
+      cursor:pointer; transition:opacity 0.15s;
+    }
+    .front-sub-card:last-child { border-bottom:none; }
+    .front-sub-card:active { opacity:0.7; }
+    .front-sub-body {
+      flex:1; min-width:0;
+      display:flex; flex-direction:column; gap:6px;
+    }
+    .front-sub-tab {
+      font-family:var(--font-mono);
+      font-size:10px; font-weight:900; letter-spacing:1.3px;
+    }
+    .front-sub-headline {
+      font-size:16px; font-weight:800;
       line-height:1.4; letter-spacing:-0.3px;
-      overflow:hidden; display:-webkit-box;
-      -webkit-line-clamp:3; -webkit-box-orient:vertical;
-    }
-    .newspaper-card-sub {
-      font-size:14px; font-weight:500; color:var(--text);
-      line-height:1.5; margin-top:10px;
+      color:var(--text);
       overflow:hidden; display:-webkit-box;
       -webkit-line-clamp:2; -webkit-box-orient:vertical;
     }
-    .newspaper-card-cta {
-      display:flex; align-items:center; justify-content:flex-end;
-      margin-top:auto; padding-top:10px;
+    .front-sub-img {
+      width:78px; height:78px;
+      object-fit:cover; border-radius:8px;
+      flex-shrink:0; display:block;
     }
-    .newspaper-card-cta span {
-      font-size:12px; font-weight:700; color:#fff;
-      padding:5px 12px; border-radius:20px;
-      letter-spacing:0.2px;
+    .front-sub-img-placeholder {
+      width:78px; height:78px;
+      border-radius:8px; flex-shrink:0;
     }
 
     /* ── 프리미엄 게이트 ── */
