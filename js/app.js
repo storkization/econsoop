@@ -713,11 +713,22 @@ function renderTabSummary(tab, result) {
           const likeCount = (c.likes || 0) + (liked ? 1 : 0);
           const repliesHtml = (c.replies || []).map((r, ri) => {
             const rc = AVATAR_COLORS[(i + ri + 3) % AVATAR_COLORS.length];
+            const subHtml = (r.subReplies || []).map((sr, sri) => {
+              const sc = AVATAR_COLORS[(i + ri + sri + 5) % AVATAR_COLORS.length];
+              return `<div class="cmt-subreply">
+                <div class="cmt-avatar cmt-avatar-sm" style="background:${sc};">${(sr.nick||'?').slice(0,1).toUpperCase()}</div>
+                <div class="cmt-reply-body">
+                  <span class="cmt-nick">${sr.nick||''}</span>
+                  <span class="cmt-text">${sr.text||''}</span>
+                </div>
+              </div>`;
+            }).join('');
             return `<div class="cmt-reply">
               <div class="cmt-avatar cmt-avatar-sm" style="background:${rc};">${r.nick.slice(0,1).toUpperCase()}</div>
               <div class="cmt-reply-body">
                 <span class="cmt-nick">${r.nick}</span>
                 <span class="cmt-text">${r.text}</span>
+                ${subHtml ? `<div class="cmt-subreplies">${subHtml}</div>` : ''}
               </div>
             </div>`;
           }).join('');
@@ -1217,10 +1228,23 @@ async function loadFrontMarket() {
 
 function attachDragScroll(el) {
   let down = false, startX = 0, startY = 0, startScroll = 0, moved = 0, locked = null;
+  let lastX = 0, lastT = 0, velocity = 0, rafId = 0;
+
+  const stopInertia = () => { if (rafId) { cancelAnimationFrame(rafId); rafId = 0; } };
+  const step = () => {
+    if (Math.abs(velocity) < 0.02) { rafId = 0; return; }
+    el.scrollLeft -= velocity * 16;
+    velocity *= 0.93;
+    rafId = requestAnimationFrame(step);
+  };
+
   el.addEventListener('pointerdown', (e) => {
     if (e.button && e.button !== 0) return;
+    stopInertia();
     down = true; moved = 0; locked = null;
     startX = e.clientX; startY = e.clientY;
+    lastX = e.clientX; lastT = performance.now();
+    velocity = 0;
     startScroll = el.scrollLeft;
     el.classList.add('dragging');
     try { el.setPointerCapture(e.pointerId); } catch {}
@@ -1236,12 +1260,19 @@ function attachDragScroll(el) {
     if (locked === 'x') e.preventDefault();
     moved = Math.max(moved, Math.abs(dx));
     el.scrollLeft = startScroll - dx;
+    const now = performance.now();
+    const dt = now - lastT;
+    if (dt > 0) velocity = (e.clientX - lastX) / dt;
+    lastX = e.clientX; lastT = now;
   });
   const end = (e) => {
     if (!down) return;
     down = false;
     try { if (e && e.pointerId != null) el.releasePointerCapture(e.pointerId); } catch {}
     setTimeout(() => el.classList.remove('dragging'), 0);
+    if (locked === 'x' && Math.abs(velocity) > 0.1) {
+      rafId = requestAnimationFrame(step);
+    }
   };
   el.addEventListener('pointerup', end);
   el.addEventListener('pointercancel', end);

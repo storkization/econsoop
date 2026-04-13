@@ -823,72 +823,69 @@
     }
 
     /* ── 1면 마켓 대시보드 ── */
-    #front-market { margin-bottom:10px; display:flex; flex-direction:column; gap:10px; }
+    #front-market { margin-bottom:10px; display:flex; flex-direction:column; gap:14px; }
     .fm-section-label {
       font-family:var(--font-sans); font-size:13px; font-weight:800;
       color:var(--text); letter-spacing:-0.2px;
+      padding:0 14px;
       margin-bottom:-4px;
     }
     .fm-grid {
-      display:flex; gap:8px;
+      display:flex; gap:10px;
       overflow-x:auto; -webkit-overflow-scrolling:touch;
       scrollbar-width:none;
       padding:2px 14px;
-      scroll-padding-left:14px;
-      scroll-snap-type:x mandatory;
-      scroll-behavior:smooth;
       touch-action:pan-y;
       cursor:grab;
       user-select:none;
       -webkit-user-select:none;
     }
-    .fm-grid.dragging { scroll-behavior:auto; cursor:grabbing; }
+    .fm-grid.dragging { cursor:grabbing; }
     .fm-grid::-webkit-scrollbar { display:none; }
     .fm-card {
-      /* 3개 고정 너비 (gap 8px × 2 + 좌우 padding 28px 제외) */
-      flex:0 0 calc((100% - 44px) / 3);
-      scroll-snap-align:start;
+      /* 3개 고정 너비 (gap 10px × 2 + 좌우 padding 28px = 48px 제외) */
+      flex:0 0 calc((100% - 48px) / 3);
       background:var(--bg-card); border-radius:12px;
-      padding:10px 10px 10px; border:1px solid var(--border);
-      display:flex; flex-direction:column; gap:2px;
-      height:112px; box-sizing:border-box;
+      padding:10px 9px; border:1px solid var(--border);
+      display:flex; flex-direction:column; gap:3px;
+      height:132px; box-sizing:border-box; overflow:hidden;
     }
     .fm-card-top {
-      display:flex; align-items:center; gap:5px; margin-bottom:4px;
+      display:flex; align-items:center; gap:5px; margin-bottom:3px;
+      min-width:0;
     }
     .fm-card-dot {
       width:6px; height:6px; border-radius:50%; flex-shrink:0;
     }
     .fm-card-label {
       font-family:var(--font-sans); font-size:10px; font-weight:700;
-      color:var(--text); letter-spacing:-0.1px;
+      color:var(--text); letter-spacing:-0.2px;
       white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
-    }
-    .fm-card-price-row {
-      display:flex; align-items:baseline; gap:5px; flex-wrap:nowrap;
       min-width:0;
     }
     .fm-card-val {
-      font-family:var(--font-sans); font-size:18px; font-weight:900;
-      color:var(--text); letter-spacing:-0.6px; line-height:1.1;
+      font-family:var(--font-sans); font-size:15px; font-weight:900;
+      color:var(--text); letter-spacing:-0.6px; line-height:1.15;
       white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
-      min-width:0;
     }
     .fm-card-prev {
       font-family:var(--font-mono); font-size:9px; color:var(--text-dim);
-      white-space:nowrap;
+      white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
     }
     .fm-card-chg {
-      font-family:var(--font-sans); font-size:12px; font-weight:700;
-      margin-top:3px;
+      font-family:var(--font-sans); font-size:11px; font-weight:700;
+      margin-top:2px;
+      white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
     }
     .fm-card-chg.up   { color:#16A34A; }
     .fm-card-chg.down { color:#DC2626; }
     .fm-card-chg.flat { color:var(--text-dim); }
     .fm-sparkline {
-      display:block; width:100%; height:24px;
+      display:block; width:100%; height:22px;
       margin-top:auto; overflow:visible;
+      flex-shrink:0;
     }
+    .fm-card:not(:has(.fm-sparkline)) .fm-card-chg { margin-top:auto; }
     /* ── 1면 히어로 + 리스트 레이아웃 ── */
     .front-layout { display:flex; flex-direction:column; gap:20px; }
 
@@ -1336,6 +1333,16 @@
     .cmt-reply-body { flex:1; min-width:0; }
     .cmt-reply-body .cmt-nick { display:block; margin-bottom:1px; }
     .cmt-reply-body .cmt-text { font-size:13px; }
+    .cmt-subreplies {
+      margin-top:10px;
+      padding-left:9px;
+      border-left:2px solid var(--border);
+      display:flex; flex-direction:column; gap:8px;
+    }
+    .cmt-subreply {
+      display:flex; align-items:flex-start; gap:6px;
+    }
+    .cmt-subreply .cmt-text { font-size:12px; }
 
     /* ── 랜딩페이지 ── */
     #tab-front { padding:0; background:#fff; }

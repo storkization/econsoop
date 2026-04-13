@@ -18,9 +18,30 @@ const NICK_POOL = [
   '금리덕후','꼬마투자자','경제공부중','bull_k','야간매수러',
 ];
 
+// 랜덤 댓글 트리 템플릿 (옵션 B: 인기 집중형 + 대대댓글 20%)
+function buildCommentTemplate() {
+  const count = 4 + Math.floor(Math.random() * 4); // 4~7
+  const tree = [];
+  for (let i = 0; i < count; i++) {
+    let replyCount;
+    if (i === 0)      replyCount = 2 + Math.floor(Math.random() * 2); // 2~3
+    else if (i === 1) replyCount = 1 + Math.floor(Math.random() * 2); // 1~2
+    else              replyCount = Math.random() < 0.4 ? 1 : 0;       // 0 or 1
+    const replies = [];
+    for (let j = 0; j < replyCount; j++) {
+      const subCount = Math.random() < 0.2 ? (1 + Math.floor(Math.random() * 2)) : 0;
+      const subReplies = Array.from({ length: subCount }, () => ({ text: '' }));
+      replies.push({ text: '', subReplies });
+    }
+    tree.push({ text: '', replies });
+  }
+  return tree;
+}
+
 async function genComments(summary, label) {
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) return [];
+  const template = buildCommentTemplate();
   try {
     const r = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
@@ -31,25 +52,31 @@ async function genComments(summary, label) {
       },
       body: JSON.stringify({
         model: 'claude-haiku-4-5-20251001',
-        max_tokens: 700,
+        max_tokens: 1400,
         messages: [{
           role: 'user',
-          content: `오늘의 ${label} 브리핑:\n${summary.slice(0, 350)}\n\n이 브리핑을 읽은 한국 독자 4명의 댓글과, 각 댓글에 달린 대댓글 1~2개를 생성하세요.\n규칙: 댓글 15~45자, 대댓글 10~30자, 인터넷 말투 자연스럽게, 이모지 1개 이하, 마크다운 금지.\nJSON만 출력:\n[{"text":"댓글","replies":["대댓글1","대댓글2"]},...]`,
+          content: `오늘의 ${label} 브리핑:\n${summary.slice(0, 350)}\n\n이 브리핑에 달린 한국 독자 댓글 트리를 아래 JSON 템플릿 구조대로 생성하세요.\n각 "text" 필드를 채워 반환하세요.\n\n규칙:\n- 댓글(최상위 text): 15~45자, 자연스러운 인터넷 말투, 공감·의견·질문·경험담 다양하게, 이모지 0~1개\n- 대댓글(replies의 text): 10~30자, 원댓글에 대한 반응(공감/반박/질문/보충)\n- 대대댓글(subReplies의 text): 8~25자, 짧은 동조형 ("맞아요", "그러게요", "아 그렇군요" 느낌)\n- 마크다운·이모티콘 과용 금지\n\n템플릿 (구조를 바꾸지 말고 text만 채우기):\n${JSON.stringify(template, null, 2)}\n\n채워진 JSON만 출력하세요.`,
         }],
       }),
-      signal: AbortSignal.timeout(25000),
+      signal: AbortSignal.timeout(30000),
     });
     const j = await r.json();
     const raw = j.content[0].text.replace(/```json\s*/gi, '').replace(/```/g, '').trim();
     const items = JSON.parse(raw);
     const shuffled = [...NICK_POOL].sort(() => Math.random() - 0.5);
-    return items.slice(0, 4).map((item, i) => ({
-      nick: shuffled[i],
-      text: item.text,
+    let ni = 0;
+    const pick = () => shuffled[ni++ % shuffled.length];
+    return items.map((c) => ({
+      nick: pick(),
+      text: c.text || '',
       likes: Math.floor(Math.random() * 18) + 1,
-      replies: (item.replies || []).slice(0, 2).map((rt, ri) => ({
-        nick: shuffled[4 + i * 2 + ri] || shuffled[(i + ri + 5) % NICK_POOL.length],
-        text: rt,
+      replies: (c.replies || []).map((r) => ({
+        nick: pick(),
+        text: r.text || '',
+        subReplies: (r.subReplies || []).map((sr) => ({
+          nick: pick(),
+          text: sr.text || '',
+        })),
       })),
     }));
   } catch(e) {
