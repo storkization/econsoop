@@ -849,10 +849,10 @@ function renderLandingBriefs() {
   if (!root) return;
 
   const TABS = [
-    { key: 'economy',  label: '경제', icon: '🏦', color: '#A51C30', bg: 'linear-gradient(160deg,#6B0F1A 0%,#A51C30 100%)' },
-    { key: 'industry', label: '산업', icon: '🏭', color: '#1D4ED8', bg: 'linear-gradient(160deg,#1E3A8A 0%,#2563EB 100%)' },
-    { key: 'global',   label: '국제', icon: '🌐', color: '#B45309', bg: 'linear-gradient(160deg,#78350F 0%,#B45309 100%)' },
-    { key: 'stocks',   label: '증권', icon: '📈', color: '#047857', bg: 'linear-gradient(160deg,#064E3B 0%,#047857 100%)' },
+    { key: 'economy',  label: '경 제', labelEn: 'Economy',  icon: '🏦', color: '#A51C30', bg: 'linear-gradient(160deg,#6B0F1A 0%,#A51C30 100%)' },
+    { key: 'industry', label: '산 업', labelEn: 'Industry', icon: '🏭', color: '#1D4ED8', bg: 'linear-gradient(160deg,#1E3A8A 0%,#2563EB 100%)' },
+    { key: 'global',   label: '국 제', labelEn: 'Global',   icon: '🌐', color: '#B45309', bg: 'linear-gradient(160deg,#78350F 0%,#B45309 100%)' },
+    { key: 'stocks',   label: '증 권', labelEn: 'Stocks',   icon: '📈', color: '#047857', bg: 'linear-gradient(160deg,#064E3B 0%,#047857 100%)' },
   ];
 
   const leadKey = TABS.map(t => summaryCache[t.key]?.leadTab).find(Boolean) || 'economy';
@@ -873,7 +873,7 @@ function renderLandingBriefs() {
       ${heroImgHtml}
       <div class="front-hero-body">
         <div class="front-hero-label">🔴 TODAY'S TOP</div>
-        <div class="front-hero-tab" style="color:${leadTab.color};">${leadTab.icon} ${leadTab.label.toUpperCase()}</div>
+        <div class="front-hero-tab" style="color:${leadTab.color};">${leadTab.icon} ${leadTab.label}&nbsp;&nbsp;${leadTab.labelEn}</div>
         <div class="front-hero-headline">${heroHeadline}</div>
         ${heroSub && (lead.frontHeadline || lead.headline) ? `<div class="front-hero-sub">${heroSub}</div>` : ''}
         <div class="front-hero-cta"><span style="background:${leadTab.color};">더 보기 →</span></div>
@@ -891,8 +891,9 @@ function renderLandingBriefs() {
     return `
       <div class="front-sub-card" onclick="switchTab('${t.key}')">
         <div class="front-sub-body">
-          <div class="front-sub-tab" style="color:${t.color};">${t.icon} ${t.label.toUpperCase()}</div>
+          <div class="front-sub-tab" style="color:${t.color};">${t.icon} ${t.label}&nbsp;&nbsp;${t.labelEn}</div>
           <div class="front-sub-headline">${h}</div>
+          <div class="front-sub-cta"><span style="background:${t.color};">더 보기 →</span></div>
         </div>
         ${imgHtml}
       </div>`;

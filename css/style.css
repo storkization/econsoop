@@ -933,10 +933,11 @@
       border-top:1px solid var(--border);
     }
     .front-sub-card {
-      display:flex; flex-direction:row; align-items:center;
+      display:flex; flex-direction:row; align-items:stretch;
       gap:14px; padding:16px 2px;
       border-bottom:1px solid var(--border);
       cursor:pointer; transition:opacity 0.15s;
+      min-height:96px;
     }
     .front-sub-card:last-child { border-bottom:none; }
     .front-sub-card:active { opacity:0.7; }
@@ -955,14 +956,24 @@
       overflow:hidden; display:-webkit-box;
       -webkit-line-clamp:2; -webkit-box-orient:vertical;
     }
+    .front-sub-cta {
+      margin-top:auto; padding-top:8px;
+      display:flex; justify-content:flex-end;
+    }
+    .front-sub-cta span {
+      font-size:11px; font-weight:700; color:#fff;
+      padding:4px 11px; border-radius:20px;
+    }
     .front-sub-img {
-      width:78px; height:78px;
+      width:84px; height:84px;
       object-fit:cover; border-radius:8px;
       flex-shrink:0; display:block;
+      align-self:center;
     }
     .front-sub-img-placeholder {
-      width:78px; height:78px;
+      width:84px; height:84px;
       border-radius:8px; flex-shrink:0;
+      align-self:center;
     }
 
     /* ── 프리미엄 게이트 ── */
