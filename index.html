@@ -18,19 +18,21 @@
 
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://js.sentry-cdn.com">
   <link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Noto+Serif+KR:wght@400;500;600;700;900&family=IBM+Plex+Mono:wght@400;500;600&family=Noto+Sans+KR:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
 
   <!-- Styles -->
-  <link rel="stylesheet" href="css/style.css?v=165">
+  <link rel="stylesheet" href="css/style.css?v=166">
 
-  <!-- Sentry 에러 트래킹 (dev 모드 제외) -->
   <script>
-    if (!location.search.includes('dev=true')) {
+    window.ECO_VERSION = 'v166';
+    (function() {
+      var isDev = new URLSearchParams(location.search).get('dev') === 'true';
+      if (isDev) return;
       window.sentryOnLoad = function() {
         Sentry.init({
-          dsn: 'https://a662427d08c31534325427ffd4a79f69@o4511211146444800.ingest.us.sentry.io/4511211167088640',
-          release: 'v165',
+          release: window.ECO_VERSION,
           environment: 'production',
         });
       };
@@ -39,7 +41,7 @@
       s.crossOrigin = 'anonymous';
       s.async = true;
       document.head.appendChild(s);
-    }
+    })();
   </script>
 </head>
 <body>
@@ -508,7 +510,7 @@
 
 <!-- Scripts -->
 <script src="js/newsroom.js?v=153"></script>
-<script src="js/app.js?v=165"></script>
+<script src="js/app.js?v=166"></script>
 
 <!-- PWA Service Worker -->
 <script>

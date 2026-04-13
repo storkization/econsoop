@@ -839,6 +839,7 @@
     }
     .fm-grid::-webkit-scrollbar { display:none; }
     .fm-card {
+      /* 3.2 = 카드 3개 + 0.2 엿보기: "더 있다" 시각 단서 */
       flex:0 0 calc((100% - 18px) / 3.2);
       scroll-snap-align:start;
       background:var(--bg-card); border-radius:12px;

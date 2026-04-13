@@ -67,7 +67,7 @@ function showToast(msg) {
 }
 
 /* ═══════════ CACHE VERSION ═══════════ */
-const CACHE_VERSION = 'v165';
+const CACHE_VERSION = window.ECO_VERSION || 'dev';
 (function clearOldCache() {
   const savedVersion = localStorage.getItem('eco_cache_version');
   if (savedVersion !== CACHE_VERSION) {
@@ -1011,7 +1011,6 @@ function fmtChg(q) {
   return { cls, txt: `${arr}${Math.abs(q.pct).toFixed(2)}%` };
 }
 
-// 모든 지표 통합 목록 (횡스크롤 flex, 카드 너비 통일)
 const MARKET_GROUPS = [
   {
     label: '환율', icon: '💱',
