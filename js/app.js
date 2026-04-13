@@ -74,7 +74,7 @@ function showToast(msg) {
 }
 
 /* ═══════════ CACHE VERSION ═══════════ */
-const CACHE_VERSION = 'v153';
+const CACHE_VERSION = 'v154';
 (function clearOldCache() {
   const savedVersion = localStorage.getItem('eco_cache_version');
   if (savedVersion !== CACHE_VERSION) {
@@ -178,6 +178,18 @@ document.addEventListener('DOMContentLoaded', () => {
   // 앱 시작 = 저장된 시작 탭 로드
   const startTab = localStorage.getItem('eco_start_tab') || 'front';
   switchTab(startTab);
+
+  // 안드로이드 엣지 스와이프 뒤로가기 방어 — history 쿠션 + popstate 인터셉트
+  try { history.pushState({ viva: 1 }, ''); } catch {}
+  window.addEventListener('popstate', () => {
+    const drawer = document.getElementById('drawer');
+    if (drawer && drawer.classList.contains('open')) {
+      closeDrawer();
+    } else if (currentTab !== 'front') {
+      switchTab('front');
+    }
+    try { history.pushState({ viva: 1 }, ''); } catch {}
+  });
 
   // 설정 초기화
   initSettings();
