@@ -18,15 +18,41 @@ const NICK_POOL = [
   '금리덕후','꼬마투자자','경제공부중','bull_k','야간매수러',
 ];
 
-// 랜덤 댓글 트리 템플릿 (옵션 B: 인기 집중형 + 대대댓글 20%)
+async function callHaiku({ prompt, maxTokens, timeoutMs }) {
+  const apiKey = process.env.ANTHROPIC_API_KEY;
+  if (!apiKey) return '';
+  try {
+    const r = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+        'content-type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'claude-haiku-4-5-20251001',
+        max_tokens: maxTokens,
+        messages: [{ role: 'user', content: prompt }],
+      }),
+      signal: AbortSignal.timeout(timeoutMs),
+    });
+    const j = await r.json();
+    return j.content?.[0]?.text || '';
+  } catch(e) {
+    console.error('[GENERATE] Haiku 호출 실패:', e.message);
+    return '';
+  }
+}
+
+// 옵션 B: 인기 집중형(첫 두 댓글에 대댓글 몰림) + 대대댓글 20% 확률
 function buildCommentTemplate() {
-  const count = 4 + Math.floor(Math.random() * 4); // 4~7
+  const count = 4 + Math.floor(Math.random() * 4);
   const tree = [];
   for (let i = 0; i < count; i++) {
     let replyCount;
-    if (i === 0)      replyCount = 2 + Math.floor(Math.random() * 2); // 2~3
-    else if (i === 1) replyCount = 1 + Math.floor(Math.random() * 2); // 1~2
-    else              replyCount = Math.random() < 0.4 ? 1 : 0;       // 0 or 1
+    if (i === 0)      replyCount = 2 + Math.floor(Math.random() * 2);
+    else if (i === 1) replyCount = 1 + Math.floor(Math.random() * 2);
+    else              replyCount = Math.random() < 0.4 ? 1 : 0;
     const replies = [];
     for (let j = 0; j < replyCount; j++) {
       const subCount = Math.random() < 0.2 ? (1 + Math.floor(Math.random() * 2)) : 0;
@@ -39,29 +65,12 @@ function buildCommentTemplate() {
 }
 
 async function genComments(summary, label) {
-  const apiKey = process.env.ANTHROPIC_API_KEY;
-  if (!apiKey) return [];
   const template = buildCommentTemplate();
+  const prompt = `오늘의 ${label} 브리핑:\n${summary.slice(0, 350)}\n\n이 브리핑에 달린 한국 독자 댓글 트리를 아래 JSON 템플릿 구조대로 생성하세요.\n각 "text" 필드를 채워 반환하세요.\n\n규칙:\n- 댓글(최상위 text): 15~45자, 자연스러운 인터넷 말투, 공감·의견·질문·경험담 다양하게, 이모지 0~1개\n- 대댓글(replies의 text): 10~30자, 원댓글에 대한 반응(공감/반박/질문/보충)\n- 대대댓글(subReplies의 text): 8~25자, 짧은 동조형 ("맞아요", "그러게요", "아 그렇군요" 느낌)\n- 마크다운·이모티콘 과용 금지\n\n템플릿 (구조를 바꾸지 말고 text만 채우기):\n${JSON.stringify(template, null, 2)}\n\n채워진 JSON만 출력하세요.`;
+  const text = await callHaiku({ prompt, maxTokens: 1400, timeoutMs: 30000 });
+  if (!text) return [];
   try {
-    const r = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'x-api-key': apiKey,
-        'anthropic-version': '2023-06-01',
-        'content-type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'claude-haiku-4-5-20251001',
-        max_tokens: 1400,
-        messages: [{
-          role: 'user',
-          content: `오늘의 ${label} 브리핑:\n${summary.slice(0, 350)}\n\n이 브리핑에 달린 한국 독자 댓글 트리를 아래 JSON 템플릿 구조대로 생성하세요.\n각 "text" 필드를 채워 반환하세요.\n\n규칙:\n- 댓글(최상위 text): 15~45자, 자연스러운 인터넷 말투, 공감·의견·질문·경험담 다양하게, 이모지 0~1개\n- 대댓글(replies의 text): 10~30자, 원댓글에 대한 반응(공감/반박/질문/보충)\n- 대대댓글(subReplies의 text): 8~25자, 짧은 동조형 ("맞아요", "그러게요", "아 그렇군요" 느낌)\n- 마크다운·이모티콘 과용 금지\n\n템플릿 (구조를 바꾸지 말고 text만 채우기):\n${JSON.stringify(template, null, 2)}\n\n채워진 JSON만 출력하세요.`,
-        }],
-      }),
-      signal: AbortSignal.timeout(30000),
-    });
-    const j = await r.json();
-    const raw = j.content[0].text.replace(/```json\s*/gi, '').replace(/```/g, '').trim();
+    const raw = text.replace(/```json\s*/gi, '').replace(/```/g, '').trim();
     const items = JSON.parse(raw);
     const shuffled = [...NICK_POOL].sort(() => Math.random() - 0.5);
     let ni = 0;
@@ -80,7 +89,7 @@ async function genComments(summary, label) {
       })),
     }));
   } catch(e) {
-    console.error('[GENERATE] 댓글 생성 실패:', e.message);
+    console.error('[GENERATE] 댓글 파싱 실패:', e.message);
     return [];
   }
 }
@@ -116,34 +125,10 @@ const SUMMARY_QUERIES = {
 const TAB_LABEL = { economy: '경제', industry: '산업', global: '국제', stocks: '증권' };
 
 async function pickLeadTab(headlines) {
-  const apiKey = process.env.ANTHROPIC_API_KEY;
-  if (!apiKey) return 'economy';
-  try {
-    const r = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'x-api-key': apiKey,
-        'anthropic-version': '2023-06-01',
-        'content-type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'claude-haiku-4-5-20251001',
-        max_tokens: 20,
-        messages: [{
-          role: 'user',
-          content: `오늘 아침 한국 경제 브리핑 4개의 톱 헤드라인입니다.\n\n경제: ${headlines.economy || ''}\n산업: ${headlines.industry || ''}\n국제: ${headlines.global || ''}\n증권: ${headlines.stocks || ''}\n\n이 중 "오늘의 톱 뉴스"로 신문 1면 히어로에 올릴 하나를 고르세요. 기준: 파급력·긴급성·독자 관심도.\n답: economy / industry / global / stocks 중 하나만 단어로. 설명 금지.`,
-        }],
-      }),
-      signal: AbortSignal.timeout(10000),
-    });
-    const j = await r.json();
-    const raw = (j.content?.[0]?.text || '').trim().toLowerCase();
-    const m = raw.match(/(economy|industry|global|stocks)/);
-    return m ? m[1] : 'economy';
-  } catch(e) {
-    console.error('[GENERATE] leadTab 판정 실패:', e.message);
-    return 'economy';
-  }
+  const prompt = `오늘 아침 한국 경제 브리핑 4개의 톱 헤드라인입니다.\n\n경제: ${headlines.economy || ''}\n산업: ${headlines.industry || ''}\n국제: ${headlines.global || ''}\n증권: ${headlines.stocks || ''}\n\n이 중 "오늘의 톱 뉴스"로 신문 1면 히어로에 올릴 하나를 고르세요. 기준: 파급력·긴급성·독자 관심도.\n답: economy / industry / global / stocks 중 하나만 단어로. 설명 금지.`;
+  const text = await callHaiku({ prompt, maxTokens: 20, timeoutMs: 10000 });
+  const m = text.trim().toLowerCase().match(/(economy|industry|global|stocks)/);
+  return m ? m[1] : 'economy';
 }
 
 // ── 메인 핸들러 ────────────────────────────────────────────
@@ -232,28 +217,29 @@ export default async function handler(req, res) {
       //   sectionImages: 본문 중간 삽입용 Unsplash 2장
       const fallbackKw = UNSPLASH_KW[tab];
       const topKw = imageQuery || fallbackKw;
-      let topImageUrl = '';
-      // OG 이미지 시도 — 상위 3개 기사 중 품질 ok인 것
-      for (const it of unique.slice(0, 3)) {
-        const topUrl = it?.originallink || it?.link;
-        if (!topUrl) continue;
-        try {
-          const ogRes = await fetch(`https://${host}/api/ogimage?url=${encodeURIComponent(topUrl)}`, {
-            signal: AbortSignal.timeout(6000),
-          });
-          if (ogRes.ok) {
-            const ogData = await ogRes.json();
-            if (ogData.imageUrl) { topImageUrl = ogData.imageUrl; break; }
-          }
-        } catch(e) { /* next */ }
-      }
-      const [img1, img2, img0] = await Promise.all([
+      // OG 이미지: 상위 3개 기사 병렬 fetch → 첫 성공 채택
+      const ogCandidates = unique.slice(0, 3)
+        .map(it => it?.originallink || it?.link)
+        .filter(Boolean);
+      const [ogResults, img1, img2] = await Promise.all([
+        Promise.all(ogCandidates.map(async (url) => {
+          try {
+            const r = await fetch(`https://${host}/api/ogimage?url=${encodeURIComponent(url)}`, {
+              signal: AbortSignal.timeout(6000),
+            });
+            if (!r.ok) return '';
+            const d = await r.json();
+            return d.imageUrl || '';
+          } catch { return ''; }
+        })),
         fetchUnsplashImage(fallbackKw + ' chart data'),
         fetchUnsplashImage(fallbackKw + ' office people'),
-        topImageUrl ? Promise.resolve('') : fetchUnsplashImage(topKw),
       ]);
+      let topImageUrl = ogResults.find(Boolean) || '';
       const sectionImages = [img1, img2].filter(Boolean);
-      if (!topImageUrl) topImageUrl = img0 || sectionImages.shift() || '';
+      if (!topImageUrl) {
+        topImageUrl = await fetchUnsplashImage(topKw) || sectionImages.shift() || '';
+      }
 
       // 3. Firestore 저장 (최신 캐시 — 덮어쓰기)
       const comments = await genComments(summary, TAB_LABEL[tab]);
