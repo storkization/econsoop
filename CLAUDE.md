@@ -48,15 +48,17 @@ curl -s "https://econsoop.vercel.app/api/cached?tab=economy" | node -e "let d=''
 
 배포할 때마다 아래 **3곳의 버전을 반드시 함께 올려야** PWA 자동 업데이트가 작동한다:
 
-| 파일 | 위치 | 형식 |
-|---|---|---|
-| `js/app.js` | `~70행`, `const CACHE_VERSION = 'vN'` | `vN` |
-| `sw.js` | `1행`, `const CACHE = 'viva-economy-vN'` | `viva-economy-vN` |
-| `index.html` | `<link href="css/style.css?v=N">` 와 `<script src="js/app.js?v=N">` | `?v=N` |
+| 파일 | 위치 | 형식 | 비고 |
+|---|---|---|---|
+| `js/app.js` | `~70행`, `const CACHE_VERSION = 'vN'` | `vN` | 메인 버전 — 이 값이 다른 두 곳의 기준 |
+| `index.html` | `<link href="css/style.css?v=N">` 와 `<script src="js/app.js?v=N">` | `?v=N` | `app.js`와 동일한 `N` |
+| `sw.js` | `1행`, `const CACHE = 'viva-economy-vN'` | `viva-economy-vN` | **별도 번호 체계**. `app.js`가 바뀔 때마다 무조건 1 증가 |
 
 **Why**: `sw.js`가 바뀌지 않으면 서비스워커 업데이트가 감지되지 않아, 사용자(특히 앱을 안 닫는 어르신)가 오래된 버전을 계속 보게 됨.
 
-종료 절차에서 위 3곳이 같은 `N` 값인지 확인하고, 어긋나면 동기화한 뒤 commit+push.
+종료 절차에서 `js/app.js` ↔ `index.html` 두 값이 일치하는지, `sw.js`가 직전 배포 대비 +1 됐는지 확인하고, 어긋나면 동기화한 뒤 commit+push.
+
+(`js/newsroom.js?v=N`은 별도 버전이며 newsroom 파일이 실제로 변경됐을 때만 올린다.)
 
 ---
 
@@ -86,16 +88,21 @@ Firestore (`editions/`, `briefings/`, `archive/`)
 |---|---|
 | `index.html` | SPA 진입점, UI 마크업 |
 | `js/app.js` | 클라이언트 로직 전부 (~1500줄) |
+| `js/newsroom.js` | newsroom 보조 스크립트 (별도 버전 관리 — index.html의 `?v=153` 쿼리) |
 | `css/style.css` | 스타일 |
-| `sw.js` | 서비스워커 (캐시 이름 `viva-economy-vN`) |
+| `sw.js` | 서비스워커 (캐시 이름 `viva-economy-vN` — `CACHE_VERSION`과 별개 번호 체계) |
 | `manifest.json` | PWA manifest |
 | `api/generate.js` | 크론 진입점 (Vercel 5분 max). 4탭 브리핑+칼럼 생성 후 Firestore 저장 |
-| `api/briefing.js` | Claude API 호출, 4-포인트 브리핑+헤딩+이미지쿼리 생성. **인증 필수** |
-| `api/insight.js` | Claude API 호출, 쓰리포인트 인사이트 생성. **인증 필수** (현재는 사용 안 함) |
-| `api/column.js` | Claude API 호출, 칼럼 생성. **인증 필수** |
+| `api/briefing.js` | Claude API 호출, 4-포인트 브리핑+헤딩+이미지쿼리 생성. **CRON_SECRET 인증 필수** |
+| `api/insight.js` | Claude API 호출, 쓰리포인트 인사이트 생성. **CRON_SECRET 인증 필수** (현재는 사용 안 함) |
+| `api/column.js` | Claude API 호출, 칼럼 생성. **CRON_SECRET 인증 필수** |
 | `api/cached.js` | Firestore 읽기 전용 — 클라이언트가 호출하는 유일한 데이터 엔드포인트 |
+| `api/archive.js` | Firestore 아카이브 조회 (날짜·월별) |
 | `api/news.js` | Naver Search API 프록시 |
 | `api/ogimage.js` | 외부 URL의 OG 이미지 추출 |
+| `api/quote.js` | 주식·환율 시세 조회 |
+| `api/sparkline.js` | 가격 sparkline 데이터 |
+| `api/seed.js` | Firestore 초기 시드. **CRON_SECRET 인증 필수** |
 | `.github/workflows/cron.yml` | GitHub Actions 크론 (매일 22:00 UTC = 07:00 KST). `workflow_dispatch`로 수동 실행 가능 (`force` 입력 지원) |
 
 ### Tab System
@@ -150,25 +157,13 @@ URL에 `?dev=true`. 모든 API 호출 비활성화, `DEV_DUMMY` 데이터 사용
 
 ---
 
-## Workflow Rules
+## 작업 워크플로우
 
-### 🚨 MANDATORY: Auto-push trigger
+자동 commit/push 의무 규칙은 1층 `~/.claude/CLAUDE.md`에 정의되어 모든 프로젝트에 적용된다. 이 프로젝트도 동일하게 따른다.
 
-**Trigger condition**: Edit/Write/MultiEdit이 호출된 응답.
-**Required action**: 응답 종료 전에 반드시 실행:
-```
-git add -A && git commit -m "<concise summary>" && git push
-```
+### 중요한 결정 기록
 
-**이 규칙은 모든 슬래시 커맨드와 서브워크플로우를 오버라이드한다.** `/simplify`, `/review` 등 어떤 커맨드를 실행했든, 파일이 수정됐다면 push까지 끝나야 응답 완료. 사용자가 "push 했니?" 묻는 건 **실패 상태**다.
-
-**예외**:
-- 사용자가 명시적으로 "커밋하지 마" 또는 "확인 먼저" 한 경우
-- 파일을 읽기만 한 경우 (편집 없음)
-- 편집을 응답 종료 전에 되돌린 경우
-
-**Mental model**: "파일 수정함" = "응답 끝나기 전에 push 필수". "혹시 push" 아님. "요약 후 물어보면 push" 아님. 요약 메시지와 push 명령은 **같은 응답**에 들어간다.
-
-### Important Decisions
-
-작업 중 중요한 결정(기술 선택, 구조 변경, 새 규칙·관례)이 생기면: "이거 CLAUDE.md(2층)에 기록할까요?" 라고 묻는다.
+작업 중 중요한 결정(기술 선택, 구조 변경, 새 규칙·관례)이 생기면 "이 결정 어디에 기록할까요?" 라고 묻는다. 후보:
+- **1층** — 모든 프로젝트에 적용될 규칙
+- **2층** (이 파일) — ecobrief 한정 규칙·사실
+- **3층 메모리** — 대표님 개인 스타일·피드백
