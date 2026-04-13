@@ -96,10 +96,11 @@
     .header::after { display:none; }
     .header.shrunk { padding-top: calc(env(safe-area-inset-top, 44px) + 6px); padding-bottom:10px; }
     .header-top { display:flex; justify-content:space-between; align-items:center; position:relative; z-index:1; }
-    .header-left { display:flex; align-items:center; gap:6px; }
+    .header-left { display:flex; align-items:center; gap:12px; }
     .app-logo {
       font-family: var(--font-sans);
       display:flex; flex-direction:column; gap:1px;
+      margin-left:8px;
       cursor:pointer;
     }
     .logo-en {
