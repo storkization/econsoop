@@ -67,7 +67,7 @@ function showToast(msg) {
 }
 
 /* ═══════════ CACHE VERSION ═══════════ */
-const CACHE_VERSION = 'v163';
+const CACHE_VERSION = 'v164';
 (function clearOldCache() {
   const savedVersion = localStorage.getItem('eco_cache_version');
   if (savedVersion !== CACHE_VERSION) {
