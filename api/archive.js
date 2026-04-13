@@ -44,7 +44,7 @@ export default async function handler(req, res) {
     // ── 목록 조회 ─────────────────────────────────
     if (action === 'list') {
       let query = db.collection('archive').orderBy('created_at', 'desc').limit(90);
-      if (tab && ['economy', 'industry', 'global'].includes(tab)) {
+      if (tab && ['economy', 'industry', 'global', 'stocks'].includes(tab)) {
         query = db.collection('archive').where('tab', '==', tab).orderBy('created_at', 'desc').limit(30);
       }
       const snap = await query.get();
