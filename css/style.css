@@ -836,7 +836,12 @@
       scrollbar-width:none;
       padding:2px 0;
       scroll-padding-left:2px;
+      touch-action:pan-x;
+      cursor:grab;
+      user-select:none;
     }
+    .fm-grid.dragging { cursor:grabbing; }
+    .fm-grid.dragging .fm-card { pointer-events:none; }
     .fm-grid::-webkit-scrollbar { display:none; }
     .fm-card {
       /* 3.2 = 카드 3개 + 0.2 엿보기: "더 있다" 시각 단서 */
@@ -884,25 +889,24 @@
     .newspaper-card {
       border-radius:14px; overflow:hidden;
       cursor:pointer; border:none;
-      display:flex; flex-direction:row; align-items:center; gap:14px;
+      display:flex; flex-direction:row-reverse; align-items:center; gap:14px;
       padding:12px 14px;
       background:var(--bg-card);
       transition:opacity 0.15s;
     }
-    .newspaper-card:nth-child(even) { flex-direction:row-reverse; }
     .newspaper-card:active { opacity:0.82; }
     .newspaper-card-img {
-      width:112px; height:78px; object-fit:cover;
+      width:126px; height:88px; object-fit:cover;
       border-radius:10px; flex-shrink:0; display:block;
     }
     .newspaper-card-img-placeholder {
-      width:112px; height:78px; border-radius:10px; flex-shrink:0;
+      width:126px; height:88px; border-radius:10px; flex-shrink:0;
     }
     .newspaper-card-body {
       display:flex; flex-direction:column; flex:1; gap:0; min-width:0;
     }
     .newspaper-card-tab {
-      font-size:11px; font-weight:700; letter-spacing:1.2px;
+      font-size:11px; font-weight:900; letter-spacing:1.2px;
       margin-bottom:8px; font-family:var(--font-mono);
       color:var(--text-dim);
     }

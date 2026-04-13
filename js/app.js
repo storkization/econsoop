@@ -1182,6 +1182,33 @@ async function loadFrontMarket() {
     marketCache = { results, sparklines };
     marketCacheTime = Date.now();
   }
+
+  el.querySelectorAll('.fm-grid').forEach(attachDragScroll);
+}
+
+function attachDragScroll(el) {
+  let down = false, startX = 0, startScroll = 0, moved = 0;
+  el.addEventListener('pointerdown', (e) => {
+    if (e.pointerType === 'touch') return;
+    down = true; moved = 0;
+    startX = e.clientX; startScroll = el.scrollLeft;
+    el.classList.add('dragging');
+    el.setPointerCapture(e.pointerId);
+  });
+  el.addEventListener('pointermove', (e) => {
+    if (!down) return;
+    const dx = e.clientX - startX;
+    moved = Math.max(moved, Math.abs(dx));
+    el.scrollLeft = startScroll - dx;
+  });
+  const end = () => {
+    if (!down) return;
+    down = false;
+    setTimeout(() => el.classList.remove('dragging'), 0);
+  };
+  el.addEventListener('pointerup', end);
+  el.addEventListener('pointercancel', end);
+  el.addEventListener('pointerleave', end);
 }
 
 /* ═══════════ STOCKS ═══════════ */
