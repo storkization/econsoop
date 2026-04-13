@@ -4,6 +4,15 @@ on:
   schedule:
     - cron: '0 22 * * *'   # 07:00 KST
   workflow_dispatch:        # 수동 실행 가능
+    inputs:
+      force:
+        description: '강제 재생성 (기존 에디션 덮어쓰기)'
+        required: false
+        default: 'false'
+        type: choice
+        options:
+          - 'false'
+          - 'true'
 
 jobs:
   generate:
@@ -11,9 +20,14 @@ jobs:
     steps:
       - name: Call generate API
         run: |
+          URL="https://econsoop.vercel.app/api/generate"
+          if [ "${{ github.event.inputs.force }}" = "true" ]; then
+            URL="${URL}?force=1"
+          fi
+          echo "Calling: ${URL}"
           curl -s -X GET \
             -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
-            https://econsoop.vercel.app/api/generate \
+            "${URL}" \
             | tee response.json
           echo "--- HTTP 응답 확인 ---"
           cat response.json
