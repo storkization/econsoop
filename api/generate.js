@@ -199,33 +199,34 @@ export default async function handler(req, res) {
       const { summary, footnotes, frontHeadline, imageQuery, headline, subheading, heading2, subheading2, heading3, subheading3, heading4, subheading4, columnHook, columnSubhook } = await briefingRes.json();
       if (!summary) throw new Error('브리핑 파싱 실패');
 
-      // 2-b. 이미지 수집 — 브리핑이 생성한 imageQuery 사용 (폴백: 탭 기본 키워드)
+      // 2-b. 이미지 수집
+      //   topImageUrl: 네이버 기사 OG 이미지 우선 (기사 내용과 연관성 보장)
+      //     실패 시 Unsplash(imageQuery 기반) 폴백
+      //   sectionImages: 본문 중간 삽입용 Unsplash 2장
       const fallbackKw = UNSPLASH_KW[tab];
       const topKw = imageQuery || fallbackKw;
-      const [img0, img1, img2] = await Promise.all([
-        fetchUnsplashImage(topKw),
+      let topImageUrl = '';
+      // OG 이미지 시도 — 상위 3개 기사 중 품질 ok인 것
+      for (const it of unique.slice(0, 3)) {
+        const topUrl = it?.originallink || it?.link;
+        if (!topUrl) continue;
+        try {
+          const ogRes = await fetch(`https://${host}/api/ogimage?url=${encodeURIComponent(topUrl)}`, {
+            signal: AbortSignal.timeout(6000),
+          });
+          if (ogRes.ok) {
+            const ogData = await ogRes.json();
+            if (ogData.imageUrl) { topImageUrl = ogData.imageUrl; break; }
+          }
+        } catch(e) { /* next */ }
+      }
+      const [img1, img2, img0] = await Promise.all([
         fetchUnsplashImage(fallbackKw + ' chart data'),
         fetchUnsplashImage(fallbackKw + ' office people'),
+        topImageUrl ? Promise.resolve('') : fetchUnsplashImage(topKw),
       ]);
-      let topImageUrl = img0;
       const sectionImages = [img1, img2].filter(Boolean);
-      if (!topImageUrl) {
-        const topUrl = unique[0]?.originallink || unique[0]?.link;
-        if (topUrl) {
-          try {
-            const ogRes = await fetch(`https://${host}/api/ogimage?url=${encodeURIComponent(topUrl)}`, {
-              signal: AbortSignal.timeout(6000),
-            });
-            if (ogRes.ok) {
-              const ogData = await ogRes.json();
-              topImageUrl = ogData.imageUrl || '';
-            }
-          } catch(e) { /* skip */ }
-        }
-      }
-      if (!topImageUrl && sectionImages.length) {
-        topImageUrl = sectionImages.shift();
-      }
+      if (!topImageUrl) topImageUrl = img0 || sectionImages.shift() || '';
 
       // 3. Firestore 저장 (최신 캐시 — 덮어쓰기)
       const comments = await genComments(summary, TAB_LABEL[tab]);
