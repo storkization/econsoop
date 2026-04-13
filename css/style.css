@@ -64,6 +64,8 @@
       background: var(--bg);
       color:var(--text);
       font-family:var(--font-sans);
+      word-break:keep-all;
+      overflow-wrap:break-word;
       overflow:hidden;
       position:relative;
     }
