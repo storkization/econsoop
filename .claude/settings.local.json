@@ -103,7 +103,10 @@
       "Bash(cat .github/workflows/*.yml)",
       "Bash(\"/c/Program Files/GitHub CLI/gh.exe\" run list --workflow=\"Prebuild Briefings\" --limit=5)",
       "Bash(\"/c/Users/dodoh/AppData/Local/Programs/gh/bin/gh.exe\" run:*)",
-      "Bash(python -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\('createdAt:', d.get\\('createdAt'\\)\\); print\\('date:', d.get\\('date'\\)\\); print\\('fresh:', d.get\\('fresh'\\)\\); print\\('editionDate:', d.get\\('editionDate'\\)\\)\")"
+      "Bash(python -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\('createdAt:', d.get\\('createdAt'\\)\\); print\\('date:', d.get\\('date'\\)\\); print\\('fresh:', d.get\\('fresh'\\)\\); print\\('editionDate:', d.get\\('editionDate'\\)\\)\")",
+      "Bash(\"/c/Program Files/GitHub CLI/gh.exe\" --version)",
+      "Bash(/c/Program Files/GitHub CLI/gh.exe workflow:*)",
+      "Bash(\"/c/Program Files/GitHub CLI/gh.exe\" run watch 24321542116 --exit-status)"
     ]
   }
 }
