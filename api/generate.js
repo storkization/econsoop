@@ -157,7 +157,10 @@ export default async function handler(req, res) {
       // 2-a. Claude 브리핑 생성 (imageQuery 포함)
       const briefingRes = await fetch(`https://${host}/api/briefing`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${process.env.CRON_SECRET}`,
+        },
         body: JSON.stringify({ headlines, tab, label: TAB_LABEL[tab] }),
       });
       if (!briefingRes.ok) throw new Error(`briefing API 오류 ${briefingRes.status}`);
@@ -268,7 +271,10 @@ export default async function handler(req, res) {
       try {
         const colRes = await fetch(`https://${host}/api/column`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${process.env.CRON_SECRET}`,
+          },
           body: JSON.stringify({ summary: econResult.summary, oneliner: '', label: '경제' }),
         });
         if (colRes.ok) {

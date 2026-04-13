@@ -6,6 +6,12 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
+  // 인증: 크론/generate.js에서만 호출 허용 (외부 호출 차단)
+  const auth = req.headers['authorization'];
+  if (!process.env.CRON_SECRET || auth !== `Bearer ${process.env.CRON_SECRET}`) {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+
   const { summary, oneliner, label = '경제' } = req.body;
 
   if (!summary && !oneliner) {

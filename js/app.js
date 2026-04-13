@@ -74,7 +74,7 @@ function showToast(msg) {
 }
 
 /* ═══════════ CACHE VERSION ═══════════ */
-const CACHE_VERSION = 'v158';
+const CACHE_VERSION = 'v159';
 (function clearOldCache() {
   const savedVersion = localStorage.getItem('eco_cache_version');
   if (savedVersion !== CACHE_VERSION) {
@@ -615,121 +615,19 @@ async function _genTabSummaryInner(tab) {
       }
     }
   } catch(e) {
-    if (DEV_MODE) console.log('[CACHED] Firestore 미사용, 직접 생성:', e.message);
+    if (DEV_MODE) console.log('[CACHED] Firestore fetch 실패:', e.message);
   }
 
-  // 뉴스 수집 — 병렬 fetch (순차 시 최대 56초 → 병렬로 5초 이내)
-  setLoadingMsg(tab, 'news');
-  const queries = SUMMARY_QUERIES[tab];
-
-  const fetchNews = async (q) => {
-    try {
-      const r = await fetch(`/api/news?query=${encodeURIComponent(q)}&display=7&type=general`,
-        { signal: (function(){ const c = new AbortController(); setTimeout(()=>c.abort(), 5000); return c.signal; })() });
-      const j = await r.json();
-      return j.items || [];
-    } catch(e) {
-      console.warn("[NEWS FETCH ERROR]", q, e.message);
-      return [];
-    }
-  };
-
-  const results = await fetchInBatches(queries, fetchNews, 3, 250);
-  const allItems = results.flat();
-
-  const skipKw = ['구직','채용','취업','자립준비','희망디딤돌','주요기사','1부','2부'];
-  const seen = new Set();
-  const unique = allItems
-    .filter(it => !skipKw.some(kw => it.title.includes(kw)))
-    .filter(it => { const k=it.title.slice(0,15); if(seen.has(k)) return false; seen.add(k); return true; })
-    .sort((a,b)=>new Date(b.date)-new Date(a.date))
-    .slice(0, 18);
-
-  if (DEV_MODE) console.log("[DEBUG] allItems:", allItems.length, "/ unique:", unique.length);
-  newsCache[`${tab}-summary`] = unique;
-
-  // AI 호출
-  if (!unique.length) {
-    stopLoadingMsg();
-    const card = document.getElementById(`${tab}-summary-card`);
-    if (card) card.innerHTML = `
-      <div class="status-card">
-        <div class="status-card-icon">📡</div>
-        <div class="status-card-title">뉴스를 불러오지 못했어요</div>
-        <div class="status-card-desc">네트워크 상태를 확인하고 다시 시도해주세요.</div>
-        <button class="retry-btn" onclick="summaryCache['${tab}']=null;genTabSummary('${tab}')">🔄 다시 시도</button>
-      </div>`;
-    return;
-  }
-
-  try {
-    setLoadingMsg(tab, 'ai');
-    // 뉴스 섹션 로딩 대기화면
-    const newsElLoading = document.getElementById(`${tab}-summary-news`);
-    if (newsElLoading) newsElLoading.innerHTML = '';
-    const headlines = unique.slice(0, 18).map(n =>
-      n.description ? `${n.title}\n   → ${n.description.slice(0, 100)}` : n.title
-    );
-    if (DEV_MODE) console.log('[BRIEFING] 1차 호출 시작 (SUMMARY+FOOTNOTES), headlines:', headlines.length);
-    _briefingController = new AbortController();
-    const briefingTimer = setTimeout(() => { if (_briefingController) _briefingController.abort(); }, 55000);
-    const res = await fetch('/api/briefing', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ headlines, tab, label }),
-      signal: _briefingController.signal,
-    });
-    clearTimeout(briefingTimer);
-    _briefingController = null;
-    if (DEV_MODE) console.log('[BRIEFING] 1차 응답 상태:', res.status);
-    const j = await res.json();
-    if (DEV_MODE) console.log('[BRIEFING] 1차 응답 키:', Object.keys(j), 'summary 길이:', (j.summary||'').length);
-    if (!res.ok) {
-      throw new Error(j.error || `API 오류 ${res.status}`);
-    }
-    if (!j.summary || j.summary.trim().length === 0) {
-      throw new Error('AI 응답에서 SUMMARY 파싱 실패 — 다시 시도해주세요');
-    }
-
-    // 1차 결과: SUMMARY + FOOTNOTES → 즉시 렌더
-    const result = {
-      summary: j.summary || '',
-      oneliner: '',
-      footnotes: j.footnotes || '',
-      headline: j.headline || '', subheading: j.subheading || '',
-      heading2: j.heading2 || '', subheading2: j.subheading2 || '',
-      heading3: j.heading3 || '', subheading3: j.subheading3 || '',
-      heading4: j.heading4 || '', subheading4: j.subheading4 || '',
-      columnHook: j.columnHook || '',
-      comments: [],
-      topNews: unique.slice(0, 15),
-    };
-    summaryCache[tab] = result;
-    localStorage.setItem(cacheKey, JSON.stringify(result));
-    localStorage.setItem(cacheTimeKey, Date.now());
-    _aiStepIndex = 6;
-    _aiStepTimers.forEach(t => clearTimeout(t));
-    _aiStepTimers = [];
-    if (_loadingInterval) { clearInterval(_loadingInterval); _loadingInterval = null; }
-    setLoadingMsg(tab, 'done');
-    await new Promise(r => setTimeout(r, 1000));
-    stopLoadingMsg();
-    renderTabSummary(tab, result);
-    updateFrontPreview(tab, result.summary);
-
-
-  } catch(err) {
-    console.error('[BRIEFING ERROR]', err.message, err);
-    stopLoadingMsg();
-    const card = document.getElementById(`${tab}-summary-card`);
-    if (card) card.innerHTML = `
-      <div class="status-card">
-        <div class="status-card-icon">🔧</div>
-        <div class="status-card-title">서비스 점검 중입니다</div>
-        <div class="status-card-desc">잠시 후 다시 확인해 주세요.</div>
-        <button class="retry-btn" onclick="summaryCache['${tab}']=null;genTabSummary('${tab}')">🔄 다시 시도</button>
-      </div>`;
-  }
+  // Firestore 캐시에 데이터가 없음 — 클라이언트에서 Claude 직접 호출 금지 (API 비용 방지)
+  // 크론이 매일 07:00 KST에 생성하므로, 여기 도달 = 아직 크론 실행 전이거나 장애
+  stopLoadingMsg();
+  const card = document.getElementById(`${tab}-summary-card`);
+  if (card) card.innerHTML = `
+    <div class="status-card">
+      <div class="status-card-icon">☕</div>
+      <div class="status-card-title">오늘의 브리핑 준비 중</div>
+      <div class="status-card-desc">매일 아침 7시에 새 브리핑이 올라옵니다.<br>잠시 후 다시 확인해 주세요.</div>
+    </div>`;
 }
 
 /* ═══════════ 2차: ONELINER 백그라운드 호출 ═══════════ */
@@ -1149,32 +1047,13 @@ async function loadColumnTab() {
     return;
   }
 
-  // 브리핑 없으면 안내
-  const cached = summaryCache[tab];
-  if (!cached?.summary) {
-    bodyEl.innerHTML = `<div class="status-card"><div class="status-card-desc" style="color:var(--red);">먼저 ${label} 탭을 열어 브리핑을 생성해주세요.</div></div>`;
-    return;
-  }
-
-  try {
-    const res = await fetch('/api/column', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ summary: cached.summary, oneliner: cached.oneliner, label }),
-      signal: (() => { const c = new AbortController(); setTimeout(() => c.abort(), 55000); return c.signal; })()
-    });
-    const j = await res.json();
-    if (!res.ok) throw new Error(j.error || `오류 ${res.status}`);
-    columnCache[tab] = j.column;
-    localStorage.setItem(`eco_column_${tab}`, j.column);
-    localStorage.setItem(`eco_column_time_${tab}`, Date.now());
-    renderColumn(j.column, bodyEl);
-  } catch(err) {
-    bodyEl.innerHTML = `<div class="status-card">
-      <div style="font-size:13px;color:var(--red);margin-bottom:12px;">⚠️ ${err.message}</div>
-      <button class="retry-btn" onclick="loadColumnTab()">🔄 다시 시도</button>
-    </div>`;
-  }
+  // 캐시에 없으면 "준비 중" 안내 — 클라이언트에서 Claude 직접 호출 금지
+  // 칼럼은 매일 07:00 KST 크론에서 editions 컬렉션에 생성됨
+  bodyEl.innerHTML = `<div class="status-card">
+    <div class="status-card-icon">☕</div>
+    <div class="status-card-title">오늘의 칼럼 준비 중</div>
+    <div class="status-card-desc">매일 아침 7시에 새 칼럼이 올라옵니다.<br>잠시 후 다시 확인해 주세요.</div>
+  </div>`;
 }
 
 function renderColumn(text, bodyEl) {
