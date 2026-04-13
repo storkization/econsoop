@@ -39,10 +39,7 @@ export default async function handler(req, res) {
 오늘의 [${label}] 뉴스:
 ${headlineText}
 
-[FRONT_HEADLINE] 유튜브 썸네일급 클릭베이트 제목. 공포·반전·폭로·숫자·호기심 자극 중 하나 이상. 이모티콘 1개 허용(맥락에 맞게). 30자 이내. 예: "🚨 삼성 5조 벌었는데 네 노트북만 20만원 올랐다", "🔥 금리 동결했더니 전세 또 터졌다". 평범한 제목 절대 금지. [/FRONT_HEADLINE]
-[HEADLINE] 핵심 이슈를 위 헤딩 스타일로. 이모티콘 1~2개. 30자 이내. [/HEADLINE]
-[SUBHEADING] 헤드라인을 더 궁금하게 만드는 한 줄. 호기심 갭(curiosity gap) 유발. 이모티콘 없이. 40자 이내. 예: "한은은 동결했는데 대출금리는 왜 움직였나" [/SUBHEADING]
-[IMAGE_QUERY] 위 FRONT_HEADLINE의 핵심 키워드를 영어 Unsplash 검색어로. 실제 뉴스의 사물·인물·개념 중심(예: "samsung semiconductor factory", "korean bond yields rising", "empty supermarket shelves"). 3~5단어 영어만. 추상적·일반적 표현 금지. [/IMAGE_QUERY]
+⚠️ 중요한 작성 순서: 먼저 POINT1~4 본문을 완성한 뒤, 그 내용 전체를 관통하는 핵심 메시지를 뽑아 FRONT_HEADLINE/SUBHEADING을 쓸 것. FRONT_HEADLINE은 뉴스 중 하나를 집어든 게 아니라 POINT1~4를 종합한 "오늘 [${label}]의 결론"이어야 한다.
 
 [POINT1] 독자 일상에서 시작. ③으로 열고 ①②로 핵심 전달. 헤드라인 수치·사실만 사용, 없는 정보 금지. 2~3문장. [/POINT1]
 
@@ -57,6 +54,16 @@ ${headlineText}
 [HEADING4] 투자 전략 섹션 제목. 위 5가지 스타일 중 선택. 이모티콘 1개. 25자 이내. [/HEADING4]
 [SUBHEADING4] 핵심 판단 기준 한 문장. 30자 이내. [/SUBHEADING4]
 [POINT4] 독자가 자신 상황에 대입할 구체적 행동 단서. ③으로 열고 ④로 마무리. POINT1·2·3 반복 금지. 2~3문장. [/POINT4]
+
+━━━━━━ 이제 위 POINT1~4를 종합해서 아래를 작성 ━━━━━━
+
+[FRONT_HEADLINE] 방금 쓴 POINT1~4 전체를 관통하는 단 하나의 핵심 메시지. 뉴스 하나만 집어든 제목 금지. 오늘 [${label}] 브리핑 전체의 결론을 유튜브 썸네일처럼 함축. 공포·반전·폭로·숫자·호기심 중 하나 이상 활용. 이모티콘 1개 허용. 30자 이내. 평범한 제목 절대 금지. [/FRONT_HEADLINE]
+
+[SUBHEADING] FRONT_HEADLINE을 뒷받침하며 POINT1~4에 담긴 궁금증을 유발하는 한 줄. 호기심 갭(curiosity gap) 활용. 이모티콘 없이. 40자 이내. 예: "한은은 동결했는데 대출금리는 왜 움직였나" [/SUBHEADING]
+
+[IMAGE_QUERY] FRONT_HEADLINE과 POINT1~4에서 가장 핵심적인 사물·인물·장면을 영어 Unsplash 검색어로. 실제 뉴스의 구체물 중심(예: "samsung semiconductor factory", "korean bond yields rising", "empty supermarket shelves"). 3~5단어 영어만. 추상적·일반적 표현 금지. [/IMAGE_QUERY]
+
+[HEADLINE] 핵심 이슈 제목(탭 내부용, 홈화면과 별개). 이모티콘 1~2개. 30자 이내. [/HEADLINE]
 
 [FOOTNOTES]
 각 포인트에 실제 등장한 단어 중 비전문가가 모를 것만. 포인트당 1~2개.
