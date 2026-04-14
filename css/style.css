@@ -1559,7 +1559,7 @@
     .gloss-item { padding:12px 0; border-bottom:1px solid var(--border); }
     .gloss-item:last-child { border-bottom:none; }
     .gloss-term { font-family:var(--font-sans); font-size:14px; font-weight:800; color:#111; margin-bottom:4px; }
-    .gloss-def { font-size:13px; color:var(--text-dim); line-height:1.7; }
+    .gloss-def { font-size:13px; color:#111; line-height:1.7; }
     .glossary-loading { text-align:center; padding:60px 0; font-size:13px; color:var(--text-dim); }
 
     /* ── 토스트 ── */
