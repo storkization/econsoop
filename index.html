@@ -23,10 +23,10 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
 
   <!-- Styles -->
-  <link rel="stylesheet" href="css/style.css?v=188">
+  <link rel="stylesheet" href="css/style.css?v=189">
 
   <script>
-    window.ECO_VERSION = 'v188';
+    window.ECO_VERSION = 'v189';
     (function() {
       var isDev = new URLSearchParams(location.search).get('dev') === 'true';
       if (isDev) return;
@@ -108,6 +108,7 @@
     <button class="drawer-sub-item" data-drawer-tab="newsroom" onclick="drawerNav('newsroom')">Newsroom</button>
 
     <button class="drawer-sub-item" data-drawer-tab="subscribe" onclick="drawerNav('subscribe')">구독하기</button>
+    <button class="drawer-sub-item" data-drawer-tab="glossary" onclick="drawerNav('glossary')">📖 경제 용어사전</button>
     <button class="drawer-sub-item" data-drawer-tab="settings" onclick="drawerNav('settings')">설정</button>
 
     <div class="drawer-brand">
@@ -287,6 +288,11 @@
       <div id="archive-root"></div>
     </div>
 
+    <!-- ▸ GLOSSARY -->
+    <div class="tab-panel" id="tab-glossary">
+      <div id="glossary-root"></div>
+    </div>
+
     <!-- ▸ ABOUT -->
     <div class="tab-panel" id="tab-about">
       <div id="about-root"></div>
@@ -334,11 +340,18 @@
       </div>
 
       <!-- 앱 정보 -->
-      <!-- 경제 용어사전 -->
-      <div class="settings-card">
-        <div class="settings-label">📖 경제 용어사전</div>
-        <div class="settings-desc">브리핑에 자주 등장하는 경제 용어 모음</div>
-        <div class="glossary-list">
+      <!-- 경제 용어사전 링크 -->
+      <div class="settings-card" onclick="drawerNav('glossary')" style="cursor:pointer;">
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <div>
+            <div class="settings-label">📖 경제 용어사전</div>
+            <div class="settings-desc">브리핑에 등장한 경제 용어 모음</div>
+          </div>
+          <span style="font-size:20px;color:var(--text-muted)">›</span>
+        </div>
+      </div>
+      <!-- (구) 정적 용어사전 — 아래 내용 제거됨 -->
+      <div style="display:none"><div class="glossary-list">
           <div class="glossary-item" onclick="this.classList.toggle('open')">
             <div class="glossary-term">기준금리 <span class="glossary-arrow">+</span></div>
             <div class="glossary-def">한국은행이 결정하는 정책금리. 시중 대출·예금 금리의 기준이 되며, 경기 과열 시 올리고 침체 시 내려 경제를 조절합니다.</div>
@@ -570,7 +583,7 @@
 
 <!-- Scripts -->
 <script src="js/newsroom.js?v=153"></script>
-<script src="js/app.js?v=188"></script>
+<script src="js/app.js?v=189"></script>
 
 <!-- PWA Service Worker -->
 <script>

@@ -287,6 +287,7 @@ function switchTab(id) {
   if (id==='archive') {
     loadArchive();
   }
+  if (id==='glossary') loadGlossary();
 }
 
 
@@ -1603,6 +1604,53 @@ function renderArchiveEntryDetail(data, tab) {
       </div>
       ${data.headline ? `<div class="arc-detail-headline">${data.headline}</div>` : ''}
       <div class="ed-detail-points">${pointsHtml || '<p style="color:var(--text-dim);font-size:13px;">내용을 불러올 수 없습니다.</p>'}</div>
+    </div>`;
+}
+
+/* ═══════════ 용어사전 ═══════════ */
+let glossaryData = null;
+
+async function loadGlossary() {
+  const root = document.getElementById('glossary-root');
+  if (!root) return;
+  if (glossaryData) { renderGlossary(glossaryData); return; }
+  root.innerHTML = '<div class="glossary-loading">용어를 불러오는 중...</div>';
+  try {
+    const r = await fetch('/api/glossary');
+    const d = await r.json();
+    glossaryData = d.terms || [];
+    renderGlossary(glossaryData);
+  } catch {
+    root.innerHTML = '<div class="glossary-loading" style="color:var(--text-dim)">용어를 불러올 수 없습니다.</div>';
+  }
+}
+
+function renderGlossary(terms) {
+  const root = document.getElementById('glossary-root');
+  if (!root) return;
+  const TAB_META = { economy:'경제', industry:'산업', global:'국제', stocks:'증권' };
+  const groups = {};
+  terms.forEach(t => {
+    const g = TAB_META[t.tab] || t.tab;
+    if (!groups[g]) groups[g] = [];
+    groups[g].push(t);
+  });
+  const sectionsHtml = Object.entries(groups).map(([label, items]) => `
+    <div class="gloss-section">
+      <div class="gloss-section-label">${label}</div>
+      ${items.map(t => `
+        <div class="gloss-item">
+          <div class="gloss-term">${t.term}</div>
+          <div class="gloss-def">${t.definition}</div>
+        </div>`).join('')}
+    </div>`).join('');
+  root.innerHTML = `
+    <div class="gloss-wrap">
+      <div class="gloss-header">
+        <div class="gloss-title">경제 용어사전</div>
+        <div class="gloss-count">총 ${terms.length}개 용어</div>
+      </div>
+      ${terms.length ? sectionsHtml : '<div class="glossary-loading" style="color:var(--text-dim)">등록된 용어가 없습니다. 브리핑 생성 후 자동으로 추가됩니다.</div>'}
     </div>`;
 }
 

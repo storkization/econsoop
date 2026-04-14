@@ -278,7 +278,7 @@ export default async function handler(req, res) {
         console.error(`[GENERATE] ${tab} 아카이브 저장 실패:`, archiveErr.message);
       }
 
-      results.push({ tab, ok: true, len: summary.length, summary, frontHeadline: frontHeadline || '', headline: headline || '', topImageUrl: topImageUrl || '' });
+      results.push({ tab, ok: true, len: summary.length, summary, footnotes: footnotes || '', frontHeadline: frontHeadline || '', headline: headline || '', topImageUrl: topImageUrl || '' });
       console.log(`[GENERATE] ${tab} 완료 (${summary.length}자)`);
     } catch(err) {
       console.error(`[GENERATE] ${tab} 실패:`, err.message);
@@ -370,6 +370,26 @@ export default async function handler(req, res) {
     console.log(`[GENERATE] 에디션 저장: ${editionId}`);
   } catch(e) {
     console.error('[GENERATE] 에디션 저장 실패:', e.message);
+  }
+
+  // ── 용어사전 누적 저장 ──
+  try {
+    const batch = db.batch();
+    for (const r of results) {
+      if (!r.ok || !r.footnotes) continue;
+      for (const line of r.footnotes.split('\n')) {
+        const m = line.match(/※\s*(.+?)\s*[—–]\s*(.+)/);
+        if (!m) continue;
+        const term = m[1].trim();
+        const definition = m[2].trim();
+        const docId = term.slice(0, 100).replace(/\//g, '_');
+        batch.set(db.collection('glossary').doc(docId), { term, definition, tab: r.tab, last_seen: Date.now() }, { merge: true });
+      }
+    }
+    await batch.commit();
+    console.log('[GENERATE] 용어사전 저장 완료');
+  } catch (e) {
+    console.error('[GENERATE] 용어사전 저장 실패:', e.message);
   }
 
   res.status(200).json({ done: true, results, ts: new Date().toISOString() });
