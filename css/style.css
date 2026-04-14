@@ -563,6 +563,24 @@
     .settings-info-row:last-child { border-bottom:none; }
     .settings-info-row span:first-child { color:var(--text-muted); font-weight:var(--fw-medium); }
     .settings-info-row span:last-child { color:var(--text); font-weight:var(--fw-semi); }
+    .glossary-list { display:flex; flex-direction:column; margin-top:12px; }
+    .glossary-item { border-bottom:1px solid var(--border); padding:13px 0; cursor:pointer; }
+    .glossary-item:last-child { border-bottom:none; }
+    .glossary-term {
+      display:flex; justify-content:space-between; align-items:center;
+      font-family:var(--font-sans); font-size:15px; font-weight:800; color:var(--text);
+    }
+    .glossary-arrow {
+      font-size:18px; font-weight:400; color:var(--text-muted);
+      transition:transform 0.2s; flex-shrink:0; line-height:1;
+    }
+    .glossary-item.open .glossary-arrow { transform:rotate(45deg); color:var(--accent); }
+    .glossary-def {
+      display:none; margin-top:10px;
+      font-family:var(--font-sans); font-size:14px; color:#111; line-height:2.0;
+    }
+    .glossary-item.open .glossary-def { display:block; }
+
     .changelog-list {
       max-height:500px; overflow-y:auto; -webkit-overflow-scrolling:touch;
     }

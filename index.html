@@ -23,10 +23,10 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
 
   <!-- Styles -->
-  <link rel="stylesheet" href="css/style.css?v=187">
+  <link rel="stylesheet" href="css/style.css?v=188">
 
   <script>
-    window.ECO_VERSION = 'v187';
+    window.ECO_VERSION = 'v188';
     (function() {
       var isDev = new URLSearchParams(location.search).get('dev') === 'true';
       if (isDev) return;
@@ -334,6 +334,66 @@
       </div>
 
       <!-- 앱 정보 -->
+      <!-- 경제 용어사전 -->
+      <div class="settings-card">
+        <div class="settings-label">📖 경제 용어사전</div>
+        <div class="settings-desc">브리핑에 자주 등장하는 경제 용어 모음</div>
+        <div class="glossary-list">
+          <div class="glossary-item" onclick="this.classList.toggle('open')">
+            <div class="glossary-term">기준금리 <span class="glossary-arrow">+</span></div>
+            <div class="glossary-def">한국은행이 결정하는 정책금리. 시중 대출·예금 금리의 기준이 되며, 경기 과열 시 올리고 침체 시 내려 경제를 조절합니다.</div>
+          </div>
+          <div class="glossary-item" onclick="this.classList.toggle('open')">
+            <div class="glossary-term">환율 <span class="glossary-arrow">+</span></div>
+            <div class="glossary-def">두 나라 화폐의 교환 비율. 달러 환율이 오르면(원화 약세) 수출 기업엔 유리하지만 수입 물가가 올라 소비자 부담이 커집니다.</div>
+          </div>
+          <div class="glossary-item" onclick="this.classList.toggle('open')">
+            <div class="glossary-term">소비자물가지수 (CPI) <span class="glossary-arrow">+</span></div>
+            <div class="glossary-def">가정에서 자주 사는 물건과 서비스의 평균 가격 변동을 나타내는 지수. 이 숫자가 오르면 생활비가 올랐다는 뜻입니다.</div>
+          </div>
+          <div class="glossary-item" onclick="this.classList.toggle('open')">
+            <div class="glossary-term">GDP (국내총생산) <span class="glossary-arrow">+</span></div>
+            <div class="glossary-def">한 나라에서 일정 기간 생산된 모든 재화·서비스의 시장 가치 합계. 나라 경제가 얼마나 성장했는지 보여주는 가장 기본적인 지표입니다.</div>
+          </div>
+          <div class="glossary-item" onclick="this.classList.toggle('open')">
+            <div class="glossary-term">무역수지 <span class="glossary-arrow">+</span></div>
+            <div class="glossary-def">수출액에서 수입액을 뺀 값. 흑자면 번 돈이 많은 것, 적자면 쓴 돈이 많은 것입니다. 한국은 수출 의존도가 높아 이 지표가 중요합니다.</div>
+          </div>
+          <div class="glossary-item" onclick="this.classList.toggle('open')">
+            <div class="glossary-term">KOSPI <span class="glossary-arrow">+</span></div>
+            <div class="glossary-def">한국거래소 유가증권시장의 종합주가지수. 삼성전자·SK하이닉스 등 대기업이 포함된 한국 증시의 대표 지표입니다.</div>
+          </div>
+          <div class="glossary-item" onclick="this.classList.toggle('open')">
+            <div class="glossary-term">연준 (Fed) <span class="glossary-arrow">+</span></div>
+            <div class="glossary-def">미국의 중앙은행인 연방준비제도. 미국 기준금리를 결정하며, 그 결정이 전 세계 금융시장과 환율에 큰 영향을 줍니다.</div>
+          </div>
+          <div class="glossary-item" onclick="this.classList.toggle('open')">
+            <div class="glossary-term">양적완화 (QE) <span class="glossary-arrow">+</span></div>
+            <div class="glossary-def">중앙은행이 채권을 사들여 시중에 돈을 직접 공급하는 방법. 경기가 나쁠 때 씁니다. 반대로 채권을 팔아 돈을 흡수하는 것을 양적긴축(QT)이라 합니다.</div>
+          </div>
+          <div class="glossary-item" onclick="this.classList.toggle('open')">
+            <div class="glossary-term">스태그플레이션 <span class="glossary-arrow">+</span></div>
+            <div class="glossary-def">경기침체(Stagnation)와 물가상승(Inflation)이 동시에 일어나는 최악의 상황. 금리를 올리면 경기가 더 나빠지고, 내리면 물가가 더 오르는 딜레마입니다.</div>
+          </div>
+          <div class="glossary-item" onclick="this.classList.toggle('open')">
+            <div class="glossary-term">PER (주가수익비율) <span class="glossary-arrow">+</span></div>
+            <div class="glossary-def">주가를 주당순이익으로 나눈 값. 이 숫자가 낮으면 상대적으로 싸게 살 수 있다는 뜻이고, 높으면 비싸다는 신호일 수 있습니다.</div>
+          </div>
+          <div class="glossary-item" onclick="this.classList.toggle('open')">
+            <div class="glossary-term">채권 <span class="glossary-arrow">+</span></div>
+            <div class="glossary-def">정부나 기업이 돈을 빌리며 발행하는 차용증. 만기에 원금과 이자를 돌려줍니다. 금리가 오르면 채권 가격은 내려가는 반비례 관계가 핵심입니다.</div>
+          </div>
+          <div class="glossary-item" onclick="this.classList.toggle('open')">
+            <div class="glossary-term">서킷브레이커 <span class="glossary-arrow">+</span></div>
+            <div class="glossary-def">주가가 갑자기 큰 폭으로 떨어질 때 주식 거래를 일시 멈추는 제도. 투자자들이 냉정을 되찾을 시간을 주기 위해 만들었습니다.</div>
+          </div>
+          <div class="glossary-item" onclick="this.classList.toggle('open')">
+            <div class="glossary-term">달러인덱스 (DXY) <span class="glossary-arrow">+</span></div>
+            <div class="glossary-def">유로·엔·파운드 등 주요 6개 통화 대비 달러의 가치를 나타내는 지수. 100이 기준이며, 높을수록 달러 강세를 의미합니다.</div>
+          </div>
+        </div>
+      </div>
+
       <div class="settings-card">
         <div class="settings-label">ℹ️ 앱 정보</div>
         <div class="settings-info">
@@ -510,7 +570,7 @@
 
 <!-- Scripts -->
 <script src="js/newsroom.js?v=153"></script>
-<script src="js/app.js?v=187"></script>
+<script src="js/app.js?v=188"></script>
 
 <!-- PWA Service Worker -->
 <script>

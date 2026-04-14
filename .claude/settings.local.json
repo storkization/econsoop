@@ -91,7 +91,9 @@
       "Bash(sed -i 's/ECO_VERSION = '\"'\"'v185'\"'\"'/ECO_VERSION = '\"'\"'v186'\"'\"'/g; s/style\\\\.css?v=185/style.css?v=186/g; s/app\\\\.js?v=185/app.js?v=186/g' /c/Users/dodoh/Downloads/ShawnDev/Project1/ecobrief/index.html)",
       "Bash(sed -i 's/viva-economy-v29/viva-economy-v30/g' /c/Users/dodoh/Downloads/ShawnDev/Project1/ecobrief/sw.js)",
       "Bash(sed -i 's/ECO_VERSION = '\"'\"'v186'\"'\"'/ECO_VERSION = '\"'\"'v187'\"'\"'/g; s/style\\\\.css?v=186/style.css?v=187/g; s/app\\\\.js?v=186/app.js?v=187/g' /c/Users/dodoh/Downloads/ShawnDev/Project1/ecobrief/index.html)",
-      "Bash(sed -i 's/viva-economy-v30/viva-economy-v31/g' /c/Users/dodoh/Downloads/ShawnDev/Project1/ecobrief/sw.js)"
+      "Bash(sed -i 's/viva-economy-v30/viva-economy-v31/g' /c/Users/dodoh/Downloads/ShawnDev/Project1/ecobrief/sw.js)",
+      "Bash(sed -i 's/ECO_VERSION = '\"'\"'v187'\"'\"'/ECO_VERSION = '\"'\"'v188'\"'\"'/g; s/style\\\\.css?v=187/style.css?v=188/g; s/app\\\\.js?v=187/app.js?v=188/g' /c/Users/dodoh/Downloads/ShawnDev/Project1/ecobrief/index.html)",
+      "Bash(sed -i 's/viva-economy-v31/viva-economy-v32/g' /c/Users/dodoh/Downloads/ShawnDev/Project1/ecobrief/sw.js)"
     ]
   }
 }
