@@ -881,6 +881,15 @@ function renderLandingBriefs() {
   const root = document.getElementById('landing-briefs');
   if (!root) return;
 
+  const dateEl = document.getElementById('front-today-date');
+  if (dateEl && !dateEl.dataset.set) {
+    const now = new Date();
+    const days = ['일','월','화','수','목','금','토'];
+    const dateStr = `${now.getFullYear()}년 ${now.getMonth()+1}월 ${now.getDate()}일 (${days[now.getDay()]})`;
+    dateEl.innerHTML = `<div class="front-today-date">${dateStr}</div>`;
+    dateEl.dataset.set = '1';
+  }
+
   const TABS = [
     { key: 'economy',  label: '경제', labelEn: 'Economy',  icon: '🏦', color: '#A51C30', bg: 'linear-gradient(160deg,#6B0F1A 0%,#A51C30 100%)' },
     { key: 'industry', label: '산업', labelEn: 'Industry', icon: '🏭', color: '#1D4ED8', bg: 'linear-gradient(160deg,#1E3A8A 0%,#2563EB 100%)' },
