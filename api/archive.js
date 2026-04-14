@@ -42,7 +42,7 @@ export default async function handler(req, res) {
     if (action === 'list') {
       let query = db.collection('archive').orderBy('created_at', 'desc').limit(90);
       if (tab && ['economy', 'industry', 'global', 'stocks'].includes(tab)) {
-        query = db.collection('archive').where('tab', '==', tab).orderBy('created_at', 'desc').limit(30);
+        query = db.collection('archive').where('tab', '==', tab).limit(30);
       }
       const snap = await query.get();
       const items = snap.docs.map(doc => {
@@ -57,7 +57,7 @@ export default async function handler(req, res) {
           headline: d.headline || '',
           created_at: d.created_at,
         };
-      });
+      }).sort((a, b) => b.created_at - a.created_at);
       return res.status(200).json({ items });
     }
 
