@@ -29,12 +29,9 @@ export default async function handler(req, res) {
           month: d.month,
           year: d.year,
           created_at: d.created_at,
-          tabs: {
-            economy:  d.tabs?.economy  ? { headline: d.tabs.economy.headline  || '', teaser: d.tabs.economy.teaser  || '', topImageUrl: d.tabs.economy.topImageUrl  || '' } : null,
-            industry: d.tabs?.industry ? { headline: d.tabs.industry.headline || '', teaser: d.tabs.industry.teaser || '', topImageUrl: d.tabs.industry.topImageUrl || '' } : null,
-            global:   d.tabs?.global   ? { headline: d.tabs.global.headline   || '', teaser: d.tabs.global.teaser   || '', topImageUrl: d.tabs.global.topImageUrl   || '' } : null,
-            stocks:   d.tabs?.stocks   ? { headline: d.tabs.stocks.headline   || '', teaser: d.tabs.stocks.teaser   || '', topImageUrl: d.tabs.stocks.topImageUrl   || '' } : null,
-          },
+          tabs: Object.fromEntries(['economy','industry','global','stocks'].map(t => [
+            t, d.tabs?.[t] ? { headline: d.tabs[t].headline || '', teaser: d.tabs[t].teaser || '', topImageUrl: d.tabs[t].topImageUrl || '' } : null,
+          ])),
           columnTeaser: d.column?.teaser || '',
         };
       });

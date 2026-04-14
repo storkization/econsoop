@@ -1594,7 +1594,7 @@ function renderEditionDetail(data) {
 function toggleEdAcc(tab) {
   const body = document.getElementById(`acc-body-${tab}`);
   const arrow = document.getElementById(`acc-arrow-${tab}`);
-  if (!body) return;
+  if (!body || !arrow) return;
   const isOpen = body.classList.toggle('ed-acc-open');
   arrow.textContent = isOpen ? '−' : '+';
 }
