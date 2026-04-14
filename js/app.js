@@ -1503,155 +1503,100 @@ const TAB_META = {
   global:   { label: '국제', icon: '🌐', color: '#B45309' },
   stocks:   { label: '증권', icon: '📈', color: '#047857' },
 };
-let archiveEditions = null;
-const editionDetailCache = {};
-const EDITION_CACHE_MAX = 20;
+const archiveSectorCache = {};
+const archiveEntryCache = {};
 
 async function loadArchive() {
+  await loadArchiveSector('economy');
+}
+
+async function loadArchiveSector(tab) {
   const root = document.getElementById('archive-root');
   if (!root) return;
-  if (archiveEditions) { renderEditionCards(archiveEditions); return; }
-
-  root.innerHTML = `<div class="loading-wrap"><div class="dots"><span></span><span></span><span></span></div><p style="margin-top:14px">아카이브를 불러오는 중...</p></div>`;
-
+  if (archiveSectorCache[tab]) { renderSectorList(tab, archiveSectorCache[tab]); return; }
+  renderSectorList(tab, null);
   try {
-    const r = await fetch('/api/archive?action=editions');
+    const r = await fetch(`/api/archive?action=list&tab=${tab}`);
     const j = await r.json();
-    archiveEditions = j.items || [];
-    renderEditionCards(archiveEditions);
+    archiveSectorCache[tab] = (j.items || []).slice(0, 7);
+    renderSectorList(tab, archiveSectorCache[tab]);
   } catch (e) {
-    root.innerHTML = `<div class="loading-wrap"><p style="color:var(--text-dim);">아카이브를 불러올 수 없습니다.</p></div>`;
+    const root2 = document.getElementById('archive-root');
+    if (root2) root2.innerHTML = `<div class="loading-wrap"><p style="color:var(--text-dim);">불러올 수 없습니다.</p></div>`;
   }
 }
 
-async function loadEditionDetail(id) {
+async function loadArchiveEntryDetail(id, tab) {
   const root = document.getElementById('archive-root');
   if (!root) return;
-  if (editionDetailCache[id]) { renderEditionDetail(editionDetailCache[id]); return; }
-  root.innerHTML = `<div class="loading-wrap"><div class="dots"><span></span><span></span><span></span></div><p style="margin-top:14px">에디션 불러오는 중...</p></div>`;
+  if (archiveEntryCache[id]) { renderArchiveEntryDetail(archiveEntryCache[id], tab); return; }
+  root.innerHTML = `<div class="loading-wrap"><div class="dots"><span></span><span></span><span></span></div><p style="margin-top:14px">불러오는 중...</p></div>`;
   try {
-    const r = await fetch(`/api/archive?action=edition&id=${encodeURIComponent(id)}`);
+    const r = await fetch(`/api/archive?action=get&id=${encodeURIComponent(id)}`);
     const data = await r.json();
-    const keys = Object.keys(editionDetailCache);
-    if (keys.length >= EDITION_CACHE_MAX) delete editionDetailCache[keys[0]];
-    editionDetailCache[id] = data;
-    renderEditionDetail(data);
+    archiveEntryCache[id] = data;
+    renderArchiveEntryDetail(data, tab);
   } catch (e) {
-    root.innerHTML = `<div class="loading-wrap"><p style="color:var(--text-dim);">에디션을 불러올 수 없습니다.</p></div>`;
+    const root2 = document.getElementById('archive-root');
+    if (root2) root2.innerHTML = `<div class="loading-wrap"><p style="color:var(--text-dim);">불러올 수 없습니다.</p></div>`;
   }
 }
 
-function renderEditionDetail(data) {
+function renderSectorList(tab, items) {
   const root = document.getElementById('archive-root');
   if (!root) return;
-
-  const tabSectionsHtml = TAB_ORDER.map(tab => {
-    const tabData = data.tabs?.[tab];
-    if (!tabData?.summary) return '';
-    const points = parseSummary(tabData.summary);
-    if (!points.length) return '';
-    const meta = TAB_META[tab];
-    const hl = tabData.headline || tabData.teaser || meta.label;
-    const pointsHtml = points.map((pt, i) => `
-      <div class="ed-detail-point">
-        <div class="ed-detail-point-label">포인트${i+1} ${pt.label}</div>
-        <div class="ed-detail-point-text">${pt.text}</div>
-      </div>`).join('');
-    return `<div class="ed-acc-tab">
-      <div class="ed-acc-header" onclick="toggleEdAcc('${tab}')">
-        <div class="ed-acc-title">
-          <span class="ed-acc-icon">${meta.icon}</span>
-          <span class="ed-acc-label" style="color:${meta.color}">${meta.label}</span>
-          <span class="ed-acc-headline">${hl}</span>
-        </div>
-        <span class="ed-acc-arrow" id="acc-arrow-${tab}">+</span>
-      </div>
-      <div class="ed-acc-body" id="acc-body-${tab}">
-        <div class="ed-detail-points">${pointsHtml}</div>
-      </div>
-    </div>`;
+  const meta = TAB_META[tab];
+  const chipsHtml = TAB_ORDER.map(t => {
+    const m = TAB_META[t];
+    return `<button class="arc-chip${t === tab ? ' active' : ''}" style="${t === tab ? `--chip-color:${m.color}` : ''}" onclick="loadArchiveSector('${t}')">${m.icon} ${m.label}</button>`;
   }).join('');
 
-  const columnHtml = data.column?.text ? `
-    <div class="ed-detail-column">
-      <div class="ed-detail-column-label">칼럼</div>
-      <div class="ed-detail-column-text">${data.column.text.replace(/\n/g,'<br>')}</div>
-    </div>` : '';
-
-  root.innerHTML = `
-    <div class="edition-wrap">
-      <button class="ed-detail-back" onclick="loadArchive()">← 목록으로</button>
-      <div class="edition-page-header">
-        <div class="edition-page-eyebrow">VIVA Economy Archive</div>
-        <div class="edition-page-title">${formatDateKor(data.date)}</div>
-        <div class="edition-page-desc">${data.period || data.slot}판</div>
-      </div>
-      <div class="ed-detail-tabs">${tabSectionsHtml}</div>
-      ${columnHtml}
+  let bodyHtml;
+  if (!items) {
+    bodyHtml = `<div class="loading-wrap"><div class="dots"><span></span><span></span><span></span></div></div>`;
+  } else if (!items.length) {
+    bodyHtml = `<div class="loading-wrap" style="padding:48px 0;"><p style="color:var(--text-dim);font-size:13px;line-height:1.8;">아직 저장된 브리핑이 없습니다.<br>매일 07:00에 자동 저장됩니다.</p></div>`;
+  } else {
+    bodyHtml = `<div class="arc-entry-list">${items.map(item => `
+      <div class="arc-entry-row" onclick="loadArchiveEntryDetail('${item.id}', '${tab}')">
+        <div class="arc-entry-date">${formatDateKor(item.date)}</div>
+        <div class="arc-entry-headline">${item.headline || '—'}</div>
+      </div>`).join('')}
     </div>`;
-}
-
-function toggleEdAcc(tab) {
-  const body = document.getElementById(`acc-body-${tab}`);
-  const arrow = document.getElementById(`acc-arrow-${tab}`);
-  if (!body || !arrow) return;
-  const isOpen = body.classList.toggle('ed-acc-open');
-  arrow.textContent = isOpen ? '−' : '+';
-}
-
-function renderEditionCards(items) {
-  const root = document.getElementById('archive-root');
-  if (!root) return;
-
-  if (!items.length) {
-    root.innerHTML = `
-      <div class="edition-wrap">
-        <div class="edition-page-header">
-          <div class="edition-page-eyebrow">VIVA Economy Archive</div>
-          <div class="edition-page-title">브리핑 아카이브</div>
-        </div>
-        <div class="loading-wrap" style="padding:48px 0;">
-          <p style="color:var(--text-dim);font-size:13px;line-height:1.8;">아직 쌓인 에디션이 없습니다.<br>매일 07:00에 자동 저장됩니다.</p>
-        </div>
-      </div>`;
-    return;
   }
-
-  const cardsHtml = items.map(ed => {
-    const dateLabel = formatDateKor(ed.date);
-    const heroUrl = TAB_ORDER.map(t => ed.tabs?.[t]?.topImageUrl).find(Boolean) || '';
-    const heroHtml = heroUrl ? `<div class="edition-hero" style="background-image:url('${heroUrl}')"></div>` : '';
-
-    const headlineRows = TAB_ORDER.map(tab => {
-      const t = ed.tabs?.[tab];
-      if (!t) return '';
-      const hl = t.headline || t.teaser || '';
-      if (!hl) return '';
-      const meta = TAB_META[tab];
-      return `<div class="edition-headline-row">
-        <span class="edition-hl-label" style="color:${meta.color}">${meta.icon} ${meta.label}</span>
-        <span class="edition-hl-text">${hl}</span>
-      </div>`;
-    }).join('');
-
-    return `<div class="edition-card" onclick="loadEditionDetail('${ed.id}')" style="cursor:pointer;">
-      <div class="edition-card-header">
-        <div class="edition-card-date">${dateLabel}</div>
-        <div class="edition-card-badge">${ed.period || ed.slot}판</div>
-      </div>
-      ${heroHtml}
-      <div class="edition-headline-list">${headlineRows}</div>
-    </div>`;
-  }).join('');
 
   root.innerHTML = `
     <div class="edition-wrap">
       <div class="edition-page-header">
         <div class="edition-page-eyebrow">VIVA Economy Archive</div>
         <div class="edition-page-title">브리핑 아카이브</div>
-        <div class="edition-page-desc">${items.length}개 에디션 · 매일 07:00 자동 저장</div>
       </div>
-      <div class="edition-list">${cardsHtml}</div>
+      <div class="arc-chips">${chipsHtml}</div>
+      ${bodyHtml}
+    </div>`;
+}
+
+function renderArchiveEntryDetail(data, tab) {
+  const root = document.getElementById('archive-root');
+  if (!root) return;
+  const meta = TAB_META[tab];
+  const points = parseSummary(data.summary || '');
+  const pointsHtml = points.map((pt, i) => `
+    <div class="ed-detail-point">
+      <div class="ed-detail-point-label">포인트${i+1} ${pt.label}</div>
+      <div class="ed-detail-point-text">${pt.text}</div>
+    </div>`).join('');
+
+  root.innerHTML = `
+    <div class="edition-wrap">
+      <button class="ed-detail-back" onclick="loadArchiveSector('${tab}')">← 목록으로</button>
+      <div class="edition-page-header">
+        <div class="edition-page-eyebrow" style="color:${meta.color}">${meta.icon} ${meta.label}</div>
+        <div class="edition-page-title">${formatDateKor(data.date)}</div>
+        <div class="edition-page-desc">${data.slot || '07:00'}판</div>
+      </div>
+      ${data.headline ? `<div class="arc-detail-headline">${data.headline}</div>` : ''}
+      <div class="ed-detail-points">${pointsHtml || '<p style="color:var(--text-dim);font-size:13px;">내용을 불러올 수 없습니다.</p>'}</div>
     </div>`;
 }
 
