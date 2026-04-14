@@ -361,7 +361,7 @@ function setLoadingMsg(tab) {
           const color = isLit ? VIVA_COLOR : '#DCDFE4';
           const size = isComplete ? '40px' : isLit ? '38px' : '34px';
           const shadow = isLit && !isComplete ? `0 2px 12px rgba(165,28,48,0.25)` : 'none';
-          return `<span style="display:inline-block;font-family:var(--font-mono);font-size:${size};font-weight:900;color:${color};text-shadow:${shadow};transition:color 0.5s ease;animation:${anim};">${letter}</span>`;
+          return `<span style="display:inline-block;font-family:var(--font-sans);font-size:${size};font-weight:900;color:${color};text-shadow:${shadow};transition:color 0.5s ease;animation:${anim};">${letter}</span>`;
         }).join('')}
       </div>`;
 
@@ -382,7 +382,7 @@ function setLoadingMsg(tab) {
 
     card.innerHTML = `
       <div style="padding:24px 20px;background:#FFFFFF;border-radius:16px;box-shadow:0 2px 16px rgba(90,10,20,0.06);">
-        <div style="font-family:var(--font-mono);font-size:9px;font-weight:700;color:${isComplete?VIVA_COLOR:'var(--text-dim)'};letter-spacing:2.5px;margin-bottom:0;text-align:center;">
+        <div style="font-family:var(--font-sans);font-size:9px;font-weight:700;color:${isComplete?VIVA_COLOR:'var(--text-dim)'};letter-spacing:2.5px;margin-bottom:0;text-align:center;">
           ${isComplete ? 'ECONOMY IS ALIVE' : `LOADING · ${ci} / ${ALL_STEPS.length}`}
         </div>
         ${vivaViz}
@@ -392,7 +392,7 @@ function setLoadingMsg(tab) {
         <div style="text-align:center;padding-top:12px;border-top:1px solid var(--border);">
           <div class="dots" style="margin-bottom:8px;"><span></span><span></span><span></span></div>
           <div style="color:var(--text);font-size:12px;font-weight:500;">${msgs[msgIdx % msgs.length]}</div>
-          <div style="font-size:10px;color:var(--text);font-family:var(--font-mono);margin-top:6px;">뉴스 양에 따라 10~30초 정도 걸릴 수 있어요</div>
+          <div style="font-size:10px;color:var(--text);font-family:var(--font-sans);margin-top:6px;">뉴스 양에 따라 10~30초 정도 걸릴 수 있어요</div>
         </div>
       </div>`;
     msgIdx++;
@@ -613,7 +613,7 @@ function renderTabSummary(tab, result) {
     const dateStr = `${d.getMonth()+1}월 ${d.getDate()}일 · ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')} 기준`;
     const tc = TAB_COLORS[tab] || TAB_COLORS.economy;
     const slotBadge = slotLabel
-      ? `<span style="font-family:var(--font-mono);font-size:9px;font-weight:700;color:#fff;background:${tc.main};padding:2px 7px;border-radius:10px;letter-spacing:0.5px;">${slotLabel} 브리핑</span>`
+      ? `<span style="font-family:var(--font-sans);font-size:9px;font-weight:700;color:#fff;background:${tc.main};padding:2px 7px;border-radius:10px;letter-spacing:0.5px;">${slotLabel} 브리핑</span>`
       : '';
 
     // 4포인트 그라데이션 카드 — 탭별 색상 통일
@@ -708,7 +708,7 @@ function renderTabSummary(tab, result) {
       <div style="margin:4px 0 14px;background:linear-gradient(135deg,#0F172A 0%,#1E3A5F 50%,#1A365D 100%);
                border-radius:14px;padding:18px 18px 16px;box-shadow:0 4px 20px rgba(15,23,42,0.22);">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
-          <span style="font-size:10px;font-weight:700;color:rgba(255,255,255,0.55);font-family:var(--font-mono);letter-spacing:0.5px;">📰 오늘의 ${TAB_LABEL[tab]} 칼럼</span>
+          <span style="font-size:10px;font-weight:700;color:rgba(255,255,255,0.55);font-family:var(--font-sans);letter-spacing:0.5px;">📰 오늘의 ${TAB_LABEL[tab]} 칼럼</span>
           <span style="font-size:10px;font-weight:700;color:#FCD34D;background:rgba(252,211,77,0.12);padding:3px 9px;border-radius:20px;letter-spacing:0.5px;white-space:nowrap;">💎 PREMIUM</span>
         </div>
         <div style="font-size:17px;font-weight:900;color:#FFFFFF;line-height:1.4;letter-spacing:-0.4px;margin-bottom:8px;">${hook}</div>
@@ -807,7 +807,7 @@ async function loadColumnTab() {
     <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 4px 14px;">
       <div>
         <div style="font-family:var(--font-serif);font-size:20px;font-weight:900;color:var(--text);letter-spacing:-0.3px;">📰 오늘의 ${label} 칼럼</div>
-        <div style="font-size:10px;font-family:var(--font-mono);color:var(--text);margin-top:3px;letter-spacing:0.3px;">Daily Editorial</div>
+        <div style="font-size:10px;font-family:var(--font-sans);color:var(--text);margin-top:3px;letter-spacing:0.3px;">Daily Editorial</div>
       </div>
       <span style="font-size:11px;font-weight:700;color:#B45309;background:#FFF7ED;padding:5px 12px;border-radius:20px;letter-spacing:0.8px;white-space:nowrap;">💎 PREMIUM</span>
     </div>
