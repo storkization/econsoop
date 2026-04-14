@@ -41,11 +41,8 @@ export default async function handler(req, res) {
     // ── 목록 조회 ─────────────────────────────────
     if (action === 'list') {
       let query = db.collection('archive').orderBy('created_at', 'desc').limit(90);
-      if (tab && ['economy', 'industry', 'global', 'stocks'].includes(tab)) {
-        query = db.collection('archive').where('tab', '==', tab).limit(30);
-      }
       const snap = await query.get();
-      const items = snap.docs.map(doc => {
+      let items = snap.docs.map(doc => {
         const d = doc.data();
         return {
           id: doc.id,
@@ -57,7 +54,10 @@ export default async function handler(req, res) {
           headline: d.headline || '',
           created_at: d.created_at,
         };
-      }).sort((a, b) => b.created_at - a.created_at);
+      });
+      if (tab && ['economy', 'industry', 'global', 'stocks'].includes(tab)) {
+        items = items.filter(it => it.tab === tab).sort((a, b) => b.created_at - a.created_at).slice(0, 7);
+      }
       return res.status(200).json({ items });
     }
 
