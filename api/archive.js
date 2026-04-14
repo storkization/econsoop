@@ -30,10 +30,10 @@ export default async function handler(req, res) {
           year: d.year,
           created_at: d.created_at,
           tabs: {
-            economy:  d.tabs?.economy  ? { teaser: d.tabs.economy.teaser  || '' } : null,
-            industry: d.tabs?.industry ? { teaser: d.tabs.industry.teaser || '' } : null,
-            global:   d.tabs?.global   ? { teaser: d.tabs.global.teaser   || '' } : null,
-            stocks:   d.tabs?.stocks   ? { teaser: d.tabs.stocks.teaser   || '' } : null,
+            economy:  d.tabs?.economy  ? { headline: d.tabs.economy.headline  || '', teaser: d.tabs.economy.teaser  || '', topImageUrl: d.tabs.economy.topImageUrl  || '' } : null,
+            industry: d.tabs?.industry ? { headline: d.tabs.industry.headline || '', teaser: d.tabs.industry.teaser || '', topImageUrl: d.tabs.industry.topImageUrl || '' } : null,
+            global:   d.tabs?.global   ? { headline: d.tabs.global.headline   || '', teaser: d.tabs.global.teaser   || '', topImageUrl: d.tabs.global.topImageUrl   || '' } : null,
+            stocks:   d.tabs?.stocks   ? { headline: d.tabs.stocks.headline   || '', teaser: d.tabs.stocks.teaser   || '', topImageUrl: d.tabs.stocks.topImageUrl   || '' } : null,
           },
           columnTeaser: d.column?.teaser || '',
         };

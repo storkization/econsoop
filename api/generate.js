@@ -278,7 +278,7 @@ export default async function handler(req, res) {
         console.error(`[GENERATE] ${tab} 아카이브 저장 실패:`, archiveErr.message);
       }
 
-      results.push({ tab, ok: true, len: summary.length, summary, frontHeadline: frontHeadline || '', headline: headline || '' });
+      results.push({ tab, ok: true, len: summary.length, summary, frontHeadline: frontHeadline || '', headline: headline || '', topImageUrl: topImageUrl || '' });
       console.log(`[GENERATE] ${tab} 완료 (${summary.length}자)`);
     } catch(err) {
       console.error(`[GENERATE] ${tab} 실패:`, err.message);
@@ -318,7 +318,7 @@ export default async function handler(req, res) {
     const tabs = {};
     for (const r of results) {
       if (r.ok && r.summary) {
-        tabs[r.tab] = { summary: r.summary, teaser: extractTeaser(r.summary) };
+        tabs[r.tab] = { summary: r.summary, teaser: extractTeaser(r.summary), headline: r.headline || '', frontHeadline: r.frontHeadline || '', topImageUrl: r.topImageUrl || '' };
       }
     }
 

@@ -1550,17 +1550,25 @@ function renderEditionDetail(data) {
     if (!tabData?.summary) return '';
     const points = parseSummary(tabData.summary);
     if (!points.length) return '';
+    const meta = TAB_META[tab];
+    const hl = tabData.headline || tabData.teaser || meta.label;
     const pointsHtml = points.map((pt, i) => `
       <div class="ed-detail-point">
         <div class="ed-detail-point-label">포인트${i+1} ${pt.label}</div>
         <div class="ed-detail-point-text">${pt.text}</div>
       </div>`).join('');
-    return `<div class="ed-detail-tab">
-      <div class="ed-detail-tab-header">
-        <span class="ed-detail-tab-icon">${TAB_META[tab].icon}</span>
-        <span class="ed-detail-tab-name">${TAB_META[tab].label}</span>
+    return `<div class="ed-acc-tab">
+      <div class="ed-acc-header" onclick="toggleEdAcc('${tab}')">
+        <div class="ed-acc-title">
+          <span class="ed-acc-icon">${meta.icon}</span>
+          <span class="ed-acc-label" style="color:${meta.color}">${meta.label}</span>
+          <span class="ed-acc-headline">${hl}</span>
+        </div>
+        <span class="ed-acc-arrow" id="acc-arrow-${tab}">+</span>
       </div>
-      <div class="ed-detail-points">${pointsHtml}</div>
+      <div class="ed-acc-body" id="acc-body-${tab}">
+        <div class="ed-detail-points">${pointsHtml}</div>
+      </div>
     </div>`;
   }).join('');
 
@@ -1583,6 +1591,14 @@ function renderEditionDetail(data) {
     </div>`;
 }
 
+function toggleEdAcc(tab) {
+  const body = document.getElementById(`acc-body-${tab}`);
+  const arrow = document.getElementById(`acc-arrow-${tab}`);
+  if (!body) return;
+  const isOpen = body.classList.toggle('ed-acc-open');
+  arrow.textContent = isOpen ? '−' : '+';
+}
+
 function renderEditionCards(items) {
   const root = document.getElementById('archive-root');
   if (!root) return;
@@ -1595,7 +1611,7 @@ function renderEditionCards(items) {
           <div class="edition-page-title">브리핑 아카이브</div>
         </div>
         <div class="loading-wrap" style="padding:48px 0;">
-          <p style="color:var(--text-dim);font-size:13px;line-height:1.8;">아직 쌓인 에디션이 없습니다.<br>매일 07:00 · 17:00에 자동 저장됩니다.</p>
+          <p style="color:var(--text-dim);font-size:13px;line-height:1.8;">아직 쌓인 에디션이 없습니다.<br>매일 07:00에 자동 저장됩니다.</p>
         </div>
       </div>`;
     return;
@@ -1603,31 +1619,28 @@ function renderEditionCards(items) {
 
   const cardsHtml = items.map(ed => {
     const dateLabel = formatDateKor(ed.date);
+    const heroUrl = TAB_ORDER.map(t => ed.tabs?.[t]?.topImageUrl).find(Boolean) || '';
+    const heroHtml = heroUrl ? `<div class="edition-hero" style="background-image:url('${heroUrl}')"></div>` : '';
 
-    const tabRows = TAB_ORDER.map(tab => {
+    const headlineRows = TAB_ORDER.map(tab => {
       const t = ed.tabs?.[tab];
       if (!t) return '';
-      const teaser = (t.teaser || '').replace(/포인트\d+:\s*/g,'').trim();
-      return `<div class="edition-tab-row">
-        <span class="edition-tab-icon">${TAB_META[tab].icon}</span>
-        <span class="edition-tab-name">${TAB_META[tab].label}</span>
-        <span class="edition-tab-teaser">${teaser || '—'}</span>
+      const hl = t.headline || t.teaser || '';
+      if (!hl) return '';
+      const meta = TAB_META[tab];
+      return `<div class="edition-headline-row">
+        <span class="edition-hl-label" style="color:${meta.color}">${meta.icon} ${meta.label}</span>
+        <span class="edition-hl-text">${hl}</span>
       </div>`;
     }).join('');
-
-    const columnRow = ed.columnTeaser ? `
-      <div class="edition-column-row">
-        <span class="edition-column-label">칼럼</span>
-        <span class="edition-column-teaser">"${ed.columnTeaser}"</span>
-      </div>` : '';
 
     return `<div class="edition-card" onclick="loadEditionDetail('${ed.id}')" style="cursor:pointer;">
       <div class="edition-card-header">
         <div class="edition-card-date">${dateLabel}</div>
         <div class="edition-card-badge">${ed.period || ed.slot}판</div>
       </div>
-      <div class="edition-tab-list">${tabRows}</div>
-      ${columnRow ? `<div class="edition-divider"></div>${columnRow}` : ''}
+      ${heroHtml}
+      <div class="edition-headline-list">${headlineRows}</div>
     </div>`;
   }).join('');
 
@@ -1636,7 +1649,7 @@ function renderEditionCards(items) {
       <div class="edition-page-header">
         <div class="edition-page-eyebrow">VIVA Economy Archive</div>
         <div class="edition-page-title">브리핑 아카이브</div>
-        <div class="edition-page-desc">매일 07:00 · 17:00 자동 저장 · ${items.length}개 에디션</div>
+        <div class="edition-page-desc">${items.length}개 에디션 · 매일 07:00 자동 저장</div>
       </div>
       <div class="edition-list">${cardsHtml}</div>
     </div>`;
