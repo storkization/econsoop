@@ -56,6 +56,12 @@ function formatDateKor(dateStr) {
   if (!dateStr) return '';
   return `${parseInt(dateStr.slice(0,4))}년 ${parseInt(dateStr.slice(4,6))}월 ${parseInt(dateStr.slice(6,8))}일`;
 }
+function formatDateKorWithDay(dateStr) {
+  if (!dateStr) return '';
+  const days = ['일','월','화','수','목','금','토'];
+  const d = new Date(`${dateStr.slice(0,4)}-${dateStr.slice(4,6)}-${dateStr.slice(6,8)}`);
+  return `${parseInt(dateStr.slice(4,6))}월 ${parseInt(dateStr.slice(6,8))}일 (${days[d.getDay()]})`;
+}
 
 function showToast(msg) {
   const t = document.createElement('div');
@@ -1557,9 +1563,9 @@ function renderSectorList(tab, items) {
   } else if (!items.length) {
     bodyHtml = `<div class="loading-wrap" style="padding:48px 0;"><p style="color:var(--text-dim);font-size:13px;line-height:1.8;">아직 저장된 브리핑이 없습니다.<br>매일 07:00에 자동 저장됩니다.</p></div>`;
   } else {
-    bodyHtml = `<div class="arc-entry-list">${items.map(item => `
+    bodyHtml = `<div class="arc-entry-list" style="--tab-color:${meta.color}">${items.map(item => `
       <div class="arc-entry-row" onclick="loadArchiveEntryDetail('${item.id}', '${tab}')">
-        <div class="arc-entry-date">${formatDateKor(item.date)}</div>
+        <div class="arc-entry-date">${formatDateKorWithDay(item.date)}</div>
         <div class="arc-entry-headline">${item.headline || '—'}</div>
       </div>`).join('')}
     </div>`;

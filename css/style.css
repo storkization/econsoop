@@ -1511,12 +1511,12 @@
     .arc-entry-row:last-child { border-bottom:none; }
     .arc-entry-row:active { opacity:0.6; }
     .arc-entry-date {
-      font-family:var(--font-mono); font-size:10px; font-weight:600;
-      color:var(--text-muted); letter-spacing:0.3px; margin-bottom:5px;
+      font-family:var(--font-sans); font-size:15px; font-weight:800;
+      color:var(--tab-color, var(--accent)); letter-spacing:-0.2px; margin-bottom:6px;
     }
     .arc-entry-headline {
-      font-family:var(--font-sans); font-size:14px; font-weight:700;
-      color:var(--text); line-height:1.5; letter-spacing:-0.2px;
+      font-family:var(--font-sans); font-size:15px; font-weight:700;
+      color:#111; line-height:1.6; letter-spacing:-0.2px;
     }
     .arc-detail-headline {
       font-family:var(--font-sans); font-size:16px; font-weight:800;
@@ -1529,7 +1529,7 @@
     .ed-detail-back:active { color:var(--text); border-color:var(--text-muted); }
     .ed-detail-points { display:flex; flex-direction:column; gap:14px; }
     .ed-detail-point-label { font-family:var(--font-mono); font-size:9px; font-weight:700; color:var(--text-muted); letter-spacing:0.5px; text-transform:uppercase; margin-bottom:4px; }
-    .ed-detail-point-text { font-size:14px; color:var(--text); line-height:1.8; }
+    .ed-detail-point-text { font-size:14px; color:#111; line-height:2.1; }
 
     /* ── 토스트 ── */
     .app-toast { position:fixed;bottom:80px;left:50%;transform:translateX(-50%);z-index:9999;background:#1A1A2E;color:#fff;padding:10px 20px;border-radius:20px;font-size:13px;font-weight:600;white-space:nowrap;pointer-events:none;animation:toastIn 0.3s ease; }
