@@ -910,14 +910,18 @@ function renderLandingBriefs() {
        <div class="front-hero-img-placeholder" style="background:${leadTab.bg};display:none;"></div>`
     : `<div class="front-hero-img-placeholder" style="background:${leadTab.bg};"></div>`;
 
+  const heroCaption = heroSub && (lead.frontHeadline || lead.headline)
+    ? `<div class="front-hero-imgcap">${leadTab.icon} 오늘의 ${leadTab.label} · ${heroSub}</div>`
+    : `<div class="front-hero-imgcap">${leadTab.icon} 오늘의 ${leadTab.label}</div>`;
+
   const heroHtml = `
     <div class="front-hero" onclick="switchTab('${leadTab.key}')">
       ${heroImgHtml}
+      ${heroCaption}
       <div class="front-hero-body">
         <div class="front-hero-label">🔴 TODAY'S TOP</div>
         <div class="front-hero-tab" style="color:${leadTab.color};">${leadTab.icon} ${leadTab.label} <span class="front-tab-sep">│</span> ${leadTab.labelEn}</div>
         <div class="front-hero-headline">${heroHeadline}</div>
-        ${heroSub && (lead.frontHeadline || lead.headline) ? `<div class="front-hero-sub">${heroSub}</div>` : ''}
         <div class="front-hero-cta"><span style="background:${leadTab.color};">더 보기 →</span></div>
       </div>
     </div>`;

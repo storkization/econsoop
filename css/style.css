@@ -842,8 +842,10 @@
       color:var(--text); white-space:nowrap; letter-spacing:-0.3px;
     }
     .front-today-date {
-      font-family:var(--font-sans); font-size:26px; font-weight:900;
-      color:#111; letter-spacing:-0.5px; margin:4px 0 16px;
+      font-family:var(--font-sans); font-size:14px; font-weight:500;
+      font-style:italic; text-align:center;
+      color:var(--text-dim); letter-spacing:-0.2px;
+      margin:6px 0 18px;
     }
 
     /* ── 1면 마켓 대시보드 ── */
@@ -927,7 +929,15 @@
     .front-hero-img-placeholder {
       width:100%; aspect-ratio:16/9; display:block;
     }
-    .front-hero-body { padding:20px 18px 18px; }
+    .front-hero-imgcap {
+      font-family:var(--font-sans);
+      font-size:12px; font-weight:500; font-style:italic;
+      color:var(--text-dim); line-height:1.5;
+      padding:8px 16px 2px;
+      border-bottom:1px solid var(--border);
+      margin-bottom:4px;
+    }
+    .front-hero-body { padding:16px 18px 18px; }
     .front-hero-label {
       display:inline-block;
       background:#DC2626; color:#fff;
@@ -949,11 +959,6 @@
       font-size:24px; font-weight:900;
       line-height:1.35; letter-spacing:-0.6px;
       color:var(--text); margin-bottom:16px;
-    }
-    .front-hero-sub {
-      font-size:15px; font-weight:500;
-      line-height:1.6; color:var(--text);
-      margin-bottom:18px;
     }
     .front-hero-cta { display:flex; justify-content:flex-end; }
     .front-hero-cta span {
