@@ -1074,7 +1074,7 @@ function checkExistingSubscriber(tab) {
   }
   btn.disabled = true;
   btn.textContent = '확인 중...';
-  fetch(`/api/check-subscriber?email=${encodeURIComponent(email)}`)
+  fetch(`/api/subscribe?email=${encodeURIComponent(email)}`)
     .then(r => r.json())
     .then(data => {
       if (data.exists) {
