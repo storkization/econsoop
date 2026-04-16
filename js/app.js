@@ -283,7 +283,7 @@ function switchTab(id, fromHistory = false) {
 
   const isNewsTab = TAB_ORDER.includes(id);
   if (isNewsTab && !summaryCache[id]) genTabSummary(id);
-  if (isNewsTab && DEV_MODE) renderTabSummary(id, DEV_DUMMY);
+  else if (isNewsTab && summaryCache[id]) renderTabSummary(id, summaryCache[id]);
   // 뉴스 탭 진입 시 팝업 상태 갱신, 다른 탭은 팝업 숨김
   setTimeout(() => {
     if (isNewsTab) { if (typeof attachGatePopupObserver === 'function') attachGatePopupObserver(); }
@@ -517,8 +517,31 @@ async function genTabSummary(tab) {
 }
 
 async function _genTabSummaryInner(tab) {
-  // 개발모드: AI 호출 없이 더미 데이터로 렌더링
+  // 개발모드: /api/cached (Firestore 읽기, 무료)로 실데이터 표시. 실패 시만 DEV_DUMMY로 폴백.
   if (DEV_MODE) {
+    try {
+      const cfRes = await fetch(`/api/cached?tab=${tab}`);
+      if (cfRes.ok) {
+        const cf = await cfRes.json();
+        if (cf.summary) {
+          const result = {
+            summary: cf.summary, oneliner: '', footnotes: cf.footnotes || '',
+            frontHeadline: cf.frontHeadline || '',
+            headline: cf.headline || '', subheading: cf.subheading || '',
+            heading2: cf.heading2 || '', subheading2: cf.subheading2 || '',
+            heading3: cf.heading3 || '', subheading3: cf.subheading3 || '',
+            heading4: cf.heading4 || '', subheading4: cf.subheading4 || '',
+            columnHook: cf.columnHook || '', topImageUrl: cf.topImageUrl || '',
+            sectionImages: cf.sectionImages || [], comments: cf.comments || [], topNews: [],
+          };
+          summaryCache[tab] = result;
+          renderLandingBriefs();
+          renderTabSummary(tab, result);
+          updateFrontPreview(tab, result.summary);
+          return;
+        }
+      }
+    } catch (e) { console.log('[DEV] cached fetch 실패, DEV_DUMMY 폴백:', e.message); }
     summaryCache[tab] = DEV_DUMMY;
     renderTabSummary(tab, DEV_DUMMY);
     updateFrontPreview(tab, DEV_DUMMY.summary);
