@@ -119,7 +119,29 @@ ${JSON.stringify(template, null, 2)}
   }
 }
 
-// ── Unsplash 이미지 ────────────────────────────────────────
+// ── 네이버 이미지 검색 ────────────────────────────────────
+async function fetchNaverImage(query) {
+  const id = process.env.NAVER_CLIENT_ID;
+  const secret = process.env.NAVER_CLIENT_SECRET;
+  if (!id || !secret) return '';
+  try {
+    const r = await fetch(
+      `https://openapi.naver.com/v1/search/image?query=${encodeURIComponent(query)}&display=5&sort=sim&filter=large`,
+      { headers: { 'X-Naver-Client-Id': id, 'X-Naver-Client-Secret': secret }, signal: AbortSignal.timeout(8000) }
+    );
+    if (!r.ok) return '';
+    const j = await r.json();
+    // 첫 번째 유효한 이미지 반환 (최소 크기 필터)
+    const items = j?.items || [];
+    for (const item of items) {
+      const url = item.link || item.thumbnail || '';
+      if (url && !url.includes('logo') && !url.includes('icon') && !url.includes('banner')) return url;
+    }
+    return items[0]?.link || '';
+  } catch { return ''; }
+}
+
+// ── Unsplash 이미지 (폴백) ────────────────────────────────
 const UNSPLASH_KW = {
   economy:  'finance economy money korea',
   industry: 'technology industry manufacturing',
@@ -237,30 +259,17 @@ export default async function handler(req, res) {
       if (!summary) throw new Error('브리핑 파싱 실패');
 
       // 2-b. 이미지 수집
-      //   topImageUrl: 네이버 기사 OG 이미지 우선 (기사 내용과 연관성 보장)
-      //     실패 시 Unsplash(imageQuery 기반) 폴백
-      //   sectionImages: 본문 중간 삽입용 Unsplash 2장
+      //   topImageUrl: 네이버 이미지 검색 우선 (imageQuery 키워드)
+      //     실패 시 Unsplash 폴백
+      //   sectionImages: Unsplash 2장 (본문 중간 삽입용)
       const fallbackKw = UNSPLASH_KW[tab];
       const topKw = imageQuery || fallbackKw;
-      // OG 이미지: 상위 3개 기사 병렬 fetch → 첫 성공 채택
-      const ogCandidates = unique.slice(0, 3)
-        .map(it => it?.originallink || it?.link)
-        .filter(Boolean);
-      const [ogResults, img1, img2] = await Promise.all([
-        Promise.all(ogCandidates.map(async (url) => {
-          try {
-            const r = await fetch(`https://${host}/api/ogimage?url=${encodeURIComponent(url)}`, {
-              signal: AbortSignal.timeout(6000),
-            });
-            if (!r.ok) return '';
-            const d = await r.json();
-            return d.imageUrl || '';
-          } catch { return ''; }
-        })),
+      const [naverImg, img1, img2] = await Promise.all([
+        fetchNaverImage(topKw),
         fetchUnsplashImage(fallbackKw + ' chart data'),
         fetchUnsplashImage(fallbackKw + ' office people'),
       ]);
-      let topImageUrl = ogResults.find(Boolean) || '';
+      let topImageUrl = naverImg || '';
       const sectionImages = [img1, img2].filter(Boolean);
       if (!topImageUrl) {
         topImageUrl = await fetchUnsplashImage(topKw) || sectionImages.shift() || '';

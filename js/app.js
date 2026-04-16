@@ -80,10 +80,12 @@ const CACHE_VERSION = window.ECO_VERSION || 'dev';
     const apiKey = localStorage.getItem('eco_api_key');
     const fontSize = localStorage.getItem('eco_font_size');
     const startTab = localStorage.getItem('eco_start_tab');
+    const subEmail = localStorage.getItem('eco_subscriber_email');
     localStorage.clear();
     if (apiKey) localStorage.setItem('eco_api_key', apiKey);
     if (fontSize) localStorage.setItem('eco_font_size', fontSize);
     if (startTab) localStorage.setItem('eco_start_tab', startTab);
+    if (subEmail) localStorage.setItem('eco_subscriber_email', subEmail);
     localStorage.setItem('eco_cache_version', CACHE_VERSION);
   }
 })();
@@ -646,20 +648,20 @@ function renderTabSummary(tab, result) {
     const _imgSlots = {};
     _sImgs.forEach((url, i) => { _imgSlots[_gaps[i]] = url; });
 
-    card.innerHTML = `
-      ${result.topImageUrl ? `<div style="margin:-16px -16px 16px;height:150px;border-radius:12px 12px 0 0;overflow:hidden;position:relative;">
+    const topImgHtml = result.topImageUrl ? `<div style="margin:-16px -16px 16px;height:150px;border-radius:12px 12px 0 0;overflow:hidden;position:relative;">
         <img src="${result.topImageUrl}" style="width:100%;height:100%;object-fit:cover;"
           onerror="this.parentElement.style.display='none'"
           onload="if(this.naturalWidth<300||this.naturalHeight<150)this.parentElement.style.display='none'"/>
         <div style="position:absolute;inset:0;background:linear-gradient(to bottom,transparent 40%,rgba(0,0,0,0.45) 100%);"></div>
-      </div>` : ''}
-      <div style="margin-bottom:14px;">
+      </div>` : '';
+
+    const headerHtml = `<div style="margin-bottom:14px;">
         <div style="font-family:var(--font-sans);font-size:13px;font-weight:700;color:var(--text-muted);letter-spacing:0.3px;">오늘의 한 입 뉴스</div>
-      </div>
-      ${lines.map((line, i) => {
+      </div>`;
+
+    const cardItems = lines.map((line, i) => {
         const cfg = CARDS[i] || CARDS[0];
         const fns = fnMap[i+1] || [];
-        // 포인트N: 레이블 제거 + 마크다운 잔재 제거
         const cleaned = line.replace(/^포인트\d+:\s*/,'').replace(/\*\*/g,'').replace(/#+\s/g,'').trim();
         const bodyHtml = underlineTerms(cleaned, fns, cfg.color);
         const fnHtml = fns.length ? fns.map(fn => {
@@ -695,8 +697,34 @@ function renderTabSummary(tab, result) {
           <div style="font-size:16px;line-height:2.1;color:#000000;font-family:var(--font-sans);">${bodyHtml}</div>
           ${fnHtml}
         </div>${gapHtml}`;
-      }).join('')}
-    `;
+    });
+
+    const isSubscribed = !!localStorage.getItem('eco_subscriber_email');
+    const gateIndex = 2;
+
+    if (isSubscribed || cardItems.length <= gateIndex) {
+      card.innerHTML = topImgHtml + headerHtml + cardItems.join('');
+    } else {
+      const visiblePart = cardItems.slice(0, gateIndex).join('');
+      const hiddenPart = cardItems.slice(gateIndex).join('');
+      card.innerHTML = topImgHtml + headerHtml + `
+        <div class="subscribe-gate-wrap gated">
+          ${visiblePart}
+          <div class="gate-hidden">${hiddenPart}</div>
+          <div class="subscribe-gate" id="subscribe-gate-${tab}">
+            <div class="subscribe-gate-inner">
+              <div class="subscribe-gate-icon">📰</div>
+              <div class="subscribe-gate-title">전문을 이어서 읽으시겠어요?</div>
+              <div class="subscribe-gate-desc">이메일을 입력하시면 전체 브리핑을<br>무료로 바로 확인하실 수 있습니다.</div>
+              <div class="subscribe-gate-form">
+                <input class="subscribe-gate-input" type="email" placeholder="이메일 주소" id="gate-email-${tab}">
+                <button class="subscribe-gate-btn" onclick="submitGateEmail('${tab}')">구독</button>
+              </div>
+              <div class="subscribe-gate-note">광고 없이, 매일 아침 브리핑만 보내드립니다.</div>
+            </div>
+          </div>
+        </div>`;
+    }
   }
 
   // 프리미엄 칼럼 배너 (칼럼 탭으로 연결)
@@ -910,14 +938,9 @@ function renderLandingBriefs() {
        <div class="front-hero-img-placeholder" style="background:${leadTab.bg};display:none;"></div>`
     : `<div class="front-hero-img-placeholder" style="background:${leadTab.bg};"></div>`;
 
-  const heroCaption = heroSub && (lead.frontHeadline || lead.headline)
-    ? `<div class="front-hero-imgcap">${leadTab.icon} 오늘의 ${leadTab.label} · ${heroSub}</div>`
-    : `<div class="front-hero-imgcap">${leadTab.icon} 오늘의 ${leadTab.label}</div>`;
-
   const heroHtml = `
     <div class="front-hero" onclick="switchTab('${leadTab.key}')">
       ${heroImgHtml}
-      ${heroCaption}
       <div class="front-hero-body">
         <div class="front-hero-label">🔴 TODAY'S TOP</div>
         <div class="front-hero-tab" style="color:${leadTab.color};">${leadTab.icon} ${leadTab.label} <span class="front-tab-sep">│</span> ${leadTab.labelEn}</div>
@@ -991,10 +1014,52 @@ function submitEarlybird() {
     alert('올바른 이메일 주소를 입력해주세요.');
     return;
   }
-  // TODO: 실제 제출 로직 (Firebase 저장 또는 외부 폼 연동)
-  localStorage.setItem('eco_earlybird_email', email);
+  fetch('/api/subscribe', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email }),
+  }).catch(() => {});
+  localStorage.setItem('eco_subscriber_email', email);
   document.getElementById('earlybird-form-overlay').style.display = 'none';
-  showToast('얼리버드 신청이 완료됐습니다! 출시 시 안내드릴게요 🎉');
+  showToast('구독이 완료됐습니다! 🎉');
+  // 게이트 해제 — 현재 렌더된 탭 모두
+  unlockAllGates();
+}
+
+function submitGateEmail(tab) {
+  const input = document.getElementById(`gate-email-${tab}`);
+  const email = input?.value?.trim();
+  if (!email || !email.includes('@')) {
+    input?.focus();
+    return;
+  }
+  const btn = input?.parentElement?.querySelector('.subscribe-gate-btn');
+  if (btn) { btn.disabled = true; btn.textContent = '처리 중...'; }
+  fetch('/api/subscribe', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email }),
+  }).then(() => {
+    localStorage.setItem('eco_subscriber_email', email);
+    unlockAllGates();
+    showToast('구독 완료! 전체 브리핑을 확인하세요 📰');
+  }).catch(() => {
+    localStorage.setItem('eco_subscriber_email', email);
+    unlockAllGates();
+  });
+}
+
+function unlockAllGates() {
+  document.querySelectorAll('.subscribe-gate-wrap.gated').forEach(wrap => {
+    wrap.classList.remove('gated');
+    wrap.classList.add('unlocked');
+    const gate = wrap.querySelector('.subscribe-gate');
+    if (gate) {
+      gate.style.transition = 'opacity 0.4s ease';
+      gate.style.opacity = '0';
+      setTimeout(() => gate.remove(), 400);
+    }
+  });
 }
 
 function renderAbout() {
