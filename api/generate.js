@@ -145,13 +145,63 @@ async function fetchOgImage(url) {
   } catch { return ''; }
 }
 
-// 상위 기사들을 순회하며 유효한 OG 이미지 찾기
-async function fetchArticleImage(articles) {
-  for (const a of articles.slice(0, 5)) {
-    const img = await fetchOgImage(a.link);
-    if (img) return img;
+// 상위 기사들의 OG 이미지 후보 수집 (병렬)
+async function fetchArticleImageCandidates(articles, max = 6) {
+  const results = await Promise.all(
+    articles.slice(0, Math.min(articles.length, 10)).map(a => fetchOgImage(a.link))
+  );
+  const unique = [];
+  for (const img of results) {
+    if (img && !unique.includes(img) && unique.length < max) unique.push(img);
   }
-  return '';
+  return unique;
+}
+
+// Haiku Vision으로 후보 중 헤드라인과 가장 맞는 이미지 선택
+async function pickBestImageWithClaude(headline, candidates) {
+  if (!candidates.length) return '';
+  if (candidates.length === 1) return candidates[0];
+  const content = [
+    {
+      type: 'text',
+      text: `뉴스 헤드라인: "${headline}"
+
+아래 ${candidates.length}개 이미지 중 이 헤드라인과 가장 연관성 높은 것의 번호(1~${candidates.length})만 답하세요. 모두 부적합하면 "none".
+
+판단 기준:
+- 헤드라인의 핵심 인물/사물/장면이 드러나면 채택 (완벽 매칭 아니어도 OK)
+- 광고 배너, 신문사 CI/로고, 무관한 풍경·여행·유튜브 썸네일은 거부
+- 주제 완전히 다른 것(코스피 기사에 비트코인 등)은 거부`
+    },
+    ...candidates.map(url => ({ type: 'image', source: { type: 'url', url } }))
+  ];
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': process.env.ANTHROPIC_API_KEY,
+        'anthropic-version': '2023-06-01',
+      },
+      body: JSON.stringify({
+        model: 'claude-haiku-4-5-20251001',
+        max_tokens: 10,
+        messages: [{ role: 'user', content }],
+      }),
+      signal: AbortSignal.timeout(20000),
+    });
+    if (!res.ok) { console.log('[HAIKU_VISION] HTTP', res.status); return ''; }
+    const data = await res.json();
+    const answer = (data.content?.[0]?.text || '').trim().toLowerCase();
+    console.log('[HAIKU_VISION]', headline.slice(0,30), '→', answer);
+    if (answer.includes('none')) return '';
+    const idx = parseInt(answer) - 1;
+    if (isNaN(idx) || idx < 0 || idx >= candidates.length) return '';
+    return candidates[idx];
+  } catch (e) {
+    console.log('[HAIKU_VISION] 실패:', e.message);
+    return '';
+  }
 }
 
 // ── 네이버 이미지 검색 (폴백) ────────────────────────────────────
@@ -292,17 +342,17 @@ export default async function handler(req, res) {
       if (!summary) throw new Error('브리핑 파싱 실패');
 
       // 2-b. 이미지 수집
-      //   topImageUrl: 실제 뉴스 기사의 OG 이미지 우선 (본문과 100% 연관)
-      //     실패 시 네이버 이미지 검색, 최종적으로 Unsplash 폴백
+      //   topImageUrl: 기사 OG 후보 6개 수집 → Haiku Vision이 헤드라인과 매칭되는 것 선택
+      //     실패 시 네이버 이미지 → Unsplash 폴백
       //   sectionImages: Unsplash 2장 (본문 중간 삽입용)
       const fallbackKw = UNSPLASH_KW[tab];
       const topKw = imageQuery || fallbackKw;
-      const [ogImg, img1, img2] = await Promise.all([
-        fetchArticleImage(unique),
+      const [candidates, img1, img2] = await Promise.all([
+        fetchArticleImageCandidates(unique),
         fetchUnsplashImage(fallbackKw + ' chart data'),
         fetchUnsplashImage(fallbackKw + ' office people'),
       ]);
-      let topImageUrl = ogImg || '';
+      let topImageUrl = await pickBestImageWithClaude(frontHeadline || headline || '', candidates);
       const sectionImages = [img1, img2].filter(Boolean);
       if (!topImageUrl) topImageUrl = await fetchNaverImage(topKw) || '';
       if (!topImageUrl) topImageUrl = await fetchUnsplashImage(topKw) || sectionImages.shift() || '';
