@@ -190,20 +190,23 @@ document.addEventListener('DOMContentLoaded', () => {
     btn.addEventListener('click', () => switchTab(btn.dataset.tab));
   });
 
-  // 앱 시작 = 저장된 시작 탭 로드
+  // 앱 시작 = 저장된 시작 탭 로드 (히스토리 푸시 없이)
   const startTab = localStorage.getItem('eco_start_tab') || 'front';
-  switchTab(startTab);
+  switchTab(startTab, true);
+  try { history.replaceState({ viva: 1, tab: startTab }, ''); } catch {}
 
-  // 안드로이드 엣지 스와이프 뒤로가기 방어 — history 쿠션 + popstate 인터셉트
-  try { history.pushState({ viva: 1 }, ''); } catch {}
-  window.addEventListener('popstate', () => {
+  // 안드로이드 PWA 뒤로가기 처리 — 탭 히스토리 따라가고 앱 종료 방지
+  window.addEventListener('popstate', (e) => {
     const drawer = document.getElementById('drawer');
     if (drawer && drawer.classList.contains('open')) {
       closeDrawer();
-    } else if (currentTab !== 'front') {
-      switchTab('front');
+      try { history.pushState({ viva: 1, tab: currentTab }, ''); } catch {}
+      return;
     }
-    try { history.pushState({ viva: 1 }, ''); } catch {}
+    const targetTab = (e.state && e.state.tab) || 'front';
+    if (targetTab !== currentTab) switchTab(targetTab, true);
+    // 앱 종료 방지 쿠션 (front 탭에서 뒤로가기 눌러도 앱 안 꺼짐)
+    try { history.pushState({ viva: 1, tab: currentTab }, ''); } catch {}
   });
 
   // 설정 초기화
@@ -257,8 +260,12 @@ function ago(d){
 }
 
 /* ═══════════ TAB SWITCHING ═══════════ */
-function switchTab(id) {
+function switchTab(id, fromHistory = false) {
   currentTab = id;
+  // 안드로이드 뒤로가기용 히스토리 엔트리 (사용자 네비게이션 시에만)
+  if (!fromHistory) {
+    try { history.pushState({ viva: 1, tab: id }, ''); } catch {}
+  }
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab===id));
   document.querySelectorAll('.tab-panel').forEach(p => p.classList.toggle('active', p.id==='tab-'+id));
   updateDrawerActive(id);
