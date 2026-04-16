@@ -276,7 +276,7 @@ function switchTab(id, fromHistory = false) {
   if (contentEl) contentEl.scrollTop = 0;
   if (headerEl)  headerEl.classList.remove('shrunk');
 
-  const isNewsTab = ['economy','industry','global','stocks'].includes(id);
+  const isNewsTab = TAB_ORDER.includes(id);
   if (isNewsTab && !summaryCache[id]) genTabSummary(id);
   if (isNewsTab && DEV_MODE) renderTabSummary(id, DEV_DUMMY);
   // 뉴스 탭 진입 시 팝업 상태 갱신, 다른 탭은 팝업 숨김
@@ -290,7 +290,7 @@ function switchTab(id, fromHistory = false) {
   if (id==='front') {
     renderLandingBriefs();
     loadFrontMarket();
-    ['economy','industry','global','stocks'].forEach(t => { if (!summaryCache[t]) genTabSummary(t); });
+    TAB_ORDER.forEach(t => { if (!summaryCache[t]) genTabSummary(t); });
   }
   if (id==='newsroom') renderNewsroom();
   if (id==='about') renderAbout();
@@ -1051,7 +1051,6 @@ function ensureSubscribePopup() {
   document.body.appendChild(popup);
 }
 
-let _gatePopupObserver = null;
 function attachGatePopupObserver() {
   if (!!localStorage.getItem('eco_subscriber_email')) return;
   ensureSubscribePopup();
@@ -1075,8 +1074,7 @@ function updateGatePopup() {
     return;
   }
   const activeTab = document.querySelector('.tab-btn.active')?.dataset?.tab;
-  const newsTabs = ['economy','industry','global','stocks'];
-  if (!newsTabs.includes(activeTab)) {
+  if (!TAB_ORDER.includes(activeTab)) {
     popup.classList.remove('visible');
     return;
   }
