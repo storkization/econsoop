@@ -1,4 +1,4 @@
-const CACHE = 'viva-economy-v39';
+const CACHE = 'viva-economy-v40';
 const ASSETS = [
   './manifest.json',
   './css/style.css',

@@ -193,20 +193,25 @@ document.addEventListener('DOMContentLoaded', () => {
   // 앱 시작 = 저장된 시작 탭 로드 (히스토리 푸시 없이)
   const startTab = localStorage.getItem('eco_start_tab') || 'front';
   switchTab(startTab, true);
-  try { history.replaceState({ viva: 1, tab: startTab }, ''); } catch {}
+  // 최초 상태는 boundary — 여기서 뒤로가기 누르면 cushion 쌓아서 앱 종료 차단
+  try { history.replaceState({ viva: 1, tab: startTab, boundary: true }, ''); } catch {}
 
   // 안드로이드 PWA 뒤로가기 처리 — 탭 히스토리 따라가고 앱 종료 방지
   window.addEventListener('popstate', (e) => {
     const drawer = document.getElementById('drawer');
     if (drawer && drawer.classList.contains('open')) {
       closeDrawer();
+      // 드로어 열림 상태는 히스토리 엔트리가 아니었으므로 cushion 1개만 추가
       try { history.pushState({ viva: 1, tab: currentTab }, ''); } catch {}
       return;
     }
-    const targetTab = (e.state && e.state.tab) || 'front';
+    const st = e.state;
+    const targetTab = (st && st.tab) || 'front';
     if (targetTab !== currentTab) switchTab(targetTab, true);
-    // 앱 종료 방지 쿠션 (front 탭에서 뒤로가기 눌러도 앱 안 꺼짐)
-    try { history.pushState({ viva: 1, tab: currentTab }, ''); } catch {}
+    // boundary 상태까지 왔으면 cushion 1개 추가 (그 다음 뒤로가기로 앱 종료 방지)
+    if (!st || st.boundary) {
+      try { history.pushState({ viva: 1, tab: currentTab }, ''); } catch {}
+    }
   });
 
   // 설정 초기화
