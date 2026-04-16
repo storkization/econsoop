@@ -272,6 +272,11 @@ function switchTab(id) {
   const isNewsTab = ['economy','industry','global','stocks'].includes(id);
   if (isNewsTab && !summaryCache[id]) genTabSummary(id);
   if (isNewsTab && DEV_MODE) renderTabSummary(id, DEV_DUMMY);
+  // 뉴스 탭 진입 시 팝업 상태 갱신, 다른 탭은 팝업 숨김
+  setTimeout(() => {
+    if (isNewsTab) { if (typeof attachGatePopupObserver === 'function') attachGatePopupObserver(); }
+    else document.getElementById('subscribe-popup')?.classList.remove('visible');
+  }, 50);
   if (id==='market') loadStocks();
   if (id==='fx' && !fxRates) loadFX();
   if (id==='breaking') loadBreaking();
@@ -708,28 +713,13 @@ function renderTabSummary(tab, result) {
       const visiblePart = cardItems.slice(0, gateIndex).join('');
       const hiddenPart = cardItems.slice(gateIndex).join('');
       card.innerHTML = topImgHtml + headerHtml + `
-        <div class="subscribe-gate-wrap gated">
+        <div class="subscribe-gate-wrap gated" data-tab="${tab}">
           ${visiblePart}
-          <div class="gate-hidden">${hiddenPart}</div>
-          <div class="subscribe-gate" id="subscribe-gate-${tab}">
-            <div class="subscribe-gate-inner">
-              <div class="subscribe-gate-icon">📰</div>
-              <div class="subscribe-gate-title">전문을 이어서 읽으시겠어요?</div>
-              <div class="subscribe-gate-desc">이메일을 입력하시면 전체 브리핑을<br>무료로 바로 확인하실 수 있습니다.</div>
-              <div class="subscribe-gate-form">
-                <input class="subscribe-gate-input" type="email" placeholder="이메일 주소" id="gate-email-${tab}">
-                <button class="subscribe-gate-btn" onclick="submitGateEmail('${tab}')">구독</button>
-              </div>
-              <div class="subscribe-gate-note">광고 없이, 매일 아침 브리핑만 보내드립니다.</div>
-              <div class="subscribe-gate-note" style="margin-top:10px;">
-                <a href="#" onclick="showResubscribeCheck('${tab}');return false"
-                   style="color:var(--text-muted);text-decoration:underline;font-size:12px;">
-                  이미 구독하셨나요?
-                </a>
-              </div>
-            </div>
-          </div>
+          <div class="gate-trigger"></div>
+          <div class="gate-hidden blurred">${hiddenPart}</div>
         </div>`;
+      // 팝업 스크롤 관찰 등록
+      if (typeof attachGatePopupObserver === 'function') attachGatePopupObserver();
     }
   }
 
@@ -1032,41 +1022,109 @@ function submitEarlybird() {
   unlockAllGates();
 }
 
-function submitGateEmail(tab) {
-  const input = document.getElementById(`gate-email-${tab}`);
+/* ═══════════ 구독 팝업 (WSJ 스타일) ═══════════ */
+function ensureSubscribePopup() {
+  if (document.getElementById('subscribe-popup')) return;
+  const popup = document.createElement('div');
+  popup.id = 'subscribe-popup';
+  popup.innerHTML = `
+    <div class="popup-inner">
+      <div class="popup-icon">📰</div>
+      <div class="popup-title">전문을 이어서 읽으시겠어요?</div>
+      <div class="popup-desc">이메일을 입력하시면 전체 브리핑을<br>무료로 바로 확인하실 수 있습니다.</div>
+      <div class="popup-form">
+        <input id="popup-email" type="email" placeholder="이메일 주소" autocomplete="email">
+        <button id="popup-btn" onclick="submitPopupEmail()">구독</button>
+      </div>
+      <div class="popup-note">광고 없이, 매일 아침 브리핑만 보내드립니다.</div>
+      <div class="popup-note-alt">
+        <a href="#" onclick="showResubscribePopup();return false">이미 구독하셨나요?</a>
+      </div>
+    </div>`;
+  document.body.appendChild(popup);
+}
+
+let _gatePopupObserver = null;
+function attachGatePopupObserver() {
+  if (!!localStorage.getItem('eco_subscriber_email')) return;
+  ensureSubscribePopup();
+  updateGatePopup();
+  const scroller = document.querySelector('.content');
+  if (scroller && !scroller._gateListenerAttached) {
+    scroller.addEventListener('scroll', updateGatePopup, { passive: true });
+    scroller._gateListenerAttached = true;
+  }
+  if (!window._gateResizeAttached) {
+    window.addEventListener('resize', updateGatePopup, { passive: true });
+    window._gateResizeAttached = true;
+  }
+}
+
+function updateGatePopup() {
+  const popup = document.getElementById('subscribe-popup');
+  if (!popup) return;
+  if (!!localStorage.getItem('eco_subscriber_email')) {
+    popup.classList.remove('visible');
+    return;
+  }
+  const activeTab = document.querySelector('.tab-btn.active')?.dataset?.tab;
+  const newsTabs = ['economy','industry','global','stocks'];
+  if (!newsTabs.includes(activeTab)) {
+    popup.classList.remove('visible');
+    return;
+  }
+  const card = document.getElementById(`${activeTab}-summary-card`);
+  const trigger = card?.querySelector('.gate-trigger');
+  if (!trigger) {
+    popup.classList.remove('visible');
+    return;
+  }
+  const rect = trigger.getBoundingClientRect();
+  const vh = window.innerHeight;
+  // 트리거가 화면 하단에서 150px 위로 올라왔을 때 팝업 표시
+  if (rect.top < vh - 150) {
+    popup.classList.add('visible');
+  } else {
+    popup.classList.remove('visible');
+  }
+}
+
+function submitPopupEmail() {
+  const input = document.getElementById('popup-email');
+  const btn = document.getElementById('popup-btn');
   const email = input?.value?.trim();
   if (!email || !email.includes('@')) {
     input?.focus();
+    showToast('올바른 이메일을 입력해주세요');
     return;
   }
-  const btn = input?.parentElement?.querySelector('.subscribe-gate-btn');
-  if (btn) { btn.disabled = true; btn.textContent = '처리 중...'; }
+  btn.disabled = true;
+  btn.textContent = '처리 중...';
   fetch('/api/subscribe', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ email }),
-  }).then(() => {
-    localStorage.setItem('eco_subscriber_email', email);
+  }).finally(() => {
+    localStorage.setItem('eco_subscriber_email', email.toLowerCase().trim());
     unlockAllGates();
     showToast('구독 완료! 전체 브리핑을 확인하세요 📰');
-  }).catch(() => {
-    localStorage.setItem('eco_subscriber_email', email);
-    unlockAllGates();
   });
 }
 
-function showResubscribeCheck(tab) {
-  const input = document.getElementById(`gate-email-${tab}`);
-  const btn = input?.parentElement?.querySelector('.subscribe-gate-btn');
+function showResubscribePopup() {
+  const input = document.getElementById('popup-email');
+  const btn = document.getElementById('popup-btn');
   if (!input || !btn) return;
   input.placeholder = '구독하신 이메일 주소';
+  input.value = '';
   btn.textContent = '확인';
-  btn.setAttribute('onclick', `checkExistingSubscriber('${tab}')`);
+  btn.setAttribute('onclick', 'checkExistingPopupSubscriber()');
+  input.focus();
 }
 
-function checkExistingSubscriber(tab) {
-  const input = document.getElementById(`gate-email-${tab}`);
-  const btn = input?.parentElement?.querySelector('.subscribe-gate-btn');
+function checkExistingPopupSubscriber() {
+  const input = document.getElementById('popup-email');
+  const btn = document.getElementById('popup-btn');
   const email = input?.value?.trim();
   if (!email || !email.includes('@')) {
     showToast('이메일 주소를 입력해주세요');
@@ -1085,7 +1143,7 @@ function checkExistingSubscriber(tab) {
         showToast('구독 기록이 없습니다. 이메일을 입력하여 구독해주세요');
         input.placeholder = '이메일 주소';
         btn.textContent = '구독';
-        btn.setAttribute('onclick', `submitGateEmail('${tab}')`);
+        btn.setAttribute('onclick', 'submitPopupEmail()');
         btn.disabled = false;
       }
     })
@@ -1100,13 +1158,9 @@ function unlockAllGates() {
   document.querySelectorAll('.subscribe-gate-wrap.gated').forEach(wrap => {
     wrap.classList.remove('gated');
     wrap.classList.add('unlocked');
-    const gate = wrap.querySelector('.subscribe-gate');
-    if (gate) {
-      gate.style.transition = 'opacity 0.4s ease';
-      gate.style.opacity = '0';
-      setTimeout(() => gate.remove(), 400);
-    }
+    wrap.querySelector('.gate-hidden')?.classList.remove('blurred');
   });
+  document.getElementById('subscribe-popup')?.classList.remove('visible');
 }
 
 function renderAbout() {

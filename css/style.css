@@ -1041,63 +1041,79 @@
       font-size:11px; color:var(--text-dim); font-family:var(--font-sans);
     }
 
-    /* ── 구독 게이트 (브리핑 중간) ── */
-    .subscribe-gate-wrap {
-      position:relative; overflow:hidden;
+    /* ── 구독 게이트 (WSJ 스타일: 블러 + 하단 팝업) ── */
+    .subscribe-gate-wrap { position:relative; }
+    .gate-trigger { height:1px; width:100%; }
+    .gate-hidden.blurred {
+      filter:blur(5px);
+      pointer-events:none;
+      user-select:none;
+      transition:filter 0.35s ease;
     }
-    .subscribe-gate-wrap.gated .gate-hidden {
-      max-height:0; overflow:hidden; opacity:0;
-      transition: max-height 0.5s ease, opacity 0.4s ease;
+    .gate-hidden { transition:filter 0.35s ease; }
+
+    /* 고정 하단 팝업 */
+    #subscribe-popup {
+      position:fixed; bottom:0; left:50%;
+      transform:translate(-50%, 110%);
+      width:100%; max-width:480px;
+      background:var(--bg-card, #fff);
+      border-radius:24px 24px 0 0;
+      box-shadow:0 -12px 50px rgba(0,0,0,0.18);
+      padding:26px 22px 28px;
+      z-index:1000;
+      opacity:0;
+      transition:transform 0.45s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease;
+      pointer-events:none;
+      box-sizing:border-box;
     }
-    .subscribe-gate-wrap.unlocked .gate-hidden {
-      max-height:3000px; opacity:1;
+    #subscribe-popup::before {
+      content:''; position:absolute;
+      bottom:100%; left:0; right:0; height:120px;
+      background:linear-gradient(to top, var(--bg, #fff) 0%, rgba(255,255,255,0) 100%);
+      pointer-events:none;
     }
-    .subscribe-gate {
-      position:relative; z-index:10;
-      margin-top:-60px; padding-top:80px;
-      background:linear-gradient(to bottom, transparent 0%, var(--bg) 35%);
-      text-align:center; padding-bottom:28px;
+    #subscribe-popup.visible {
+      transform:translate(-50%, 0);
+      opacity:1;
+      pointer-events:auto;
     }
-    .subscribe-gate-inner {
-      background:var(--bg-card); border:1px solid var(--border);
-      border-radius:20px; padding:28px 22px 24px;
-      box-shadow:0 8px 30px rgba(0,0,0,0.08);
+    .popup-icon { font-size:30px; text-align:center; margin-bottom:6px; }
+    .popup-title {
+      font-family:var(--font-sans); font-size:19px; font-weight:900;
+      text-align:center; color:var(--text); letter-spacing:-0.4px; margin-bottom:8px;
     }
-    .subscribe-gate-icon { font-size:32px; margin-bottom:10px; }
-    .subscribe-gate-title {
-      font-family:var(--font-sans); font-size:18px; font-weight:900;
-      color:var(--text); letter-spacing:-0.4px; margin-bottom:6px;
-    }
-    .subscribe-gate-desc {
+    .popup-desc {
       font-family:var(--font-sans); font-size:13px;
-      color:var(--text-dim); line-height:1.6; margin-bottom:18px;
+      text-align:center; color:var(--text-dim); line-height:1.6; margin-bottom:18px;
     }
-    .subscribe-gate-form {
-      display:flex; gap:8px;
-    }
-    .subscribe-gate-input {
+    .popup-form { display:flex; gap:8px; margin-bottom:10px; }
+    .popup-form input {
       flex:1; min-width:0;
-      padding:12px 14px; border:1px solid var(--border);
+      padding:13px 14px; border:1px solid var(--border);
       border-radius:12px; font-size:14px; font-family:var(--font-sans);
       background:var(--bg); color:var(--text);
       outline:none; transition:border-color 0.2s;
     }
-    .subscribe-gate-input:focus { border-color:var(--accent); }
-    .subscribe-gate-input::placeholder { color:var(--text-dim); }
-    .subscribe-gate-btn {
-      padding:12px 18px; border:none; border-radius:12px;
+    .popup-form input:focus { border-color:var(--accent); }
+    .popup-form input::placeholder { color:var(--text-dim); }
+    .popup-form button {
+      padding:13px 20px; border:none; border-radius:12px;
       background:linear-gradient(135deg, var(--viva-deep), var(--viva-ink));
       color:#fff; font-size:14px; font-weight:800;
       font-family:var(--font-sans); cursor:pointer;
       white-space:nowrap; transition:opacity 0.15s;
     }
-    .subscribe-gate-btn:active { opacity:0.8; }
-    .subscribe-gate-btn:disabled {
-      opacity:0.5; cursor:not-allowed;
-    }
-    .subscribe-gate-note {
-      margin-top:10px; font-size:11px;
+    .popup-form button:active { opacity:0.85; }
+    .popup-form button:disabled { opacity:0.5; cursor:not-allowed; }
+    .popup-note {
+      text-align:center; font-size:11px;
       color:var(--text-dim); font-family:var(--font-sans);
+    }
+    .popup-note-alt { text-align:center; margin-top:10px; }
+    .popup-note-alt a {
+      font-size:12px; color:var(--text-dim);
+      text-decoration:underline; font-family:var(--font-sans);
     }
 
     /* ── 구독 페이지 ── */
