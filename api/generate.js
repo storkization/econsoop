@@ -236,7 +236,12 @@ export default async function handler(req, res) {
       }
 
       const seen = new Set();
-      const skipKw = ['구직','채용','취업','자립준비','희망디딤돌','주요기사'];
+      // PR·광고성 기사 키워드 차단 (협약/출시/이벤트/혜택/프로모션 등)
+      const skipKw = [
+        '구직','채용','취업','자립준비','희망디딤돌','주요기사',
+        '협약','손잡고','맞손','우대금리','금리 우대','특별 금리','이벤트','프로모션','혜택','출시','선보여','선봬','론칭','오픈',
+        'MOU','공모전','수상','시상식','후원','나눔','봉사','기부',
+      ];
       const unique = allItems
         .filter(it => !skipKw.some(kw => it.title.includes(kw)))
         .filter(it => { const k = it.title.slice(0, 15); if (seen.has(k)) return false; seen.add(k); return true; })
