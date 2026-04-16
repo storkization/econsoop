@@ -119,25 +119,58 @@ ${JSON.stringify(template, null, 2)}
   }
 }
 
-// ── 네이버 이미지 검색 ────────────────────────────────────
+// 부적합 이미지 URL 판별 (유튜브/여행사진/아이콘 등 본문과 무관한 이미지 차단)
+const BAD_IMG_HOSTS = ['ytimg.com', 'youtube.com', 'tripadvisor', 'pinterest', 'instagram', 'facebook'];
+const BAD_IMG_KW = ['logo', 'icon', 'banner', 'placeholder', 'thumb_default', 'blank'];
+function isBadImageUrl(url) {
+  if (!url) return true;
+  const low = url.toLowerCase();
+  return BAD_IMG_HOSTS.some(h => low.includes(h)) || BAD_IMG_KW.some(k => low.includes(k));
+}
+
+// ── 뉴스 기사의 OG 이미지 추출 (원본 사진 = 본문과 100% 연관) ─────────
+async function fetchOgImage(url) {
+  if (!url) return '';
+  try {
+    const r = await fetch(url, {
+      headers: { 'User-Agent': 'Mozilla/5.0 (compatible; Econsoop/1.0)' },
+      signal: AbortSignal.timeout(6000),
+    });
+    if (!r.ok) return '';
+    const html = await r.text();
+    const m = html.match(/<meta[^>]+property=["']og:image["'][^>]+content=["']([^"']+)["']/i)
+           || html.match(/<meta[^>]+content=["']([^"']+)["'][^>]+property=["']og:image["']/i);
+    const img = m ? m[1].trim() : '';
+    return isBadImageUrl(img) ? '' : img;
+  } catch { return ''; }
+}
+
+// 상위 기사들을 순회하며 유효한 OG 이미지 찾기
+async function fetchArticleImage(articles) {
+  for (const a of articles.slice(0, 5)) {
+    const img = await fetchOgImage(a.link);
+    if (img) return img;
+  }
+  return '';
+}
+
+// ── 네이버 이미지 검색 (폴백) ────────────────────────────────────
 async function fetchNaverImage(query) {
   const id = process.env.NAVER_CLIENT_ID;
   const secret = process.env.NAVER_CLIENT_SECRET;
   if (!id || !secret) return '';
   try {
     const r = await fetch(
-      `https://openapi.naver.com/v1/search/image?query=${encodeURIComponent(query)}&display=5&sort=sim&filter=large`,
+      `https://openapi.naver.com/v1/search/image?query=${encodeURIComponent(query)}&display=10&sort=sim&filter=large`,
       { headers: { 'X-Naver-Client-Id': id, 'X-Naver-Client-Secret': secret }, signal: AbortSignal.timeout(8000) }
     );
     if (!r.ok) return '';
     const j = await r.json();
-    // 첫 번째 유효한 이미지 반환 (최소 크기 필터)
-    const items = j?.items || [];
-    for (const item of items) {
+    for (const item of (j?.items || [])) {
       const url = item.link || item.thumbnail || '';
-      if (url && !url.includes('logo') && !url.includes('icon') && !url.includes('banner')) return url;
+      if (url && !isBadImageUrl(url)) return url;
     }
-    return items[0]?.link || '';
+    return '';
   } catch { return ''; }
 }
 
@@ -259,21 +292,20 @@ export default async function handler(req, res) {
       if (!summary) throw new Error('브리핑 파싱 실패');
 
       // 2-b. 이미지 수집
-      //   topImageUrl: 네이버 이미지 검색 우선 (imageQuery 키워드)
-      //     실패 시 Unsplash 폴백
+      //   topImageUrl: 실제 뉴스 기사의 OG 이미지 우선 (본문과 100% 연관)
+      //     실패 시 네이버 이미지 검색, 최종적으로 Unsplash 폴백
       //   sectionImages: Unsplash 2장 (본문 중간 삽입용)
       const fallbackKw = UNSPLASH_KW[tab];
       const topKw = imageQuery || fallbackKw;
-      const [naverImg, img1, img2] = await Promise.all([
-        fetchNaverImage(topKw),
+      const [ogImg, img1, img2] = await Promise.all([
+        fetchArticleImage(unique),
         fetchUnsplashImage(fallbackKw + ' chart data'),
         fetchUnsplashImage(fallbackKw + ' office people'),
       ]);
-      let topImageUrl = naverImg || '';
+      let topImageUrl = ogImg || '';
       const sectionImages = [img1, img2].filter(Boolean);
-      if (!topImageUrl) {
-        topImageUrl = await fetchUnsplashImage(topKw) || sectionImages.shift() || '';
-      }
+      if (!topImageUrl) topImageUrl = await fetchNaverImage(topKw) || '';
+      if (!topImageUrl) topImageUrl = await fetchUnsplashImage(topKw) || sectionImages.shift() || '';
 
       // 3. Firestore 저장 (최신 캐시 — 덮어쓰기)
       const comments = await genComments(summary, TAB_LABEL[tab]);
