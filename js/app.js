@@ -721,6 +721,12 @@ function renderTabSummary(tab, result) {
                 <button class="subscribe-gate-btn" onclick="submitGateEmail('${tab}')">구독</button>
               </div>
               <div class="subscribe-gate-note">광고 없이, 매일 아침 브리핑만 보내드립니다.</div>
+              <div class="subscribe-gate-note" style="margin-top:10px;">
+                <a href="#" onclick="showResubscribeCheck('${tab}');return false"
+                   style="color:var(--text-muted);text-decoration:underline;font-size:12px;">
+                  이미 구독하셨나요?
+                </a>
+              </div>
             </div>
           </div>
         </div>`;
@@ -1047,6 +1053,47 @@ function submitGateEmail(tab) {
     localStorage.setItem('eco_subscriber_email', email);
     unlockAllGates();
   });
+}
+
+function showResubscribeCheck(tab) {
+  const input = document.getElementById(`gate-email-${tab}`);
+  const btn = input?.parentElement?.querySelector('.subscribe-gate-btn');
+  if (!input || !btn) return;
+  input.placeholder = '구독하신 이메일 주소';
+  btn.textContent = '확인';
+  btn.setAttribute('onclick', `checkExistingSubscriber('${tab}')`);
+}
+
+function checkExistingSubscriber(tab) {
+  const input = document.getElementById(`gate-email-${tab}`);
+  const btn = input?.parentElement?.querySelector('.subscribe-gate-btn');
+  const email = input?.value?.trim();
+  if (!email || !email.includes('@')) {
+    showToast('이메일 주소를 입력해주세요');
+    return;
+  }
+  btn.disabled = true;
+  btn.textContent = '확인 중...';
+  fetch(`/api/check-subscriber?email=${encodeURIComponent(email)}`)
+    .then(r => r.json())
+    .then(data => {
+      if (data.exists) {
+        localStorage.setItem('eco_subscriber_email', email.toLowerCase().trim());
+        unlockAllGates();
+        showToast('환영합니다! 구독이 확인되었습니다 📰');
+      } else {
+        showToast('구독 기록이 없습니다. 이메일을 입력하여 구독해주세요');
+        input.placeholder = '이메일 주소';
+        btn.textContent = '구독';
+        btn.setAttribute('onclick', `submitGateEmail('${tab}')`);
+        btn.disabled = false;
+      }
+    })
+    .catch(() => {
+      showToast('확인 중 오류가 발생했습니다. 다시 시도해주세요');
+      btn.textContent = '확인';
+      btn.disabled = false;
+    });
 }
 
 function unlockAllGates() {
