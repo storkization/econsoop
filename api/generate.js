@@ -119,159 +119,27 @@ ${JSON.stringify(template, null, 2)}
   }
 }
 
-// 부적합 이미지 URL 판별 (유튜브/여행사진/아이콘/정부문서/광고 등 본문과 무관한 이미지 차단)
-const BAD_IMG_HOSTS = [
-  'ytimg.com', 'youtube.com', 'ggpht.com',
-  'tripadvisor', 'pinterest', 'instagram', 'facebook',
-  'gettyimagesbank.com', 'gettyimages.com',
-  'policy.nl.go.kr', '.go.kr/cmmn',
-  'shutterstock.com/preview',
-];
-const BAD_IMG_KW = ['logo', 'icon', 'banner', 'placeholder', 'thumb_default', 'blank', 'watermark', 'preview'];
-function isBadImageUrl(url) {
-  if (!url) return true;
-  const low = url.toLowerCase();
-  return BAD_IMG_HOSTS.some(h => low.includes(h)) || BAD_IMG_KW.some(k => low.includes(k));
-}
-
-// ── 뉴스 기사의 OG 이미지 추출 (원본 사진 = 본문과 100% 연관) ─────────
-async function fetchOgImage(url) {
-  if (!url) return '';
-  try {
-    const r = await fetch(url, {
-      headers: { 'User-Agent': 'Mozilla/5.0 (compatible; Econsoop/1.0)' },
-      signal: AbortSignal.timeout(6000),
-    });
-    if (!r.ok) return '';
-    const html = await r.text();
-    const m = html.match(/<meta[^>]+property=["']og:image["'][^>]+content=["']([^"']+)["']/i)
-           || html.match(/<meta[^>]+content=["']([^"']+)["'][^>]+property=["']og:image["']/i);
-    const img = m ? m[1].trim() : '';
-    return isBadImageUrl(img) ? '' : img;
-  } catch { return ''; }
-}
-
-// 상위 기사들의 OG 이미지 후보 수집 (병렬)
-async function fetchArticleImageCandidates(articles, max = 6) {
-  const results = await Promise.all(
-    articles.slice(0, Math.min(articles.length, 10)).map(a => fetchOgImage(a.link))
-  );
-  const unique = [];
-  for (const img of results) {
-    if (img && !unique.includes(img) && unique.length < max) unique.push(img);
-  }
-  return unique;
-}
-
-// 이미지 URL → base64 (Claude Vision에 안전하게 전달)
-async function fetchImageAsBase64(url) {
-  try {
-    const r = await fetch(url, {
-      headers: { 'User-Agent': 'Mozilla/5.0 (compatible; Econsoop/1.0)' },
-      signal: AbortSignal.timeout(8000),
-    });
-    if (!r.ok) return null;
-    const contentType = (r.headers.get('content-type') || '').split(';')[0].trim();
-    if (!contentType.startsWith('image/')) return null;
-    const buf = await r.arrayBuffer();
-    if (buf.byteLength < 8000 || buf.byteLength > 4_500_000) return null; // 로고 너무 작거나 API 상한 초과
-    return { media_type: contentType, data: Buffer.from(buf).toString('base64') };
-  } catch { return null; }
-}
-
-// Haiku Vision으로 후보 중 헤드라인과 가장 맞는 이미지 선택 (debug 정보 반환)
-async function pickBestImageWithClaude(headline, candidates) {
-  const debug = { candidates: candidates.map(u => u.substring(0, 80)), haiku: null, picked: '', reason: '' };
-  if (!candidates.length) { debug.reason = 'no candidates'; return { url: '', debug }; }
-  if (candidates.length === 1) { debug.picked = candidates[0]; debug.reason = 'single'; return { url: candidates[0], debug }; }
-
-  const imageData = await Promise.all(candidates.map(fetchImageAsBase64));
-  const valid = [];
-  const validUrls = [];
-  imageData.forEach((d, i) => { if (d) { valid.push(d); validUrls.push(candidates[i]); } });
-  debug.validCount = valid.length;
-
-  if (!valid.length) { debug.reason = 'all fetches failed'; return { url: '', debug }; }
-  if (valid.length === 1) { debug.picked = validUrls[0]; debug.reason = 'only one valid'; return { url: validUrls[0], debug }; }
-
-  const content = [
-    {
-      type: 'text',
-      text: `뉴스 헤드라인: "${headline}"
-
-아래 ${valid.length}개 이미지 중 이 헤드라인과 가장 연관성 높은 것의 번호(1~${valid.length})만 답하세요. 모두 부적합하면 "none".
-
-판단 기준:
-- 헤드라인의 핵심 인물/사물/장면이 드러나면 채택 (완벽 매칭 아니어도 OK)
-- 광고 배너, 신문사 CI/로고, 무관한 풍경·여행은 거부
-- 주제 완전히 다른 것(코스피 기사에 비트코인 등)은 거부`
-    },
-    ...valid.map(d => ({ type: 'image', source: { type: 'base64', media_type: d.media_type, data: d.data } }))
-  ];
-
-  try {
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': process.env.ANTHROPIC_API_KEY,
-        'anthropic-version': '2023-06-01',
-      },
-      body: JSON.stringify({
-        model: 'claude-haiku-4-5-20251001',
-        max_tokens: 10,
-        messages: [{ role: 'user', content }],
-      }),
-      signal: AbortSignal.timeout(30000),
-    });
-    if (!res.ok) {
-      const t = await res.text();
-      debug.haiku = `HTTP ${res.status}: ${t.substring(0, 150)}`;
-      debug.reason = 'API error';
-      return { url: '', debug };
-    }
-    const data = await res.json();
-    const answer = (data.content?.[0]?.text || '').trim().toLowerCase();
-    debug.haiku = answer;
-    if (answer.includes('none')) { debug.reason = 'haiku said none'; return { url: '', debug }; }
-    const idx = parseInt(answer) - 1;
-    if (isNaN(idx) || idx < 0 || idx >= valid.length) { debug.reason = 'haiku invalid answer'; return { url: validUrls[0], debug }; }
-    debug.picked = validUrls[idx];
-    return { url: validUrls[idx], debug };
-  } catch (e) {
-    debug.haiku = 'exception';
-    debug.reason = e.message.substring(0, 100);
-    return { url: '', debug };
-  }
-}
-
-// ── 네이버 이미지 검색 (폴백) ────────────────────────────────────
-async function fetchNaverImage(query) {
-  const id = process.env.NAVER_CLIENT_ID;
-  const secret = process.env.NAVER_CLIENT_SECRET;
-  if (!id || !secret) return '';
-  try {
-    const r = await fetch(
-      `https://openapi.naver.com/v1/search/image?query=${encodeURIComponent(query)}&display=10&sort=sim&filter=large`,
-      { headers: { 'X-Naver-Client-Id': id, 'X-Naver-Client-Secret': secret }, signal: AbortSignal.timeout(8000) }
-    );
-    if (!r.ok) return '';
-    const j = await r.json();
-    for (const item of (j?.items || [])) {
-      const url = item.link || item.thumbnail || '';
-      if (url && !isBadImageUrl(url)) return url;
-    }
-    return '';
-  } catch { return ''; }
-}
-
-// ── Unsplash 이미지 (폴백) ────────────────────────────────
-const UNSPLASH_KW = {
-  economy:  'finance economy money korea',
-  industry: 'technology industry manufacturing',
-  global:   'world globe international business',
-  stocks:   'stock market trading investment',
+// ── Unsplash 큐레이션 이미지 (탭별 주제 쿼리) ────────────────────
+// top: 1면 히어로용, section: 본문 중간 삽입용 (각 탭마다 여러 쿼리로 다양성 확보)
+const UNSPLASH_QUERIES = {
+  economy: {
+    top:     ['korea money won finance', 'seoul bank economy', 'stock market chart korea'],
+    section: ['coins money stack', 'financial calculator desk', 'office meeting business', 'bank interior'],
+  },
+  industry: {
+    top:     ['semiconductor chip factory', 'korea manufacturing line', 'technology innovation lab'],
+    section: ['electronics chip closeup', 'industrial machinery', 'tech office worker', 'automation robot'],
+  },
+  global: {
+    top:     ['world map trade', 'international shipping port', 'global economy skyline'],
+    section: ['airport cargo plane', 'shipping containers', 'currency exchange board', 'new york wall street'],
+  },
+  stocks: {
+    top:     ['stock market trading floor', 'investment chart screen', 'candlestick graph'],
+    section: ['financial newspaper', 'trader computer screens', 'bull bear market', 'coin stack portfolio'],
+  },
 };
+
 async function fetchUnsplashImage(query) {
   const key = process.env.UNSPLASH_ACCESS_KEY;
   if (!key) return '';
@@ -284,6 +152,18 @@ async function fetchUnsplashImage(query) {
     const j = await r.json();
     return j?.urls?.regular || '';
   } catch { return ''; }
+}
+
+// 탭 주제에 맞는 Unsplash 이미지 3장 (1 top + 2 section) 병렬 수집
+async function fetchCuratedImages(tab) {
+  const q = UNSPLASH_QUERIES[tab] || UNSPLASH_QUERIES.economy;
+  const pick = arr => arr[Math.floor(Math.random() * arr.length)];
+  const [top, s1, s2] = await Promise.all([
+    fetchUnsplashImage(pick(q.top)),
+    fetchUnsplashImage(pick(q.section)),
+    fetchUnsplashImage(pick(q.section)),
+  ]);
+  return { top, sectionImages: [s1, s2].filter(Boolean) };
 }
 
 // ── 탭 설정 ────────────────────────────────────────────────
@@ -382,22 +262,9 @@ export default async function handler(req, res) {
       const { summary, footnotes, frontHeadline, imageQuery, headline, subheading, heading2, subheading2, heading3, subheading3, heading4, subheading4, columnHook, columnSubhook } = await briefingRes.json();
       if (!summary) throw new Error('브리핑 파싱 실패');
 
-      // 2-b. 이미지 수집
-      //   topImageUrl: 기사 OG 후보 수집 → Haiku Vision이 헤드라인과 매칭되는 것 선택
-      //     실패 시 Unsplash 폴백 (Naver 이미지 검색은 쓰레기 반환해서 제거)
-      //   sectionImages: Unsplash 2장 (본문 중간 삽입용)
-      const fallbackKw = UNSPLASH_KW[tab];
-      const topKw = imageQuery || fallbackKw;
-      const [candidates, img1, img2] = await Promise.all([
-        fetchArticleImageCandidates(unique),
-        fetchUnsplashImage(fallbackKw + ' chart data'),
-        fetchUnsplashImage(fallbackKw + ' office people'),
-      ]);
-      const pickResult = await pickBestImageWithClaude(frontHeadline || headline || '', candidates);
-      let topImageUrl = pickResult.url;
-      const imagePickDebug = pickResult.debug;
-      const sectionImages = [img1, img2].filter(Boolean);
-      if (!topImageUrl) topImageUrl = await fetchUnsplashImage(topKw) || sectionImages.shift() || '';
+      // 2-b. 이미지 수집 — Unsplash 큐레이션 쿼리만 사용 (비용 0)
+      const { top, sectionImages } = await fetchCuratedImages(tab);
+      const topImageUrl = top || sectionImages[0] || '';
 
       // 3. Firestore 저장 (최신 캐시 — 덮어쓰기)
       const comments = await genComments(summary, TAB_LABEL[tab]);
@@ -436,7 +303,7 @@ export default async function handler(req, res) {
         console.error(`[GENERATE] ${tab} 아카이브 저장 실패:`, archiveErr.message);
       }
 
-      results.push({ tab, ok: true, len: summary.length, summary, footnotes: footnotes || '', frontHeadline: frontHeadline || '', headline: headline || '', topImageUrl: topImageUrl || '', imagePickDebug });
+      results.push({ tab, ok: true, len: summary.length, summary, footnotes: footnotes || '', frontHeadline: frontHeadline || '', headline: headline || '', topImageUrl: topImageUrl || '' });
       console.log(`[GENERATE] ${tab} 완료 (${summary.length}자)`);
     } catch(err) {
       console.error(`[GENERATE] ${tab} 실패:`, err.message);
