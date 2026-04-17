@@ -1191,44 +1191,52 @@ function renderAbout() {
     <div class="about-wrap">
       <div class="about-hero">
         <div class="about-eyebrow">The Viva Company</div>
-        <h1 class="about-title">경제 뉴스,<br>3분으로 끝냅니다</h1>
-        <p class="about-sub">최신 경제 뉴스와 급변하는 트렌드<br>쉽고 빠르게 정리해드립니다.</p>
+        <h1 class="about-title">매일 아침 7시,<br>경제가 한 잔에 완성됩니다</h1>
+        <p class="about-sub">13명의 AI 에디터가 밤사이 움직인 시장을<br>경제·산업·국제·증권 네 부문으로 정리해<br>출근길 3분 안에 읽을 수 있게 전해드립니다.</p>
         <div class="about-stat-strip">
-          <div class="about-stat"><span class="about-stat-num">매일</span><span class="about-stat-label">업데이트</span></div>
+          <div class="about-stat"><span class="about-stat-num">매일 07:00</span><span class="about-stat-label">자동 발행</span></div>
           <div class="about-stat-sep">·</div>
-          <div class="about-stat"><span class="about-stat-num">4개</span><span class="about-stat-label">경제 분야</span></div>
+          <div class="about-stat"><span class="about-stat-num">4개 부문</span><span class="about-stat-label">동시 커버</span></div>
           <div class="about-stat-sep">·</div>
-          <div class="about-stat"><span class="about-stat-num">AI</span><span class="about-stat-label">자동 생성</span></div>
+          <div class="about-stat"><span class="about-stat-num">13 AI</span><span class="about-stat-label">에디터 협업</span></div>
         </div>
       </div>
       <div class="about-section">
-        <div class="about-section-title">이렇게 만들어져요</div>
+        <div class="about-section-title">어떻게 만들어져요</div>
         <div class="about-flow">
           <div class="about-flow-step">
             <div class="about-flow-num">01</div>
-            <div><div class="about-flow-title">뉴스 수집</div><div class="about-flow-desc">경제·산업·국제·증권 분야 수십 개 기사를 매일 자동으로 모읍니다</div></div>
+            <div><div class="about-flow-title">새벽 뉴스 수집</div><div class="about-flow-desc">검증된 미디어 수십 곳에서 경제·산업·국제·증권 기사를 실시간으로 모읍니다.</div></div>
           </div>
           <div class="about-flow-step">
             <div class="about-flow-num">02</div>
-            <div><div class="about-flow-title">AI 분석</div><div class="about-flow-desc">Claude AI가 핵심 이슈·배경·시장 영향·투자 전략 4포인트로 압축합니다</div></div>
+            <div><div class="about-flow-title">13인의 AI 협업</div><div class="about-flow-desc">Junior가 초안을 쓰고 Senior가 검증한 뒤 Chief Editor가 최종 편집합니다. 독립 검증으로 단일 AI보다 정확도를 끌어올립니다.</div></div>
           </div>
           <div class="about-flow-step">
             <div class="about-flow-num">03</div>
-            <div><div class="about-flow-title">아카이브 누적</div><div class="about-flow-desc">매일 07:00 브리핑이 쌓여 경제 흐름을 길게 볼 수 있습니다</div></div>
+            <div><div class="about-flow-title">07:00 동시 발행</div><div class="about-flow-desc">1면 종합 + 4개 부문 브리핑 + 마켓 데이터가 한 번에 도착합니다. 핵심 이슈·배경·시장 영향·투자 포인트까지 4단 구성.</div></div>
           </div>
         </div>
       </div>
       <div class="about-section about-section-tinted">
-        <div class="about-section-title">이런 분이라면</div>
+        <div class="about-section-title">이런 분께 드려요</div>
         <div class="about-chips">
-          <span class="about-chip">⏰ 뉴스 볼 시간이 없는 직장인</span>
-          <span class="about-chip">📈 큰 흐름을 놓치는 것 같은 투자자</span>
+          <span class="about-chip">⏰ 아침마다 경제 뉴스 챙길 시간이 없는 직장인</span>
+          <span class="about-chip">📈 큰 흐름을 놓치지 않고 싶은 개인 투자자</span>
           <span class="about-chip">🌏 글로벌 이슈가 한국에 왜 영향 주는지 궁금한 분</span>
-          <span class="about-chip">👨‍👩‍👧 경제를 쉽게 이해하고 싶은 분</span>
+          <span class="about-chip">📰 신문 보듯 차분하게 경제를 읽고 싶은 분</span>
         </div>
       </div>
+      <div class="about-section">
+        <div class="about-section-title">이런 건 드리지 않아요</div>
+        <ul class="about-promises">
+          <li><strong>가입 없이</strong> 바로 읽을 수 있습니다. 이메일·전화번호 요구하지 않습니다.</li>
+          <li>개별 종목 <strong>매수/매도 추천은 하지 않습니다.</strong> 흐름과 맥락만 전합니다.</li>
+          <li>자극적인 낚시 제목으로 클릭을 유도하지 않습니다.</li>
+        </ul>
+      </div>
       <div class="about-cta-wrap">
-        <button class="about-cta" onclick="switchTab('economy')">오늘의 브리핑 읽기 →</button>
+        <button class="about-cta" onclick="switchTab('front')">오늘의 브리핑 보기 →</button>
         <div class="about-copyright">© 2026 The Viva Company · Publisher Shawn Kim</div>
       </div>
     </div>`;

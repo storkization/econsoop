@@ -106,39 +106,34 @@ function buildWorkflow() {
     </div>`;
 }
 
+// ── 발행인 히어로 ──────────────────────────────────────────
+function buildFounder() {
+  return `
+    <div class="founder-hero">
+      <div class="org-eyebrow">FOUNDER</div>
+      <div class="founder-row">
+        <div class="founder-photo">
+          <img src="${NEWSROOM_CEO.photo}" alt="${NEWSROOM_CEO.name}" onerror="this.style.display='none'">
+        </div>
+        <div class="founder-info">
+          <div class="founder-name">${NEWSROOM_CEO.name}</div>
+          <div class="founder-role">${NEWSROOM_CEO.role}</div>
+          <div class="founder-quote">"13명의 AI 에디터와 함께, 매일 아침 살아있는 브리핑을 만듭니다."</div>
+        </div>
+      </div>
+    </div>`;
+}
+
 // ── 뉴스룸 렌더링 ──────────────────────────────────────────
 function renderNewsroom() {
   const root = document.getElementById('newsroom-root');
   if (!root || root.dataset.rendered) return;
   root.dataset.rendered = 'true';
 
-  const sectionsHtml = TEAM_SECTIONS.map(sec => {
-    const members = NEWSROOM_TEAM.filter(m => m.team === sec.key);
-    if (!members.length) return '';
-    const makeCard = m => `
-      <div class="team-card" style="background:${sec.bg};border-color:${sec.border};">
-        <div class="team-name">${m.flag} ${m.name}</div>
-        <div class="team-role" style="color:${sec.color};">${m.role}</div>
-        <div class="team-spec">${m.spec}</div>
-      </div>`;
-    return `
-      <div class="team-section">
-        <div class="team-section-header" style="color:${sec.color};border-left-color:${sec.color};">
-          <span class="team-section-icon emoji">${sec.icon}</span>
-          <span class="team-section-label-text">${sec.label}</span>
-        </div>
-        <div class="team-grid">${members.map(makeCard).join('')}</div>
-      </div>`;
-  }).join('');
-
   root.innerHTML = `
     <div class="newsroom-wrap">
+      ${buildFounder()}
       ${buildOrgChart()}
       ${buildWorkflow()}
-      <div class="nr-team-header">
-        <div class="org-eyebrow">TEAM</div>
-        <div class="org-title">부문별 AI 에디터</div>
-      </div>
-      ${sectionsHtml}
     </div>`;
 }
