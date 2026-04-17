@@ -1385,6 +1385,36 @@
     /* ── 랜딩페이지 ── */
     #tab-front { padding:48px 0 0; background:#fff; }
 
+    /* 헤드룸 공지 스트립 */
+    .announcement-strip {
+      display:flex; align-items:center; gap:8px;
+      margin:0 20px 16px; padding:10px 14px;
+      border-radius:8px;
+      font-size:13px; line-height:1.4;
+      cursor:default;
+    }
+    .announcement-strip.hidden { display:none; }
+    .announcement-strip .ann-dot {
+      flex-shrink:0;
+      width:7px; height:7px; border-radius:50%;
+    }
+    .announcement-strip .ann-text {
+      flex:1; min-width:0;
+      overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+    }
+    .announcement-strip.breaking {
+      background:#FEF2F2; border:1px solid #FEE2E2;
+    }
+    .announcement-strip.breaking .ann-dot { background:#DC2626; }
+    .announcement-strip.breaking .ann-text { color:#B91C1C; font-weight:600; }
+    .announcement-strip.notice {
+      background:#F9FAFB; border:1px solid #E5E7EB;
+    }
+    .announcement-strip.notice .ann-dot { background:#9CA3AF; }
+    .announcement-strip.notice .ann-text { color:#111827; }
+    .announcement-strip a.ann-text { text-decoration:none; }
+    .announcement-strip a.ann-text:active { opacity:0.6; }
+
     /* Hero */
     .lp-hero {
       background:linear-gradient(160deg, var(--viva-light) 0%, #F9F7F4 55%, #fff 100%);

@@ -107,6 +107,9 @@ document.addEventListener('DOMContentLoaded', () => {
   const versionEl = document.getElementById('settings-version');
   if (versionEl) versionEl.textContent = CACHE_VERSION;
 
+  // 헤드룸 공지 로드 (Notion → /api/announcement)
+  if (!DEV_MODE) loadAnnouncement();
+
   // Why: 부모님이 PWA를 밤새 백그라운드에 둔 채 아침에 켜면 JS 재실행이 안 돼 어제 DOM이 그대로 남는다.
   document.addEventListener('visibilitychange', () => {
     if (document.visibilityState !== 'visible') return;
@@ -921,6 +924,24 @@ function updateFrontPreview(tab, summary) {
     el.innerHTML = `<span style="font-size:14px;color:var(--text);line-height:1.6;">${firstLine} →</span>`;
   }
   renderLandingBriefs();
+}
+
+async function loadAnnouncement() {
+  const strip = document.getElementById('announcement-strip');
+  if (!strip) return;
+  try {
+    const r = await fetch('/api/announcement');
+    const a = await r.json();
+    if (!a || !a.type) { strip.classList.add('hidden'); return; }
+    const text = (a.text || '').replace(/[<>]/g, '');
+    const body = a.url
+      ? `<a class="ann-text" href="${a.url}" target="_blank" rel="noopener">${text}</a>`
+      : `<span class="ann-text">${text}</span>`;
+    strip.className = `announcement-strip ${a.type}`;
+    strip.innerHTML = `<span class="ann-dot"></span>${body}`;
+  } catch (e) {
+    strip.classList.add('hidden');
+  }
 }
 
 function renderLandingBriefs() {
