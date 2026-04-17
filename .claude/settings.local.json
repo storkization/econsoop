@@ -105,7 +105,8 @@
       "mcp__Claude_in_Chrome__javascript_tool",
       "mcp__Claude_in_Chrome__resize_window",
       "mcp__Claude_in_Chrome__computer",
-      "Bash(python -c \"from html.parser import HTMLParser; p=HTMLParser\\(\\); p.feed\\(open\\('index.html',encoding='utf-8'\\).read\\(\\)\\); print\\('HTML parse OK'\\)\")"
+      "Bash(python -c \"from html.parser import HTMLParser; p=HTMLParser\\(\\); p.feed\\(open\\('index.html',encoding='utf-8'\\).read\\(\\)\\); print\\('HTML parse OK'\\)\")",
+      "mcp__46df336a-11f8-4d5e-ad34-76419b1b8350__notion-update-page"
     ]
   }
 }
