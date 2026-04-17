@@ -1681,27 +1681,44 @@
     .app-footer-year {
       font-size:9px; color:#000; margin-top:3px;
     }
-    .app-footer-support {
-      margin: 4px 0 22px;
+    .support-card {
+      margin: 28px 16px 8px;
+      padding: 26px 20px 24px;
+      background: #FAF7F0;
+      border: 1px solid #E8D9B8;
+      border-radius: 10px;
+      text-align: center;
     }
-    .app-footer-support-label {
-      font-family:var(--font-sans);
-      font-size:11px; color:var(--text-muted);
-      margin-bottom:10px; line-height:1.5;
+    .support-card-quote {
+      font-family: var(--font-serif);
+      font-style: italic;
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+      letter-spacing: 0.2px;
     }
-    .app-footer-support-btn {
-      display:inline-block;
-      padding:10px 20px;
-      background:#FEE500;
-      color:#191919;
-      font-family:var(--font-sans);
-      font-size:13px; font-weight:700;
-      border-radius:999px;
-      text-decoration:none;
-      box-shadow:0 1px 3px rgba(0,0,0,0.08);
-      transition:transform 0.12s, box-shadow 0.12s;
+    .support-card-title {
+      font-family: var(--font-serif);
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 16px;
     }
-    .app-footer-support-btn:active {
-      transform:scale(0.97);
-      box-shadow:0 1px 2px rgba(0,0,0,0.06);
+    .support-card-btn {
+      display: inline-block;
+      padding: 9px 20px;
+      background: transparent;
+      color: var(--text);
+      font-family: var(--font-sans);
+      font-size: 12px;
+      font-weight: 600;
+      border: 1px solid #C9B683;
+      border-radius: 999px;
+      text-decoration: none;
+      transition: background 0.15s, border-color 0.15s, color 0.15s;
+    }
+    .support-card-btn:active {
+      background: #FEE500;
+      border-color: #FEE500;
+      color: #191919;
     }
