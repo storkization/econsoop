@@ -103,6 +103,15 @@ const _loadingTabs = new Set(); // 탭별 중복 로딩 방지
 
 /* ═══════════ INIT ═══════════ */
 document.addEventListener('DOMContentLoaded', () => {
+  // 스플래시 제거 (최소 노출 650ms 후 페이드아웃)
+  const splash = document.getElementById('app-splash');
+  if (splash) {
+    setTimeout(() => {
+      splash.classList.add('hide');
+      setTimeout(() => splash.remove(), 450);
+    }, 650);
+  }
+
   // 설정 화면 버전 표시 자동 동기화 (window.ECO_VERSION → #settings-version)
   const versionEl = document.getElementById('settings-version');
   if (versionEl) versionEl.textContent = CACHE_VERSION;

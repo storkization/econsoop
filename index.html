@@ -23,10 +23,21 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
 
   <!-- Styles -->
-  <link rel="stylesheet" href="css/style.css?v=217">
+  <link rel="stylesheet" href="css/style.css?v=218">
+
+  <!-- Splash (CSS-only, 외부 CSS 로드 전 즉시 표시) -->
+  <style>
+    #app-splash{position:fixed;inset:0;z-index:99999;background:#6B0F1A;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:14px;transition:opacity .4s ease}
+    #app-splash.hide{opacity:0;pointer-events:none}
+    #app-splash .splash-logo{font-family:'Black Han Sans','Noto Sans KR',sans-serif;font-size:68px;font-weight:900;color:#fff;letter-spacing:2px;line-height:1;animation:splash-pop .6s ease-out both}
+    #app-splash .splash-logo em{font-style:italic;font-weight:400;font-family:'Noto Serif KR',serif;color:#F5C26B;font-size:0.45em;display:block;margin-top:10px;letter-spacing:6px}
+    #app-splash .splash-tag{font-family:'Noto Sans KR',sans-serif;font-size:12px;color:rgba(255,255,255,0.55);letter-spacing:4px;font-weight:500;animation:splash-fade .8s ease-out .2s both}
+    @keyframes splash-pop{0%{opacity:0;transform:translateY(8px) scale(.96)}100%{opacity:1;transform:translateY(0) scale(1)}}
+    @keyframes splash-fade{0%{opacity:0}100%{opacity:1}}
+  </style>
 
   <script>
-    window.ECO_VERSION = 'v217';
+    window.ECO_VERSION = 'v218';
     (function() {
       var isDev = new URLSearchParams(location.search).get('dev') === 'true';
       if (isDev) return;
@@ -45,6 +56,12 @@
   </script>
 </head>
 <body>
+<!-- 스플래시 (JS 부팅 시 제거) -->
+<div id="app-splash" aria-hidden="true">
+  <div class="splash-logo">VIVA<em>Economy</em></div>
+  <div class="splash-tag">EVERY MORNING 07:00</div>
+</div>
+
 <!-- 드로어 오버레이 -->
 <div class="drawer-overlay" id="drawer-overlay" onclick="closeDrawer()"></div>
 
@@ -589,7 +606,7 @@
 
 <!-- Scripts -->
 <script src="js/newsroom.js?v=154"></script>
-<script src="js/app.js?v=217"></script>
+<script src="js/app.js?v=218"></script>
 
 <!-- PWA Service Worker -->
 <script>
