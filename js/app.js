@@ -960,7 +960,7 @@ function renderLandingBriefs() {
     <div class="front-hero" onclick="switchTab('${leadTab.key}')">
       ${heroImgHtml}
       <div class="front-hero-body">
-        <div class="front-hero-label">🔴 TODAY'S TOP</div>
+        <div class="front-hero-label">TODAY'S TOP</div>
         <div class="front-hero-tab" style="color:${leadTab.color};">${leadTab.icon} ${leadTab.label} <span class="front-tab-sep">│</span> ${leadTab.labelEn}</div>
         <div class="front-hero-headline">${heroHeadline}</div>
         <div class="front-hero-cta"><span style="background:${leadTab.color};">더 보기 →</span></div>

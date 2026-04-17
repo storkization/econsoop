@@ -23,10 +23,10 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
 
   <!-- Styles -->
-  <link rel="stylesheet" href="css/style.css?v=206">
+  <link rel="stylesheet" href="css/style.css?v=207">
 
   <script>
-    window.ECO_VERSION = 'v206';
+    window.ECO_VERSION = 'v207';
     (function() {
       var isDev = new URLSearchParams(location.search).get('dev') === 'true';
       if (isDev) return;
@@ -181,13 +181,6 @@
         <span class="front-section-title">마켓 데이터</span>
       </div>
       <div id="front-market"></div>
-
-      <!-- ▸ 1면 하단 응원 섹션 -->
-      <section class="support-card">
-        <div class="support-card-quote">이 브리핑이 도움이 되셨다면,</div>
-        <div class="support-card-title">발행인에게 커피 한 잔</div>
-        <a class="support-card-btn" href="https://qr.kakaopay.com/Ej7zt5eUK" target="_blank" rel="noopener" onclick="try{localStorage.eco_donation_clicks=(+localStorage.eco_donation_clicks||0)+1}catch(e){}">💛 카카오페이로 응원하기</a>
-      </section>
 
       <!-- 숨김 (JS 호환성 유지) -->
       <div style="display:none;">
@@ -558,6 +551,13 @@
       </div>
     </div>
 
+    <!-- ▸ 공통 하단 후원 섹션 (모든 탭 공통) -->
+    <section class="support-card">
+      <div class="support-card-quote">이 브리핑이 도움이 되셨다면,</div>
+      <div class="support-card-title">발행인에게 커피 한 잔</div>
+      <a class="support-card-btn" href="https://qr.kakaopay.com/Ej7zt5eUK" target="_blank" rel="noopener" onclick="try{localStorage.eco_donation_clicks=(+localStorage.eco_donation_clicks||0)+1}catch(e){}">💛 카카오페이로 응원하기</a>
+    </section>
+
     <!-- ▸ APP FOOTER -->
     <footer class="app-footer">
       <div class="app-footer-logo"><em>VIVA!</em> ECONOMY</div>
@@ -587,7 +587,7 @@
 
 <!-- Scripts -->
 <script src="js/newsroom.js?v=153"></script>
-<script src="js/app.js?v=206"></script>
+<script src="js/app.js?v=207"></script>
 
 <!-- PWA Service Worker -->
 <script>

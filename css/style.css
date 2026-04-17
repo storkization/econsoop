@@ -927,12 +927,19 @@
     }
     .front-hero-body { padding:16px 18px 18px; }
     .front-hero-label {
-      display:inline-block;
-      background:#DC2626; color:#fff;
+      display:inline-flex; align-items:center; gap:6px;
+      background:transparent; color:var(--viva-deep);
       font-family:var(--font-sans);
-      font-size:10px; font-weight:900; letter-spacing:1.8px;
-      padding:4px 9px; border-radius:3px;
-      margin-bottom:16px;
+      font-size:10px; font-weight:900; letter-spacing:2px;
+      padding:0; border:none;
+      margin-bottom:12px;
+      position:relative;
+      padding-left:14px;
+    }
+    .front-hero-label::before {
+      content:''; position:absolute; left:0; top:50%;
+      width:8px; height:2px; background:var(--viva-deep);
+      transform:translateY(-50%);
     }
     .front-hero-tab {
       font-family:var(--font-sans);
