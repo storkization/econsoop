@@ -825,7 +825,7 @@
       margin:18px 16px 12px;
     }
     .front-section-divider:first-child { margin-top:36px; }
-    #tab-front .front-section-divider:first-child { margin-top:0; }
+    #tab-front .front-section-divider:first-child { margin-top:20px; }
     .front-section-divider::before {
       content:''; width:3px; height:16px; background:var(--viva-deep);
       border-radius:2px; flex-shrink:0;
