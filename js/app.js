@@ -251,19 +251,6 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
-function pad(n) { return String(n).padStart(2,'0'); }
-function esc(s){ return (s||'').replace(/&/g,'&amp;').replace(/'/g,"\\'").replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-function ago(d){
-  const date = d instanceof Date ? d : new Date(d);
-  if (isNaN(date.getTime())) return '방금 전';
-  const m = Math.floor((Date.now() - date) / 60000);
-  if(m<1) return '방금 전';
-  if(m<60) return m+'분 전';
-  const h = Math.floor(m/60);
-  if(h<24) return h+'시간 전';
-  return Math.floor(h/24)+'일 전';
-}
-
 /* ═══════════ TAB SWITCHING ═══════════ */
 function switchTab(id, fromHistory = false) {
   currentTab = id;

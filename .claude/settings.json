@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(bash ~/.claude/claude-sync.sh:*)",
+      "Bash(node --check *)"
+    ]
+  }
+}

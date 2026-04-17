@@ -93,7 +93,13 @@
       "Bash(sed -i 's/ECO_VERSION = '\"'\"'v186'\"'\"'/ECO_VERSION = '\"'\"'v187'\"'\"'/g; s/style\\\\.css?v=186/style.css?v=187/g; s/app\\\\.js?v=186/app.js?v=187/g' /c/Users/dodoh/Downloads/ShawnDev/Project1/ecobrief/index.html)",
       "Bash(sed -i 's/viva-economy-v30/viva-economy-v31/g' /c/Users/dodoh/Downloads/ShawnDev/Project1/ecobrief/sw.js)",
       "Bash(sed -i 's/ECO_VERSION = '\"'\"'v187'\"'\"'/ECO_VERSION = '\"'\"'v188'\"'\"'/g; s/style\\\\.css?v=187/style.css?v=188/g; s/app\\\\.js?v=187/app.js?v=188/g' /c/Users/dodoh/Downloads/ShawnDev/Project1/ecobrief/index.html)",
-      "Bash(sed -i 's/viva-economy-v31/viva-economy-v32/g' /c/Users/dodoh/Downloads/ShawnDev/Project1/ecobrief/sw.js)"
+      "Bash(sed -i 's/viva-economy-v31/viva-economy-v32/g' /c/Users/dodoh/Downloads/ShawnDev/Project1/ecobrief/sw.js)",
+      "Bash(bash ~/.claude/claude-sync.sh pull)",
+      "mcp__46df336a-11f8-4d5e-ad34-76419b1b8350__notion-fetch",
+      "WebFetch(domain:theaxis.co.kr)",
+      "Bash(awk '{print $2}')",
+      "Bash(chmod +x /tmp/analyze.sh)",
+      "Bash(/tmp/analyze.sh)"
     ]
   }
 }
