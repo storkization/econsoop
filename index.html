@@ -23,21 +23,23 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
 
   <!-- Styles -->
-  <link rel="stylesheet" href="css/style.css?v=220">
+  <link rel="stylesheet" href="css/style.css?v=221">
 
   <!-- Splash (CSS-only, 외부 CSS 로드 전 즉시 표시) -->
   <style>
     #app-splash{position:fixed;inset:0;z-index:99999;background:#6B0F1A;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:14px;transition:opacity .4s ease}
     #app-splash.hide{opacity:0;pointer-events:none}
-    #app-splash .splash-logo{font-family:'Playfair Display',serif;font-size:76px;font-weight:900;font-style:italic;color:#fff;letter-spacing:-1px;line-height:1;animation:splash-pop .6s ease-out both}
-    #app-splash .splash-logo em{font-style:italic;font-weight:400;font-family:'Playfair Display',serif;color:#F5C26B;font-size:0.32em;display:block;margin-top:14px;letter-spacing:8px;text-transform:uppercase}
-    #app-splash .splash-tag{font-family:'Noto Serif KR',serif;font-size:14px;color:rgba(255,255,255,0.72);letter-spacing:1px;font-weight:400;line-height:1.6;text-align:center;animation:splash-fade .8s ease-out .2s both}
-    @keyframes splash-pop{0%{opacity:0;transform:translateY(8px) scale(.96)}100%{opacity:1;transform:translateY(0) scale(1)}}
+    #app-splash .splash-logo{font-family:'Playfair Display',serif;font-size:76px;font-weight:900;font-style:italic;color:#fff;letter-spacing:-1px;line-height:1;overflow:visible}
+    #app-splash .splash-logo .viva{display:inline-block;animation:slide-in-left .55s cubic-bezier(0.22,0.9,0.3,1) both}
+    #app-splash .splash-logo em{font-style:italic;font-weight:400;font-family:'Playfair Display',serif;color:#F5C26B;font-size:0.32em;display:block;margin-top:14px;letter-spacing:8px;text-transform:uppercase;animation:slide-in-right .55s cubic-bezier(0.22,0.9,0.3,1) .12s both}
+    #app-splash .splash-tag{font-family:'Noto Serif KR',serif;font-size:14px;color:rgba(255,255,255,0.72);letter-spacing:1px;font-weight:400;line-height:1.6;text-align:center;animation:splash-fade .7s ease-out .45s both}
+    @keyframes slide-in-left{0%{opacity:0;transform:translateX(-60px)}100%{opacity:1;transform:translateX(0)}}
+    @keyframes slide-in-right{0%{opacity:0;transform:translateX(60px)}100%{opacity:1;transform:translateX(0)}}
     @keyframes splash-fade{0%{opacity:0}100%{opacity:1}}
   </style>
 
   <script>
-    window.ECO_VERSION = 'v220';
+    window.ECO_VERSION = 'v221';
     (function() {
       var isDev = new URLSearchParams(location.search).get('dev') === 'true';
       if (isDev) return;
@@ -58,7 +60,7 @@
 <body>
 <!-- 스플래시 (JS 부팅 시 제거) -->
 <div id="app-splash" aria-hidden="true">
-  <div class="splash-logo">VIVA!<em>Economy</em></div>
+  <div class="splash-logo"><span class="viva">VIVA!</span><em>Economy</em></div>
   <div class="splash-tag">매일 한 입,<br>살아있는 경제 뉴스</div>
 </div>
 
@@ -606,7 +608,7 @@
 
 <!-- Scripts -->
 <script src="js/newsroom.js?v=154"></script>
-<script src="js/app.js?v=220"></script>
+<script src="js/app.js?v=221"></script>
 
 <!-- PWA Service Worker -->
 <script>

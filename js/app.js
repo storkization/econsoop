@@ -109,7 +109,7 @@ document.addEventListener('DOMContentLoaded', () => {
     setTimeout(() => {
       splash.classList.add('hide');
       setTimeout(() => splash.remove(), 450);
-    }, 650);
+    }, 1400);
   }
 
   // 설정 화면 버전 표시 자동 동기화 (window.ECO_VERSION → #settings-version)
