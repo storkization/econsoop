@@ -825,7 +825,7 @@
       margin:18px 16px 12px;
     }
     .front-section-divider:first-child { margin-top:36px; }
-    #tab-front .front-section-divider:first-child { margin-top:160px; }
+    #tab-front .front-section-divider:first-child { margin-top:0; }
     .front-section-divider::before {
       content:''; width:3px; height:16px; background:var(--viva-deep);
       border-radius:2px; flex-shrink:0;
@@ -1383,7 +1383,7 @@
     .cmt-subreply .cmt-text { font-size:12px; }
 
     /* ── 랜딩페이지 ── */
-    #tab-front { padding:0; background:#fff; }
+    #tab-front { padding:48px 0 0; background:#fff; }
 
     /* Hero */
     .lp-hero {
