@@ -23,10 +23,10 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
 
   <!-- Styles -->
-  <link rel="stylesheet" href="css/style.css?v=203">
+  <link rel="stylesheet" href="css/style.css?v=204">
 
   <script>
-    window.ECO_VERSION = 'v203';
+    window.ECO_VERSION = 'v204';
     (function() {
       var isDev = new URLSearchParams(location.search).get('dev') === 'true';
       if (isDev) return;
@@ -566,6 +566,10 @@
         <span class="app-footer-dot">·</span>
         <button onclick="drawerNav('settings')">설정</button>
       </div>
+      <div class="app-footer-support">
+        <div class="app-footer-support-label">더 깊은 통찰을 위해, 발행인을 응원해 주세요</div>
+        <a class="app-footer-support-btn" href="https://qr.kakaopay.com/Ej7zt5eUK" target="_blank" rel="noopener" onclick="try{localStorage.eco_donation_clicks=(+localStorage.eco_donation_clicks||0)+1}catch(e){}">💛 카카오페이로 응원하기</a>
+      </div>
       <div class="app-footer-copy"><span class="footer-brand-viva">The Viva Company</span>&nbsp; <strong>All rights reserved</strong>&nbsp; Created by Shawn Kim</div>
       <div class="app-footer-copy app-footer-year">© 2026</div>
     </footer>
@@ -584,7 +588,7 @@
 
 <!-- Scripts -->
 <script src="js/newsroom.js?v=153"></script>
-<script src="js/app.js?v=203"></script>
+<script src="js/app.js?v=204"></script>
 
 <!-- PWA Service Worker -->
 <script>
