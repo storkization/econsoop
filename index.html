@@ -23,13 +23,13 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
 
   <!-- Styles -->
-  <link rel="stylesheet" href="css/style.css?v=221">
+  <link rel="stylesheet" href="css/style.css?v=222">
 
   <!-- Splash (CSS-only, 외부 CSS 로드 전 즉시 표시) -->
   <style>
     #app-splash{position:fixed;inset:0;z-index:99999;background:#6B0F1A;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:14px;transition:opacity .4s ease}
     #app-splash.hide{opacity:0;pointer-events:none}
-    #app-splash .splash-logo{font-family:'Playfair Display',serif;font-size:76px;font-weight:900;font-style:italic;color:#fff;letter-spacing:-1px;line-height:1;overflow:visible}
+    #app-splash .splash-logo{font-family:'Playfair Display',serif;font-size:76px;font-weight:900;font-style:italic;color:#fff;letter-spacing:-1px;line-height:1;overflow:visible;text-align:center}
     #app-splash .splash-logo .viva{display:inline-block;animation:slide-in-left .55s cubic-bezier(0.22,0.9,0.3,1) both}
     #app-splash .splash-logo em{font-style:italic;font-weight:400;font-family:'Playfair Display',serif;color:#F5C26B;font-size:0.32em;display:block;margin-top:14px;letter-spacing:8px;text-transform:uppercase;animation:slide-in-right .55s cubic-bezier(0.22,0.9,0.3,1) .12s both}
     #app-splash .splash-tag{font-family:'Noto Serif KR',serif;font-size:14px;color:rgba(255,255,255,0.72);letter-spacing:1px;font-weight:400;line-height:1.6;text-align:center;animation:splash-fade .7s ease-out .45s both}
@@ -39,7 +39,7 @@
   </style>
 
   <script>
-    window.ECO_VERSION = 'v221';
+    window.ECO_VERSION = 'v222';
     (function() {
       var isDev = new URLSearchParams(location.search).get('dev') === 'true';
       if (isDev) return;
@@ -608,7 +608,7 @@
 
 <!-- Scripts -->
 <script src="js/newsroom.js?v=154"></script>
-<script src="js/app.js?v=221"></script>
+<script src="js/app.js?v=222"></script>
 
 <!-- PWA Service Worker -->
 <script>
