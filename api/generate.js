@@ -221,9 +221,33 @@ export default async function handler(req, res) {
     }
   }
 
-  const results = [];
+  // briefing 호출: 5xx/타임아웃 시 1회만 재시도 (일시 장애 대비)
+  async function callBriefingWithRetry(headlines, tab) {
+    const body = JSON.stringify({ headlines, tab, label: TAB_LABEL[tab] });
+    for (let attempt = 1; attempt <= 2; attempt++) {
+      try {
+        const r = await fetch(`https://${host}/api/briefing`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${process.env.CRON_SECRET}`,
+          },
+          body,
+        });
+        if (r.ok) return await r.json();
+        if (r.status < 500 || attempt === 2) {
+          throw new Error(`briefing API 오류 ${r.status}`);
+        }
+        console.warn(`[GENERATE] ${tab} briefing ${r.status} — 재시도 (${attempt}/2)`);
+      } catch (e) {
+        if (attempt === 2) throw e;
+        console.warn(`[GENERATE] ${tab} briefing 예외: ${e.message} — 재시도 (${attempt}/2)`);
+      }
+    }
+  }
 
-  for (const tab of ['economy', 'industry', 'global', 'stocks']) {
+  // 탭별 처리 — 병렬 실행 (탭이 늘어도 총 소요시간 불변)
+  async function processTab(tab) {
     try {
       // 1. 뉴스 수집
       const allItems = [];
@@ -253,18 +277,8 @@ export default async function handler(req, res) {
         it.description ? `${it.title}\n   → ${it.description.slice(0, 100)}` : it.title
       );
 
-      // 2-a. Claude 브리핑 생성 (imageQuery 포함)
-      const briefingRes = await fetch(`https://${host}/api/briefing`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${process.env.CRON_SECRET}`,
-        },
-        body: JSON.stringify({ headlines, tab, label: TAB_LABEL[tab] }),
-      });
-      if (!briefingRes.ok) throw new Error(`briefing API 오류 ${briefingRes.status}`);
-
-      const { summary, footnotes, frontHeadline, imageQuery, headline, subheading, heading2, subheading2, heading3, subheading3, heading4, subheading4, columnHook, columnSubhook } = await briefingRes.json();
+      // 2-a. Claude 브리핑 생성 (재시도 포함)
+      const { summary, footnotes, frontHeadline, imageQuery, headline, subheading, heading2, subheading2, heading3, subheading3, heading4, subheading4, columnHook, columnSubhook } = await callBriefingWithRetry(headlines, tab);
       if (!summary) throw new Error('브리핑 파싱 실패');
 
       // 2-b. 이미지 수집 — Unsplash 큐레이션 쿼리만 사용 (비용 0)
@@ -308,13 +322,16 @@ export default async function handler(req, res) {
         console.error(`[GENERATE] ${tab} 아카이브 저장 실패:`, archiveErr.message);
       }
 
-      results.push({ tab, ok: true, len: summary.length, summary, footnotes: footnotes || '', frontHeadline: frontHeadline || '', headline: headline || '', topImageUrl: topImageUrl || '' });
       console.log(`[GENERATE] ${tab} 완료 (${summary.length}자)`);
+      return { tab, ok: true, len: summary.length, summary, footnotes: footnotes || '', frontHeadline: frontHeadline || '', headline: headline || '', topImageUrl: topImageUrl || '' };
     } catch(err) {
       console.error(`[GENERATE] ${tab} 실패:`, err.message);
-      results.push({ tab, ok: false, error: err.message });
+      return { tab, ok: false, error: err.message };
     }
   }
+
+  const TABS = ['economy', 'industry', 'global', 'stocks'];
+  const results = await Promise.all(TABS.map(processTab));
 
   // ── 오늘의 톱 탭 판정 (신문 1면 히어로) ──
   let leadTab = 'economy';

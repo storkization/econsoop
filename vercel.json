@@ -1,6 +1,6 @@
 {
   "functions": {
-    "api/briefing.js":  { "maxDuration": 60 },
+    "api/briefing.js":  { "maxDuration": 120 },
     "api/column.js":    { "maxDuration": 60 },
     "api/generate.js":  { "maxDuration": 300 },
     "api/archive.js":   { "maxDuration": 30 },
