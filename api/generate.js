@@ -419,6 +419,43 @@ export default async function handler(req, res) {
     console.error('[GENERATE] 에디션 저장 실패:', e.message);
   }
 
+  // ── 유튜브 영상 스크립트 생성 (어머니 눈높이) ──
+  try {
+    const headlineMap = {};
+    const summaryMap = {};
+    for (const r of results) {
+      if (!r.ok) continue;
+      headlineMap[r.tab] = r.frontHeadline || r.headline || '';
+      summaryMap[r.tab] = r.summary || '';
+    }
+
+    if (Object.keys(headlineMap).length >= 1) {
+      const vsRes = await fetch(`https://${host}/api/videoscript`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${process.env.CRON_SECRET}`,
+        },
+        body: JSON.stringify({ headlines: headlineMap, summaries: summaryMap }),
+      });
+      if (vsRes.ok) {
+        const vsData = await vsRes.json();
+        if (vsData.script) {
+          await db.collection('videoScripts').doc('today').set({
+            ...vsData.script,
+            date: todayStr,
+            created_at: Date.now(),
+          });
+          console.log(`[GENERATE] 영상 스크립트 저장: selectedTab=${vsData.script.selectedTab}`);
+        }
+      } else {
+        console.error(`[GENERATE] videoscript API 오류 ${vsRes.status}`);
+      }
+    }
+  } catch (e) {
+    console.error('[GENERATE] 영상 스크립트 생성 실패:', e.message);
+  }
+
   // ── 용어사전 누적 저장 ──
   try {
     const batch = db.batch();
