@@ -1545,6 +1545,7 @@ function attachDragScroll(el) {
 async function loadStocks(){
   // 30분 캐시
   if (stocksCache && Date.now() - stocksCacheTime < MARKET_TTL) {
+    renderMarketArticle(stocksCache);
     renderIndices(stocksCache.slice(0, 4));
     renderStockList(stocksCache.slice(4));
     return;
@@ -1552,8 +1553,73 @@ async function loadStocks(){
   const results = await Promise.all([...INDICES,...STOCKS].map(s=>fetchQuote(s.sym)));
   stocksCache = results;
   stocksCacheTime = Date.now();
+  renderMarketArticle(results);
   renderIndices(results.slice(0,4));
   renderStockList(results.slice(4));
+}
+
+/* ── 증시 로보 기사 — 시세 숫자만으로 기사체 생성 (AI 호출 없음) ── */
+function renderMarketArticle(res){
+  const el = document.getElementById('market-article');
+  if (!el) return;
+  const idx = INDICES.map((d,i)=>({ ...d, q:res[i] })).filter(d=>d.q);
+  const stk = STOCKS.map((d,i)=>({ ...d, q:res[INDICES.length+i] })).filter(d=>d.q);
+  if (!idx.length) { el.innerHTML=''; return; }
+
+  const pctS = p => `${p>0?'+':''}${p.toFixed(2)}%`;
+  const tone = p => {
+    const a = Math.abs(p);
+    return a>=2 ? (p>0?'급등':'급락') : a>=1 ? (p>0?'강세':'약세') : a>=0.3 ? (p>0?'상승':'하락') : '보합';
+  };
+
+  const kr = idx.filter(d=>d.tag==='kr');
+  const us = idx.filter(d=>d.tag==='us');
+  const lead = kr[0] || idx[0];
+  const lp = lead.q.pct;
+  const cls = lp>0.05?'up':lp<-0.05?'down':'flat';
+  const arrow = lp>0.05?'▲':lp<-0.05?'▼':'─';
+  const t = tone(lp);
+  const fire = Math.abs(lp)>=2 ? (lp>0?' 🔥':' 📉') : '';
+
+  const headline = t==='보합'
+    ? `${lead.name}, 큰 변동 없이 보합권`
+    : `${lead.name} ${Math.abs(lp).toFixed(2)}% ${t}${fire}`;
+
+  const paras = [];
+  if (kr.length) {
+    paras.push(kr.map(d =>
+      `${d.name}는 전일 대비 ${pctS(d.q.pct)} ${d.q.pct>0?'오른':d.q.pct<0?'내린':'움직임 없는'} ${fmtN(d.q.price,true)}`
+    ).join(', ') + '를 기록하고 있습니다.');
+  }
+  if (us.length) {
+    paras.push('미국 증시는 ' + us.map(d=>`${d.name} ${pctS(d.q.pct)}`).join(', ') + (
+      us.every(d=>d.q.pct>0.3) ? '로 상승 흐름입니다.'
+      : us.every(d=>d.q.pct<-0.3) ? '로 하락 흐름입니다.'
+      : '를 기록했습니다.'));
+  }
+  if (stk.length >= 2) {
+    const sorted = [...stk].sort((a,b)=>b.q.pct-a.q.pct);
+    const top = sorted[0], bot = sorted[sorted.length-1];
+    const hasTop = top.q.pct > 0.3, hasBot = bot.q.pct < -0.3;
+    if (hasTop && hasBot) {
+      paras.push(`주요 종목 중에는 <b class="up">${top.name}</b>가 ${pctS(top.q.pct)}로 가장 크게 올랐고, <b class="down">${bot.name}</b>는 ${pctS(bot.q.pct)}로 가장 크게 내렸습니다.`);
+    } else if (hasTop) {
+      paras.push(`주요 종목 중에는 <b class="up">${top.name}</b>가 ${pctS(top.q.pct)}로 가장 크게 올랐습니다.`);
+    } else if (hasBot) {
+      paras.push(`주요 종목 중에는 <b class="down">${bot.name}</b>가 ${pctS(bot.q.pct)}로 가장 크게 내렸습니다.`);
+    }
+  }
+
+  const now = new Date();
+  const hh = String(now.getHours()).padStart(2,'0'), mm = String(now.getMinutes()).padStart(2,'0');
+
+  el.innerHTML = `
+    <div class="mk-article">
+      <div class="mk-eyebrow"><span class="mk-live-dot"></span>지금 증시 · ${hh}:${mm} 기준</div>
+      <div class="mk-headline ${cls}">${arrow} ${headline}</div>
+      ${paras.map(p=>`<p class="mk-lead">${p}</p>`).join('')}
+      <div class="mk-note">※ 실시간 시세 기반 자동 생성 요약입니다.</div>
+    </div>`;
 }
 
 async function fetchQuote(sym){

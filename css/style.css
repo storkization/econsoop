@@ -479,6 +479,45 @@
     .news-title { font-family:var(--font-sans); font-size:13.5px; font-weight:var(--fw-semi); line-height:1.55; color:var(--text); margin-bottom:6px; letter-spacing:-0.1px; }
     .news-meta  { font-family:var(--font-sans); font-size:10px; color:var(--text-muted); display:flex; gap:8px; align-items:center; }
 
+    /* ── 증시 로보 기사 ── */
+    .mk-article {
+      background:#FFFFFF; border-radius:var(--radius);
+      padding:20px 18px; margin-bottom:12px;
+      box-shadow:var(--shadow-sm); border:1px solid var(--border);
+    }
+    .mk-eyebrow {
+      display:flex; align-items:center; gap:6px;
+      font-family:var(--font-sans); font-size:11px; font-weight:700;
+      color:var(--text-muted); letter-spacing:0.5px;
+      margin-bottom:10px;
+    }
+    .mk-live-dot {
+      width:7px; height:7px; border-radius:50%;
+      background:var(--red);
+      animation:blink 1.6s ease-in-out infinite;
+    }
+    .mk-headline {
+      font-family:var(--font-sans);
+      font-size:24px; font-weight:900;
+      letter-spacing:-0.5px; line-height:1.35;
+      margin-bottom:14px;
+    }
+    .mk-headline.up   { color:var(--green); }
+    .mk-headline.down { color:var(--red); }
+    .mk-headline.flat { color:var(--text); }
+    .mk-lead {
+      font-family:var(--font-sans);
+      font-size:var(--fs-body); color:var(--text);
+      line-height:1.85; margin:0 0 10px;
+    }
+    .mk-lead:last-of-type { margin-bottom:0; }
+    .mk-lead b.up   { color:var(--green); font-weight:800; }
+    .mk-lead b.down { color:var(--red); font-weight:800; }
+    .mk-note {
+      margin-top:12px; font-family:var(--font-sans);
+      font-size:10px; color:var(--text-dim);
+    }
+
     /* ════════════ STOCKS ════════════ */
     .market-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; padding:0 0 12px; }
     .idx-card { background:#FFFFFF; border-radius:12px; padding:14px; box-shadow:var(--shadow-md); }

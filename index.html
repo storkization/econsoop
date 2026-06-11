@@ -23,7 +23,7 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
 
   <!-- Styles -->
-  <link rel="stylesheet" href="css/style.css?v=225">
+  <link rel="stylesheet" href="css/style.css?v=226">
 
   <!-- Splash (CSS-only, 외부 CSS 로드 전 즉시 표시) -->
   <style>
@@ -39,7 +39,7 @@
   </style>
 
   <script>
-    window.ECO_VERSION = 'v225';
+    window.ECO_VERSION = 'v226';
     (function() {
       var isDev = new URLSearchParams(location.search).get('dev') === 'true';
       if (isDev) return;
@@ -274,6 +274,11 @@
 
     <!-- ▸ 증시 탭 (지수/종목) -->
     <div class="tab-panel" id="tab-market">
+      <div class="tab-section-header">
+        <span class="tab-section-label">증시</span>
+        <span class="tab-section-sub">Market</span>
+      </div>
+      <div id="market-article"></div>
       <div class="market-grid" id="market-indices">
         <!-- skeleton x4 -->
         <div class="idx-card"><div class="idx-name">KOSPI</div><div class="idx-val skeleton" style="height:26px;width:90px;margin-bottom:6px"></div><div class="idx-chg skeleton" style="height:12px;width:60px"></div></div>
@@ -608,7 +613,7 @@
 
 <!-- Scripts -->
 <script src="js/newsroom.js?v=154"></script>
-<script src="js/app.js?v=225"></script>
+<script src="js/app.js?v=226"></script>
 
 <!-- PWA Service Worker -->
 <script>
