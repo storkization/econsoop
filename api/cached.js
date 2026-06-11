@@ -39,6 +39,20 @@ export default async function handler(req, res) {
 
   const { tab, type } = req.query;
 
+  // 증시 전망 노트 (탭 무관, 하루 1개)
+  if (type === 'outlook') {
+    try {
+      const doc = await db.collection('marketOutlook').doc('today').get();
+      if (!doc.exists) return res.status(404).json({ error: 'No outlook yet' });
+      const d = doc.data();
+      const fresh = d.created_at >= getLastSlotTime();
+      return res.status(200).json({ ...d, fresh });
+    } catch (err) {
+      console.error('[CACHED] outlook error:', err.message);
+      return res.status(500).json({ error: err.message });
+    }
+  }
+
   if (!tab || !['economy', 'industry', 'global', 'stocks'].includes(tab)) {
     return res.status(400).json({ error: 'Invalid tab' });
   }
