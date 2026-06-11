@@ -1009,11 +1009,12 @@ function renderLandingBriefs() {
       <div class="front-sub-card" onclick="switchTab('${t.key}')">
         <div class="front-sub-top">
           <div class="front-sub-body">
-            <div class="front-sub-tab" style="color:${t.color};">${t.icon} ${t.label} <span class="front-tab-sep">│</span> ${t.labelEn}<span class="front-sub-arrow">›</span></div>
+            <div class="front-sub-tab" style="color:${t.color};">${t.icon} ${t.label} <span class="front-tab-sep">│</span> ${t.labelEn}</div>
             <div class="front-sub-headline">${h}</div>
           </div>
           ${imgHtml}
         </div>
+        <div class="front-sub-cta"><span style="background:${t.color};">더 보기 →</span></div>
       </div>`;
   }).join('');
 
