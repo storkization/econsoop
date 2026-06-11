@@ -419,6 +419,58 @@ export default async function handler(req, res) {
     console.error('[GENERATE] 에디션 저장 실패:', e.message);
   }
 
+  // ── 증시 전망 노트 (아침 7시, Claude 1회 — "앞으로 어떻게 될까") ──
+  try {
+    const idxDefs = [['^KS11','KOSPI'], ['^KQ11','KOSDAQ'], ['^IXIC','NASDAQ'], ['^GSPC','S&P 500']];
+    const quotes = {};
+    await Promise.all(idxDefs.map(async ([sym, name]) => {
+      try {
+        const r = await fetch(`https://${host}/api/quote?sym=${encodeURIComponent(sym)}`);
+        if (r.ok) {
+          const q = await r.json();
+          if (q.price != null) quotes[name] = { price: q.price, pct: q.pct || 0 };
+        }
+      } catch {}
+    }));
+
+    const outlookHeadlines = [];
+    for (const r of results) {
+      if (r.ok && (r.tab === 'stocks' || r.tab === 'global')) {
+        const head = r.frontHeadline || r.headline || '';
+        const ctx = (r.summary || '').slice(0, 250);
+        if (head || ctx) outlookHeadlines.push(`[${TAB_LABEL[r.tab]}] ${head}\n${ctx}`);
+      }
+    }
+
+    if (Object.keys(quotes).length || outlookHeadlines.length) {
+      const oRes = await fetch(`https://${host}/api/outlook`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${process.env.CRON_SECRET}`,
+        },
+        body: JSON.stringify({ headlines: outlookHeadlines, quotes }),
+      });
+      if (oRes.ok) {
+        const o = await oRes.json();
+        if (o.body) {
+          await db.collection('marketOutlook').doc('today').set({
+            headline: o.headline || '',
+            body: o.body,
+            watch: o.watch || '',
+            date: todayStr,
+            created_at: Date.now(),
+          });
+          console.log('[GENERATE] 증시 전망 저장 완료');
+        }
+      } else {
+        console.error(`[GENERATE] outlook API 오류 ${oRes.status}`);
+      }
+    }
+  } catch (e) {
+    console.error('[GENERATE] 증시 전망 생성 실패:', e.message);
+  }
+
   // ── 용어사전 누적 저장 ──
   try {
     const batch = db.batch();

@@ -288,7 +288,7 @@ function switchTab(id, fromHistory = false) {
     if (isNewsTab) { if (typeof attachGatePopupObserver === 'function') attachGatePopupObserver(); }
     else document.getElementById('subscribe-popup')?.classList.remove('visible');
   }, 50);
-  if (id==='market') loadStocks();
+  if (id==='market') { loadStocks(); loadMarketOutlook(); }
   if (id==='fx' && !fxRates) loadFX();
   if (id==='breaking') loadBreaking();
   if (id==='front') {
@@ -1556,6 +1556,49 @@ async function loadStocks(){
   renderMarketArticle(results);
   renderIndices(results.slice(0,4));
   renderStockList(results.slice(4));
+}
+
+/* ── 증시 전망 노트 — 크론이 아침 7시에 프리젠한 캐시만 읽음 (클라이언트 AI 호출 없음) ── */
+let outlookCache = null;
+async function loadMarketOutlook(){
+  const el = document.getElementById('market-outlook');
+  if (!el) return;
+  if (DEV_MODE) {
+    el.innerHTML = renderOutlookCard({
+      headline: '⚡ 나스닥 -1.8% 여파, 코스피 2,700 지킬까',
+      body: '밤사이 미국 증시가 기술주 중심으로 밀렸어요. 나스닥이 1.8% 빠지면서 반도체 비중이 큰 우리 시장도 아침부터 부담을 안고 출발할 가능성이 높은데요. 다만 환율이 안정세를 보이고 있어서 외국인 자금이 어느 쪽으로 움직이는지가 오늘 방향을 가를 변수예요.',
+      watch: '· 외국인 순매수 전환 여부\n· 환율 1,400원 선 공방\n· 반도체 대형주 낙폭',
+      created_at: Date.now(),
+    });
+    return;
+  }
+  if (outlookCache) { el.innerHTML = renderOutlookCard(outlookCache); return; }
+  try {
+    const r = await fetch('/api/cached?type=outlook');
+    if (!r.ok) { el.innerHTML = ''; return; }
+    const d = await r.json();
+    if (!d.body) { el.innerHTML = ''; return; }
+    outlookCache = d;
+    el.innerHTML = renderOutlookCard(d);
+  } catch { el.innerHTML = ''; }
+}
+
+function renderOutlookCard(d){
+  const watchHtml = (d.watch || '')
+    .split('\n').map(s => s.trim().replace(/^·\s*/, '')).filter(Boolean)
+    .map(s => `<div class="mk-watch-item">${s}</div>`).join('');
+  let timeStr = '';
+  if (d.created_at) {
+    const t = new Date(d.created_at);
+    timeStr = ` · ${t.getMonth()+1}/${t.getDate()} ${String(t.getHours()).padStart(2,'0')}:${String(t.getMinutes()).padStart(2,'0')} 발행`;
+  }
+  return `<div class="mk-outlook">
+    <div class="mk-outlook-eyebrow">🔮 AI 모닝 전망${timeStr}</div>
+    <div class="mk-outlook-headline">${d.headline || ''}</div>
+    <p class="mk-outlook-body">${d.body || ''}</p>
+    ${watchHtml ? `<div class="mk-watch"><div class="mk-watch-title">오늘의 체크포인트</div>${watchHtml}</div>` : ''}
+    <div class="mk-outlook-note">※ AI가 생성한 전망이며 투자 권유가 아닙니다.</div>
+  </div>`;
 }
 
 /* ── 증시 로보 기사 — 시세 숫자만으로 기사체 생성 (AI 호출 없음) ── */

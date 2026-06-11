@@ -518,6 +518,53 @@
       font-size:10px; color:var(--text-dim);
     }
 
+    /* ── 증시 전망 노트 (AI 모닝 전망) ── */
+    .mk-outlook {
+      background:
+        radial-gradient(ellipse at 90% 10%, rgba(255,255,255,0.05) 0%, transparent 50%),
+        linear-gradient(145deg, var(--viva-deep) 0%, var(--viva-ink) 60%, var(--viva-mid) 100%);
+      border-radius:var(--radius);
+      padding:20px 18px; margin-bottom:12px;
+      box-shadow:0 4px 20px rgba(90,10,20,0.3);
+    }
+    .mk-outlook-eyebrow {
+      font-family:var(--font-sans); font-size:11px; font-weight:700;
+      color:var(--viva-gold); letter-spacing:0.5px;
+      margin-bottom:10px;
+    }
+    .mk-outlook-headline {
+      font-family:var(--font-sans);
+      font-size:19px; font-weight:900; color:#fff;
+      letter-spacing:-0.4px; line-height:1.4;
+      margin-bottom:12px;
+    }
+    .mk-outlook-body {
+      font-family:var(--font-sans);
+      font-size:var(--fs-body); color:rgba(255,255,255,0.92);
+      line-height:1.85; margin:0;
+    }
+    .mk-watch {
+      margin-top:14px; padding:12px 14px;
+      background:rgba(255,255,255,0.08); border-radius:10px;
+    }
+    .mk-watch-title {
+      font-family:var(--font-sans); font-size:11px; font-weight:800;
+      color:var(--viva-gold); letter-spacing:0.5px; margin-bottom:8px;
+    }
+    .mk-watch-item {
+      font-family:var(--font-sans); font-size:13px; font-weight:600;
+      color:#fff; line-height:1.7;
+      padding-left:14px; position:relative;
+    }
+    .mk-watch-item::before {
+      content:'·'; position:absolute; left:2px;
+      color:var(--viva-gold); font-weight:900;
+    }
+    .mk-outlook-note {
+      margin-top:12px; font-family:var(--font-sans);
+      font-size:10px; color:rgba(255,255,255,0.45);
+    }
+
     /* ════════════ STOCKS ════════════ */
     .market-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; padding:0 0 12px; }
     .idx-card { background:#FFFFFF; border-radius:12px; padding:14px; box-shadow:var(--shadow-md); }
