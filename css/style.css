@@ -578,6 +578,10 @@
     .down { color:var(--red); }
     .flat { color:var(--text-muted); }
 
+    .stock-star { flex-shrink:0; width:30px; height:30px; padding:0; border:none; background:none; cursor:pointer; font-size:18px; line-height:1; color:#D2D6DC; display:flex; align-items:center; justify-content:center; -webkit-tap-highlight-color:transparent; transition:color .15s, transform .1s; }
+    .stock-star:active { transform:scale(0.82); }
+    .stock-star.on { color:var(--viva-gold); }
+    .watch-empty { padding:16px 14px; background:#FFFFFF; border-radius:var(--radius); color:var(--text-muted); font-family:var(--font-sans); font-size:var(--fs-caption); text-align:center; margin-bottom:4px; }
     .stock-row { display:flex; align-items:center; padding:13px 14px; border-bottom:1px solid #F3F4F6; gap:12px; background:#FFFFFF; }
     .stock-row:first-of-type { border-radius:var(--radius) var(--radius) 0 0; }
     .stock-row:last-of-type  { border-radius:0 0 var(--radius) var(--radius); border-bottom:none; }

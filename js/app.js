@@ -5,20 +5,55 @@ const DEV_MODE = new URLSearchParams(window.location.search).get('dev') === 'tru
 const INDICES = [
   { sym:'^KS11',  name:'KOSPI',   tag:'kr' },
   { sym:'^KQ11',  name:'KOSDAQ',  tag:'kr' },
+  { sym:'^DJI',   name:'다우존스', tag:'us' },
   { sym:'^IXIC',  name:'NASDAQ',  tag:'us' },
   { sym:'^GSPC',  name:'S&P 500', tag:'us' },
 ];
 
 const STOCKS = [
-  { sym:'005930.KS', name:'삼성전자',  icon:'💾', tag:'kr' },
-  { sym:'000660.KS', name:'SK하이닉스',icon:'🔬', tag:'kr' },
-  { sym:'005380.KS', name:'현대차',    icon:'🚗', tag:'kr' },
-  { sym:'035420.KS', name:'NAVER',     icon:'🔍', tag:'kr' },
+  // 국내
+  { sym:'005930.KS', name:'삼성전자',        icon:'💾', tag:'kr' },
+  { sym:'000660.KS', name:'SK하이닉스',      icon:'🔬', tag:'kr' },
+  { sym:'373220.KS', name:'LG에너지솔루션',  icon:'🔋', tag:'kr' },
+  { sym:'207940.KS', name:'삼성바이오로직스', icon:'🧬', tag:'kr' },
+  { sym:'005380.KS', name:'현대차',          icon:'🚗', tag:'kr' },
+  { sym:'000270.KS', name:'기아',            icon:'🚙', tag:'kr' },
+  { sym:'068270.KS', name:'셀트리온',        icon:'💊', tag:'kr' },
+  { sym:'005490.KS', name:'POSCO홀딩스',     icon:'🏭', tag:'kr' },
+  { sym:'035420.KS', name:'NAVER',           icon:'🔍', tag:'kr' },
+  { sym:'035720.KS', name:'카카오',          icon:'💬', tag:'kr' },
+  { sym:'105560.KS', name:'KB금융',          icon:'🏦', tag:'kr' },
+  { sym:'006400.KS', name:'삼성SDI',         icon:'🔌', tag:'kr' },
+  // 미국
   { sym:'NVDA',      name:'NVIDIA',    icon:'🖥', tag:'us' },
   { sym:'AAPL',      name:'Apple',     icon:'🍎', tag:'us' },
   { sym:'MSFT',      name:'Microsoft', icon:'🪟', tag:'us' },
+  { sym:'GOOGL',     name:'Google',    icon:'🔎', tag:'us' },
+  { sym:'AMZN',      name:'Amazon',    icon:'📦', tag:'us' },
+  { sym:'META',      name:'Meta',      icon:'📘', tag:'us' },
   { sym:'TSLA',      name:'Tesla',     icon:'⚡', tag:'us' },
+  { sym:'AVGO',      name:'Broadcom',  icon:'📡', tag:'us' },
+  { sym:'AMD',       name:'AMD',       icon:'🧮', tag:'us' },
+  { sym:'NFLX',      name:'Netflix',   icon:'🎬', tag:'us' },
 ];
+
+/* ── 내 관심 종목 (localStorage, AI 호출 없음) ── */
+const WATCHLIST_KEY = 'eco_watchlist';
+const DEFAULT_WATCHLIST = ['005930.KS', '000660.KS', '035720.KS', 'NVDA', 'AAPL'];
+function getWatchlist() {
+  try {
+    const raw = localStorage.getItem(WATCHLIST_KEY);
+    if (raw === null) return [...DEFAULT_WATCHLIST];   // 최초 1회만 기본값
+    return JSON.parse(raw) || [];
+  } catch { return [...DEFAULT_WATCHLIST]; }
+}
+function toggleWatch(sym) {
+  const wl = getWatchlist();
+  const i = wl.indexOf(sym);
+  if (i >= 0) wl.splice(i, 1); else wl.push(sym);
+  try { localStorage.setItem(WATCHLIST_KEY, JSON.stringify(wl)); } catch {}
+  return wl;
+}
 
 const FX_LIST = [
   { base:'EUR', flag:'🇪🇺', label:'EUR/KRW' },
@@ -85,11 +120,13 @@ const CACHE_VERSION = window.ECO_VERSION || 'dev';
     const fontSize = localStorage.getItem('eco_font_size');
     const startTab = localStorage.getItem('eco_start_tab');
     const subEmail = localStorage.getItem('eco_subscriber_email');
+    const watchlist = localStorage.getItem('eco_watchlist');
     localStorage.clear();
     if (apiKey) localStorage.setItem('eco_api_key', apiKey);
     if (fontSize) localStorage.setItem('eco_font_size', fontSize);
     if (startTab) localStorage.setItem('eco_start_tab', startTab);
     if (subEmail) localStorage.setItem('eco_subscriber_email', subEmail);
+    if (watchlist) localStorage.setItem('eco_watchlist', watchlist);
     localStorage.setItem('eco_cache_version', CACHE_VERSION);
   }
 })();
@@ -1550,16 +1587,16 @@ async function loadStocks(){
   // 30분 캐시
   if (stocksCache && Date.now() - stocksCacheTime < MARKET_TTL) {
     renderMarketArticle(stocksCache);
-    renderIndices(stocksCache.slice(0, 4));
-    renderStockList(stocksCache.slice(4));
+    renderIndices(stocksCache.slice(0, INDICES.length));
+    renderStockList(stocksCache.slice(INDICES.length));
     return;
   }
   const results = await Promise.all([...INDICES,...STOCKS].map(s=>fetchQuote(s.sym)));
   stocksCache = results;
   stocksCacheTime = Date.now();
   renderMarketArticle(results);
-  renderIndices(results.slice(0,4));
-  renderStockList(results.slice(4));
+  renderIndices(results.slice(0, INDICES.length));
+  renderStockList(results.slice(INDICES.length));
 }
 
 /* ── 증시 전망 노트 — 크론이 아침 7시에 프리젠한 캐시만 읽음 (클라이언트 AI 호출 없음) ── */
@@ -1696,21 +1733,49 @@ function renderIndices(res){
 
 function renderStockList(res){
   const c = document.getElementById('stocks-list');
+  // res는 STOCKS 순서와 정렬됨 → 심볼→시세 맵
+  const qMap = {};
+  STOCKS.forEach((s,i)=> qMap[s.sym] = res[i]);
+
+  const wlSet = new Set(getWatchlist());
+  // 관심 종목: 국내 먼저, 미국 뒤
+  const watched = STOCKS.filter(s => wlSet.has(s.sym))
+    .sort((a,b)=> (a.tag==='kr'?0:1) - (b.tag==='kr'?0:1));
+
   const kr = STOCKS.filter(s=>s.tag==='kr');
   const us = STOCKS.filter(s=>s.tag==='us');
-  let h = '<div class="section-label">🇰🇷 국내 종목</div>';
-  kr.forEach((s,i)=> h += stockRow(s, res[i]));
+
+  let h = '<div class="section-label">⭐ 내 관심 종목</div>';
+  if (watched.length) {
+    watched.forEach(s => h += stockRow(s, qMap[s.sym], wlSet));
+  } else {
+    h += '<div class="watch-empty">아래 종목의 ☆ 를 눌러 관심 종목으로 추가하세요</div>';
+  }
+  h += '<div class="section-label">🇰🇷 국내 종목</div>';
+  kr.forEach(s => h += stockRow(s, qMap[s.sym], wlSet));
   h += '<div class="section-label">🇺🇸 미국 종목</div>';
-  us.forEach((s,i)=> h += stockRow(s, res[kr.length+i]));
+  us.forEach(s => h += stockRow(s, qMap[s.sym], wlSet));
   c.innerHTML = h;
+
+  // 별 토글 바인딩
+  c.querySelectorAll('.stock-star').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      toggleWatch(btn.dataset.sym);
+      renderStockList(res);   // 캐시된 시세로 즉시 재렌더
+    });
+  });
 }
 
-function stockRow(s,q){
+function stockRow(s, q, wlSet){
   const isKR = s.tag==='kr';
   const up   = q&&q.chg>0, dn = q&&q.chg<0;
   const bc   = up?'up':dn?'down':'flat';
   const arr  = up?'▲':dn?'▼':'';
+  const on   = wlSet && wlSet.has(s.sym);
+  const star = `<button class="stock-star${on?' on':''}" data-sym="${s.sym}" aria-label="관심 종목" title="관심 종목">${on?'★':'☆'}</button>`;
   return `<div class="stock-row">
+    ${star}
     <div class="stock-icon">${s.icon}</div>
     <div class="stock-info">
       <div class="stock-ticker">${s.sym.replace('.KS','').replace('.KQ','')} <span class="market-tag tag-${s.tag}">${s.tag.toUpperCase()}</span></div>
