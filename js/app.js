@@ -1674,14 +1674,23 @@ function renderMarketArticle(res){
     const a = Math.abs(p);
     return a>=2 ? (p>0?'급등':'급락') : a>=1 ? (p>0?'강세':'약세') : a>=0.3 ? (p>0?'상승':'하락') : '보합세';
   };
+  // 여러 지수를 종합한 분위기 — 오르내림이 섞이면 '혼조세', 아니면 평균 기준
+  const groupTone = arr => {
+    const ups = arr.filter(d=>d.q.pct>0.3).length;
+    const dns = arr.filter(d=>d.q.pct<-0.3).length;
+    if (ups && dns) return '혼조세';
+    const avg = arr.reduce((s,d)=>s+d.q.pct,0) / arr.length;
+    return tone(avg);
+  };
 
   // 한 지역(지수+종목) → 2줄 요약 생성
   function regionLines(tag){
     const ix = idx.filter(d=>d.tag===tag);
     if (!ix.length) return [];
     const lines = [];
-    // 1줄: 지수 흐름 (대표 3개까지)
-    lines.push(ix.slice(0,3).map(d=>`${d.name} ${pctB(d.q.pct)}`).join(' · ') + ` — ${tone(ix[0].q.pct)}`);
+    // 1줄: 지수 흐름 (대표 3개까지) — 분위기는 표시된 지수 종합 판정
+    const shown = ix.slice(0,3);
+    lines.push(shown.map(d=>`${d.name} ${pctB(d.q.pct)}`).join(' · ') + ` — ${groupTone(shown)}`);
     // 2줄: 대표 종목 등락
     const sk = stk.filter(s=>s.tag===tag).sort((a,b)=>b.q.pct-a.q.pct);
     if (sk.length){
@@ -1794,7 +1803,7 @@ function stockRow(s, q, wlSet){
   const arr  = up?'▲':dn?'▼':'';
   const on   = wlSet && wlSet.has(s.sym);
   const chgAmt = q ? fmtN(Math.abs(q.chg), isKR) : '';
-  const pct    = q ? `${Math.abs(q.pct).toFixed(2)}%` : '—';
+  const pct    = q ? `${q.pct>0?'+':q.pct<0?'-':''}${Math.abs(q.pct).toFixed(2)}%` : '—';
   const check = `<button class="stock-check${on?' on':''}" data-sym="${s.sym}" aria-label="기본 설정" title="기본 설정으로 추가">${on?'✓':''}</button>`;
   return `<div class="stock-row">
     ${check}
