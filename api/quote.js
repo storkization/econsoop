@@ -25,7 +25,8 @@ async function fetchNaverDomestic(path) {
     let   chg   = parseNum(d.compareToPreviousClosePriceRaw ?? d.compareToPreviousClosePrice);
     if (price == null || pct == null) return null;
     if (chg == null) chg = price - price / (1 + pct / 100);
-    return { price, chg, pct, source: 'naver' };
+    const marketCap = parseNum(d.marketValueFullRaw ?? d.marketValueFull);
+    return { price, chg, pct, marketCap, source: 'naver' };
   } catch { return null; }
 }
 

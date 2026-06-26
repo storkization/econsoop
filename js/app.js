@@ -6,11 +6,17 @@ const INDICES = [
   // 국내
   { sym:'^KS11',  name:'KOSPI',   tag:'kr' },
   { sym:'^KQ11',  name:'KOSDAQ',  tag:'kr' },
-  // 해외
+  // 미국
   { sym:'^DJI',   name:'다우존스',  tag:'us' },
   { sym:'^IXIC',  name:'NASDAQ',   tag:'us' },
   { sym:'^GSPC',  name:'S&P 500',  tag:'us' },
-  { sym:'^N225',  name:'닛케이225', tag:'us' },
+];
+
+// 원자재 (달러 표시) — 금·은·유가
+const COMMODITIES = [
+  { sym:'GC=F', name:'금' },
+  { sym:'SI=F', name:'은' },
+  { sym:'CL=F', name:'WTI 유가' },
 ];
 
 const STOCKS = [
@@ -1590,22 +1596,25 @@ async function loadStocks(){
   // 30분 캐시
   if (stocksCache && Date.now() - stocksCacheTime < MARKET_TTL) {
     renderMarketArticle(stocksCache);
-    renderIndices(stocksCache.slice(0, INDICES.length));
+    renderIndices(stocksCache.slice(0, INDICES.length), comCache);
     renderStockList(stocksCache.slice(INDICES.length));
     return;
   }
-  // 지수는 스파크라인(closes 포함)까지, 종목은 시세만
-  const [idxData, stkData] = await Promise.all([
+  // 지수(네이버 보정용 sparkline) + 종목 + 원자재 시세
+  const [idxData, stkData, comData] = await Promise.all([
     Promise.all(INDICES.map(s => fetchSparkline(s.sym))),
     Promise.all(STOCKS.map(s => fetchQuote(s.sym))),
+    Promise.all(COMMODITIES.map(s => fetchQuote(s.sym))),
   ]);
   const results = [...idxData, ...stkData];
   stocksCache = results;
+  comCache = comData;
   stocksCacheTime = Date.now();
   renderMarketArticle(results);
-  renderIndices(results.slice(0, INDICES.length));
-  renderStockList(results.slice(INDICES.length));
+  renderIndices(idxData, comData);
+  renderStockList(stkData);
 }
+let comCache = null;
 
 /* ── 증시 전망 노트 — 크론이 아침 7시에 프리젠한 캐시만 읽음 (클라이언트 AI 호출 없음) ── */
 let outlookCache = null;
@@ -1716,7 +1725,7 @@ function renderMarketArticle(res){
     <div class="mk-article">
       <div class="mk-eyebrow"><span class="mk-live-dot"></span>증시 요약 · ${hh}:${mm} 기준</div>
       ${block('🇰🇷','국내', regionLines('kr'))}
-      ${block('🇺🇸','해외', regionLines('us'))}
+      ${block('🇺🇸','미국', regionLines('us'))}
       <div class="mk-note">※ 실시간 시세 기반 자동 요약입니다.</div>
     </div>`;
 }
@@ -1731,21 +1740,34 @@ async function fetchQuote(sym){
   } catch { return null; }
 }
 
-function renderIndices(res){
+// 지수·원자재 카드 (그래프 없음)
+function buildMarketCard(name, q, isKR, curr){
+  const { cls, txt } = fmtChg(q);
+  const pre = curr || '';
+  const prev = q ? q.price - q.chg : null;
+  return `<div class="fm-card">
+    <div class="fm-card-top"><div class="fm-card-label">${name}</div></div>
+    <div class="fm-card-val">${q ? pre + fmtMarketVal(q.price, isKR) : '—'}</div>
+    <div class="fm-card-prev">전일 ${prev != null ? pre + fmtMarketVal(prev, isKR) : '—'}</div>
+    <div class="fm-card-chg ${cls}">${txt}</div>
+  </div>`;
+}
+
+function renderIndices(res, com){
   const c = document.getElementById('market-indices');
   c.classList.remove('market-grid');   // 가로 슬라이드로 전환
-  const card = (idx, q) => buildFmCard(
-    { label: idx.name, kr: idx.tag==='kr', dot: idx.tag==='kr' ? '#A51C30' : '#1D4ED8' },
-    q ? { price:q.price, chg:q.chg, pct:q.pct } : null,
-    q?.closes || null
-  );
-  const section = (flag, label, tag) => {
+  const idxSection = (flag, label, tag) => {
     const items = INDICES.map((idx,i)=>({ idx, q:res[i] })).filter(x=>x.idx.tag===tag);
     if (!items.length) return '';
     return `<div class="fm-section-label">${flag} ${label}</div>
-      <div class="fm-grid">${items.map(x=>card(x.idx, x.q)).join('')}</div>`;
+      <div class="fm-grid">${items.map(x=>buildMarketCard(x.idx.name, x.q, x.idx.tag==='kr')).join('')}</div>`;
   };
-  c.innerHTML = section('🇰🇷','국내','kr') + section('🇺🇸','해외','us');
+  let html = idxSection('🇰🇷','국내','kr') + idxSection('🇺🇸','미국','us');
+  if (com && com.length) {
+    html += `<div class="fm-section-label">🛢 원자재</div>
+      <div class="fm-grid">${COMMODITIES.map((cm,i)=>buildMarketCard(cm.name, com[i], false, '$')).join('')}</div>`;
+  }
+  c.innerHTML = html;
   c.querySelectorAll('.fm-grid').forEach(attachDragScroll);
 }
 
@@ -1774,7 +1796,7 @@ function renderStockList(res){
   // ── 국내 / 해외 세그먼트 ──
   h += `<div class="seg-tabs" role="tablist">
     <button class="seg-tab${marketRegion==='kr'?' on':''}" data-region="kr" role="tab">🇰🇷 국내</button>
-    <button class="seg-tab${marketRegion==='us'?' on':''}" data-region="us" role="tab">🇺🇸 해외</button>
+    <button class="seg-tab${marketRegion==='us'?' on':''}" data-region="us" role="tab">🇺🇸 미국</button>
   </div>
   <div class="seg-hint">✓ 체크하면 위 “내 관심 종목”에 추가돼요</div>
   <div class="stock-table">`;
@@ -1796,24 +1818,38 @@ function renderStockList(res){
   });
 }
 
+function fmtMarketCap(v, isKR){
+  if (v == null || !isFinite(v)) return '';
+  if (isKR) {                       // 원 단위
+    const jo = v / 1e12;
+    if (jo >= 1) return `${jo >= 100 ? Math.round(jo).toLocaleString('ko-KR') : jo.toFixed(1)}조원`;
+    return `${Math.round(v / 1e8).toLocaleString('ko-KR')}억원`;
+  }
+  const jo = v / 1e12;              // 달러
+  if (jo >= 1) return `$${jo.toFixed(2)}조`;
+  return `$${Math.round(v / 1e8).toLocaleString('en-US')}억`;
+}
+
 function stockRow(s, q, wlSet){
   const isKR = s.tag==='kr';
   const up   = q&&q.chg>0, dn = q&&q.chg<0;
   const cls  = up?'up':dn?'down':'flat';
   const arr  = up?'▲':dn?'▼':'';
   const on   = wlSet && wlSet.has(s.sym);
+  const curr = isKR ? '₩' : '$';
   const chgAmt = q ? fmtN(Math.abs(q.chg), isKR) : '';
   const pct    = q ? `${q.pct>0?'+':q.pct<0?'-':''}${Math.abs(q.pct).toFixed(2)}%` : '—';
+  const cap    = q && q.marketCap ? fmtMarketCap(q.marketCap, isKR) : '';
   const check = `<button class="stock-check${on?' on':''}" data-sym="${s.sym}" aria-label="기본 설정" title="기본 설정으로 추가">${on?'✓':''}</button>`;
   return `<div class="stock-row">
     ${check}
     <div class="stock-icon">${s.icon}</div>
     <div class="stock-info">
       <div class="stock-ticker">${s.name}</div>
-      <div class="stock-name">${s.sym.replace('.KS','').replace('.KQ','')} <span class="market-tag tag-${s.tag}">${s.tag.toUpperCase()}</span></div>
+      <div class="stock-name">${s.sym.replace('.KS','').replace('.KQ','')} <span class="market-tag tag-${s.tag}">${s.tag.toUpperCase()}</span>${cap?` · 시총 ${cap}`:''}</div>
     </div>
     <div class="stock-right">
-      <div class="stock-price">${q?fmtN(q.price,isKR):'—'}</div>
+      <div class="stock-price">${q?curr+fmtN(q.price,isKR):'—'}</div>
       <div class="stock-chg ${cls}">${q?`${arr} ${chgAmt} (${pct})`:'—'}</div>
     </div>
   </div>`;
