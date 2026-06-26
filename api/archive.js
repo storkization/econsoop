@@ -40,7 +40,7 @@ export default async function handler(req, res) {
 
     // ── 목록 조회 ─────────────────────────────────
     if (action === 'list') {
-      let query = db.collection('archive').orderBy('created_at', 'desc').limit(90);
+      let query = db.collection('archive').orderBy('created_at', 'desc').limit(400);
       const snap = await query.get();
       let items = snap.docs.map(doc => {
         const d = doc.data();
@@ -56,7 +56,7 @@ export default async function handler(req, res) {
         };
       });
       if (tab && ['economy', 'industry', 'global', 'stocks'].includes(tab)) {
-        items = items.filter(it => it.tab === tab).sort((a, b) => b.created_at - a.created_at).slice(0, 7);
+        items = items.filter(it => it.tab === tab);
       }
       return res.status(200).json({ items });
     }
