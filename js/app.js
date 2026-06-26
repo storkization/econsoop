@@ -1731,6 +1731,8 @@ function renderIndices(res){
   }).join('');
 }
 
+let marketRegion = 'kr';   // 증시 탭 국내/해외 세그먼트 (kr | us)
+
 function renderStockList(res){
   const c = document.getElementById('stocks-list');
   // res는 STOCKS 순서와 정렬됨 → 심볼→시세 맵
@@ -1738,27 +1740,36 @@ function renderStockList(res){
   STOCKS.forEach((s,i)=> qMap[s.sym] = res[i]);
 
   const wlSet = new Set(getWatchlist());
-  // 관심 종목: 국내 먼저, 미국 뒤
+  // 내 관심 종목: 국내 먼저, 해외 뒤
   const watched = STOCKS.filter(s => wlSet.has(s.sym))
     .sort((a,b)=> (a.tag==='kr'?0:1) - (b.tag==='kr'?0:1));
+  // 선택한 지역 목록
+  const list = STOCKS.filter(s => s.tag === marketRegion);
 
-  const kr = STOCKS.filter(s=>s.tag==='kr');
-  const us = STOCKS.filter(s=>s.tag==='us');
-
-  let h = '<div class="section-label">⭐ 내 관심 종목</div>';
+  let h = '';
+  // ── 내 관심 종목 (체크된 것만) ──
   if (watched.length) {
+    h += '<div class="section-label">⭐ 내 관심 종목</div><div class="stock-table">';
     watched.forEach(s => h += stockRow(s, qMap[s.sym], wlSet));
-  } else {
-    h += '<div class="watch-empty">아래 종목의 ☆ 를 눌러 관심 종목으로 추가하세요</div>';
+    h += '</div>';
   }
-  h += '<div class="section-label">🇰🇷 국내 종목</div>';
-  kr.forEach(s => h += stockRow(s, qMap[s.sym], wlSet));
-  h += '<div class="section-label">🇺🇸 미국 종목</div>';
-  us.forEach(s => h += stockRow(s, qMap[s.sym], wlSet));
+  // ── 국내 / 해외 세그먼트 ──
+  h += `<div class="seg-tabs" role="tablist">
+    <button class="seg-tab${marketRegion==='kr'?' on':''}" data-region="kr" role="tab">🇰🇷 국내</button>
+    <button class="seg-tab${marketRegion==='us'?' on':''}" data-region="us" role="tab">🇺🇸 해외</button>
+  </div>
+  <div class="seg-hint">✓ 체크하면 위 “내 관심 종목”에 추가돼요</div>
+  <div class="stock-table">`;
+  list.forEach(s => h += stockRow(s, qMap[s.sym], wlSet));
+  h += '</div>';
   c.innerHTML = h;
 
-  // 별 토글 바인딩
-  c.querySelectorAll('.stock-star').forEach(btn => {
+  // 세그먼트 전환
+  c.querySelectorAll('.seg-tab').forEach(btn => {
+    btn.addEventListener('click', () => { marketRegion = btn.dataset.region; renderStockList(res); });
+  });
+  // 체크박스(기본 설정) 토글
+  c.querySelectorAll('.stock-check').forEach(btn => {
     btn.addEventListener('click', (e) => {
       e.stopPropagation();
       toggleWatch(btn.dataset.sym);
@@ -1770,20 +1781,22 @@ function renderStockList(res){
 function stockRow(s, q, wlSet){
   const isKR = s.tag==='kr';
   const up   = q&&q.chg>0, dn = q&&q.chg<0;
-  const bc   = up?'up':dn?'down':'flat';
+  const cls  = up?'up':dn?'down':'flat';
   const arr  = up?'▲':dn?'▼':'';
   const on   = wlSet && wlSet.has(s.sym);
-  const star = `<button class="stock-star${on?' on':''}" data-sym="${s.sym}" aria-label="관심 종목" title="관심 종목">${on?'★':'☆'}</button>`;
+  const chgAmt = q ? fmtN(Math.abs(q.chg), isKR) : '';
+  const pct    = q ? `${Math.abs(q.pct).toFixed(2)}%` : '—';
+  const check = `<button class="stock-check${on?' on':''}" data-sym="${s.sym}" aria-label="기본 설정" title="기본 설정으로 추가">${on?'✓':''}</button>`;
   return `<div class="stock-row">
-    ${star}
+    ${check}
     <div class="stock-icon">${s.icon}</div>
     <div class="stock-info">
-      <div class="stock-ticker">${s.sym.replace('.KS','').replace('.KQ','')} <span class="market-tag tag-${s.tag}">${s.tag.toUpperCase()}</span></div>
-      <div class="stock-name">${s.name}</div>
+      <div class="stock-ticker">${s.name}</div>
+      <div class="stock-name">${s.sym.replace('.KS','').replace('.KQ','')} <span class="market-tag tag-${s.tag}">${s.tag.toUpperCase()}</span></div>
     </div>
     <div class="stock-right">
-      <div class="stock-price">${q?fmtN(q.price,isKR)+'':'—'}</div>
-      <div><span class="badge ${bc}">${q?`${arr}${Math.abs(q.pct).toFixed(2)}%`:'—'}</span></div>
+      <div class="stock-price">${q?fmtN(q.price,isKR):'—'}</div>
+      <div class="stock-chg ${cls}">${q?`${arr} ${chgAmt} (${pct})`:'—'}</div>
     </div>
   </div>`;
 }
