@@ -3,22 +3,66 @@ const DEV_MODE = new URLSearchParams(window.location.search).get('dev') === 'tru
 
 
 const INDICES = [
+  // 국내
   { sym:'^KS11',  name:'KOSPI',   tag:'kr' },
   { sym:'^KQ11',  name:'KOSDAQ',  tag:'kr' },
-  { sym:'^IXIC',  name:'NASDAQ',  tag:'us' },
-  { sym:'^GSPC',  name:'S&P 500', tag:'us' },
+  // 미국
+  { sym:'^DJI',   name:'다우존스',  tag:'us' },
+  { sym:'^IXIC',  name:'NASDAQ',   tag:'us' },
+  { sym:'^GSPC',  name:'S&P 500',  tag:'us' },
+];
+
+// 원자재 (달러 표시) — 금·은·유가
+const COMMODITIES = [
+  { sym:'GC=F', name:'금' },
+  { sym:'SI=F', name:'은' },
+  { sym:'CL=F', name:'WTI 유가' },
 ];
 
 const STOCKS = [
-  { sym:'005930.KS', name:'삼성전자',  icon:'💾', tag:'kr' },
-  { sym:'000660.KS', name:'SK하이닉스',icon:'🔬', tag:'kr' },
-  { sym:'005380.KS', name:'현대차',    icon:'🚗', tag:'kr' },
-  { sym:'035420.KS', name:'NAVER',     icon:'🔍', tag:'kr' },
+  // 국내
+  { sym:'005930.KS', name:'삼성전자',        icon:'💾', tag:'kr' },
+  { sym:'000660.KS', name:'SK하이닉스',      icon:'🔬', tag:'kr' },
+  { sym:'373220.KS', name:'LG에너지솔루션',  icon:'🔋', tag:'kr' },
+  { sym:'207940.KS', name:'삼성바이오로직스', icon:'🧬', tag:'kr' },
+  { sym:'005380.KS', name:'현대차',          icon:'🚗', tag:'kr' },
+  { sym:'000270.KS', name:'기아',            icon:'🚙', tag:'kr' },
+  { sym:'068270.KS', name:'셀트리온',        icon:'💊', tag:'kr' },
+  { sym:'005490.KS', name:'POSCO홀딩스',     icon:'🏭', tag:'kr' },
+  { sym:'035420.KS', name:'NAVER',           icon:'🔍', tag:'kr' },
+  { sym:'035720.KS', name:'카카오',          icon:'💬', tag:'kr' },
+  { sym:'105560.KS', name:'KB금융',          icon:'🏦', tag:'kr' },
+  { sym:'006400.KS', name:'삼성SDI',         icon:'🔌', tag:'kr' },
+  // 미국
   { sym:'NVDA',      name:'NVIDIA',    icon:'🖥', tag:'us' },
   { sym:'AAPL',      name:'Apple',     icon:'🍎', tag:'us' },
   { sym:'MSFT',      name:'Microsoft', icon:'🪟', tag:'us' },
+  { sym:'GOOGL',     name:'Google',    icon:'🔎', tag:'us' },
+  { sym:'AMZN',      name:'Amazon',    icon:'📦', tag:'us' },
+  { sym:'META',      name:'Meta',      icon:'📘', tag:'us' },
   { sym:'TSLA',      name:'Tesla',     icon:'⚡', tag:'us' },
+  { sym:'AVGO',      name:'Broadcom',  icon:'📡', tag:'us' },
+  { sym:'AMD',       name:'AMD',       icon:'🧮', tag:'us' },
+  { sym:'NFLX',      name:'Netflix',   icon:'🎬', tag:'us' },
 ];
+
+/* ── 내 관심 종목 (localStorage, AI 호출 없음) ── */
+const WATCHLIST_KEY = 'eco_watchlist';
+const DEFAULT_WATCHLIST = ['005930.KS', '000660.KS', '035720.KS', 'NVDA', 'AAPL'];
+function getWatchlist() {
+  try {
+    const raw = localStorage.getItem(WATCHLIST_KEY);
+    if (raw === null) return [...DEFAULT_WATCHLIST];   // 최초 1회만 기본값
+    return JSON.parse(raw) || [];
+  } catch { return [...DEFAULT_WATCHLIST]; }
+}
+function toggleWatch(sym) {
+  const wl = getWatchlist();
+  const i = wl.indexOf(sym);
+  if (i >= 0) wl.splice(i, 1); else wl.push(sym);
+  try { localStorage.setItem(WATCHLIST_KEY, JSON.stringify(wl)); } catch {}
+  return wl;
+}
 
 const FX_LIST = [
   { base:'EUR', flag:'🇪🇺', label:'EUR/KRW' },
@@ -85,11 +129,13 @@ const CACHE_VERSION = window.ECO_VERSION || 'dev';
     const fontSize = localStorage.getItem('eco_font_size');
     const startTab = localStorage.getItem('eco_start_tab');
     const subEmail = localStorage.getItem('eco_subscriber_email');
+    const watchlist = localStorage.getItem('eco_watchlist');
     localStorage.clear();
     if (apiKey) localStorage.setItem('eco_api_key', apiKey);
     if (fontSize) localStorage.setItem('eco_font_size', fontSize);
     if (startTab) localStorage.setItem('eco_start_tab', startTab);
     if (subEmail) localStorage.setItem('eco_subscriber_email', subEmail);
+    if (watchlist) localStorage.setItem('eco_watchlist', watchlist);
     localStorage.setItem('eco_cache_version', CACHE_VERSION);
   }
 })();
@@ -100,7 +146,7 @@ let marketCache = null;   // 홈 마켓 데이터 캐시
 let marketCacheTime = 0;
 let stocksCache = null;   // 증권 탭 데이터 캐시
 let stocksCacheTime = 0;
-const MARKET_TTL = 30 * 60 * 1000; // 30분
+const MARKET_TTL = 3 * 60 * 1000; // 3분 (시세 신선도)
 let currentTab = 'front';
 let fxRates = null;
 const _loadingTabs = new Set(); // 탭별 중복 로딩 방지
@@ -1550,17 +1596,25 @@ async function loadStocks(){
   // 30분 캐시
   if (stocksCache && Date.now() - stocksCacheTime < MARKET_TTL) {
     renderMarketArticle(stocksCache);
-    renderIndices(stocksCache.slice(0, 4));
-    renderStockList(stocksCache.slice(4));
+    renderIndices(stocksCache.slice(0, INDICES.length), comCache);
+    renderStockList(stocksCache.slice(INDICES.length));
     return;
   }
-  const results = await Promise.all([...INDICES,...STOCKS].map(s=>fetchQuote(s.sym)));
+  // 지수(네이버 보정용 sparkline) + 종목 + 원자재 시세
+  const [idxData, stkData, comData] = await Promise.all([
+    Promise.all(INDICES.map(s => fetchSparkline(s.sym))),
+    Promise.all(STOCKS.map(s => fetchQuote(s.sym))),
+    Promise.all(COMMODITIES.map(s => fetchQuote(s.sym))),
+  ]);
+  const results = [...idxData, ...stkData];
   stocksCache = results;
+  comCache = comData;
   stocksCacheTime = Date.now();
   renderMarketArticle(results);
-  renderIndices(results.slice(0,4));
-  renderStockList(results.slice(4));
+  renderIndices(idxData, comData);
+  renderStockList(stkData);
 }
+let comCache = null;
 
 /* ── 증시 전망 노트 — 크론이 아침 7시에 프리젠한 캐시만 읽음 (클라이언트 AI 호출 없음) ── */
 let outlookCache = null;
@@ -1568,23 +1622,33 @@ async function loadMarketOutlook(){
   const el = document.getElementById('market-outlook');
   if (!el) return;
   if (DEV_MODE) {
-    el.innerHTML = renderOutlookCard({
+    el.innerHTML = renderOutlookLine({
       headline: '⚡ 나스닥 -1.8% 여파, 코스피 2,700 지킬까',
-      body: '밤사이 미국 증시가 기술주 중심으로 밀렸어요. 나스닥이 1.8% 빠지면서 반도체 비중이 큰 우리 시장도 아침부터 부담을 안고 출발할 가능성이 높은데요. 다만 환율이 안정세를 보이고 있어서 외국인 자금이 어느 쪽으로 움직이는지가 오늘 방향을 가를 변수예요.',
-      watch: '· 외국인 순매수 전환 여부\n· 환율 1,400원 선 공방\n· 반도체 대형주 낙폭',
+      body: '밤사이 미국 증시가 기술주 중심으로 밀렸어요.',
       created_at: Date.now(),
     });
     return;
   }
-  if (outlookCache) { el.innerHTML = renderOutlookCard(outlookCache); return; }
+  if (outlookCache) { el.innerHTML = renderOutlookLine(outlookCache); return; }
   try {
     const r = await fetch('/api/cached?type=outlook');
     if (!r.ok) { el.innerHTML = ''; return; }
     const d = await r.json();
-    if (!d.body) { el.innerHTML = ''; return; }
+    if (!d.body && !d.headline) { el.innerHTML = ''; return; }
     outlookCache = d;
-    el.innerHTML = renderOutlookCard(d);
+    el.innerHTML = renderOutlookLine(d);
   } catch { el.innerHTML = ''; }
+}
+
+/* AI 모닝 전망 — 증시 요약 아래 한 줄 요약 */
+function renderOutlookLine(d){
+  if (!d || !(d.headline || d.body)) return '';
+  const text = (d.headline || (d.body||'').split(/[.!?。\n]/)[0] || '').replace(/\*\*/g,'').trim();
+  if (!text) return '';
+  return `<div class="mk-outlook-line">
+    <span class="mk-outlook-line-tag">🔮 AI 전망</span>
+    <span class="mk-outlook-line-txt">${text}</span>
+  </div>`;
 }
 
 function renderOutlookCard(d){
@@ -1605,7 +1669,7 @@ function renderOutlookCard(d){
   </div>`;
 }
 
-/* ── 증시 로보 기사 — 시세 숫자만으로 기사체 생성 (AI 호출 없음) ── */
+/* ── 증시 요약 — 국내/해외 2줄씩 (시세 숫자만, AI 호출 없음) ── */
 function renderMarketArticle(res){
   const el = document.getElementById('market-article');
   if (!el) return;
@@ -1613,59 +1677,56 @@ function renderMarketArticle(res){
   const stk = STOCKS.map((d,i)=>({ ...d, q:res[INDICES.length+i] })).filter(d=>d.q);
   if (!idx.length) { el.innerHTML=''; return; }
 
-  const pctS = p => `${p>0?'+':''}${p.toFixed(2)}%`;
+  const col = p => p>0?'up':p<0?'down':'flat';
+  const pctB = p => `<b class="${col(p)}">${p>0?'+':''}${p.toFixed(2)}%</b>`;
   const tone = p => {
     const a = Math.abs(p);
-    return a>=2 ? (p>0?'급등':'급락') : a>=1 ? (p>0?'강세':'약세') : a>=0.3 ? (p>0?'상승':'하락') : '보합';
+    return a>=2 ? (p>0?'급등':'급락') : a>=1 ? (p>0?'강세':'약세') : a>=0.3 ? (p>0?'상승':'하락') : '보합세';
+  };
+  // 여러 지수를 종합한 분위기 — 오르내림이 섞이면 '혼조세', 아니면 평균 기준
+  const groupTone = arr => {
+    const ups = arr.filter(d=>d.q.pct>0.3).length;
+    const dns = arr.filter(d=>d.q.pct<-0.3).length;
+    if (ups && dns) return '혼조세';
+    const avg = arr.reduce((s,d)=>s+d.q.pct,0) / arr.length;
+    return tone(avg);
   };
 
-  const kr = idx.filter(d=>d.tag==='kr');
-  const us = idx.filter(d=>d.tag==='us');
-  const lead = kr[0] || idx[0];
-  const lp = lead.q.pct;
-  const cls = lp>0.05?'up':lp<-0.05?'down':'flat';
-  const arrow = lp>0.05?'▲':lp<-0.05?'▼':'─';
-  const t = tone(lp);
-  const fire = Math.abs(lp)>=2 ? (lp>0?' 🔥':' 📉') : '';
-
-  const headline = t==='보합'
-    ? `${lead.name}, 큰 변동 없이 보합권`
-    : `${lead.name} ${Math.abs(lp).toFixed(2)}% ${t}${fire}`;
-
-  const paras = [];
-  if (kr.length) {
-    paras.push(kr.map(d =>
-      `${d.name}는 전일 대비 ${pctS(d.q.pct)} ${d.q.pct>0?'오른':d.q.pct<0?'내린':'움직임 없는'} ${fmtN(d.q.price,true)}`
-    ).join(', ') + '를 기록하고 있습니다.');
-  }
-  if (us.length) {
-    paras.push('미국 증시는 ' + us.map(d=>`${d.name} ${pctS(d.q.pct)}`).join(', ') + (
-      us.every(d=>d.q.pct>0.3) ? '로 상승 흐름입니다.'
-      : us.every(d=>d.q.pct<-0.3) ? '로 하락 흐름입니다.'
-      : '를 기록했습니다.'));
-  }
-  if (stk.length >= 2) {
-    const sorted = [...stk].sort((a,b)=>b.q.pct-a.q.pct);
-    const top = sorted[0], bot = sorted[sorted.length-1];
-    const hasTop = top.q.pct > 0.3, hasBot = bot.q.pct < -0.3;
-    if (hasTop && hasBot) {
-      paras.push(`주요 종목 중에는 <b class="up">${top.name}</b>가 ${pctS(top.q.pct)}로 가장 크게 올랐고, <b class="down">${bot.name}</b>는 ${pctS(bot.q.pct)}로 가장 크게 내렸습니다.`);
-    } else if (hasTop) {
-      paras.push(`주요 종목 중에는 <b class="up">${top.name}</b>가 ${pctS(top.q.pct)}로 가장 크게 올랐습니다.`);
-    } else if (hasBot) {
-      paras.push(`주요 종목 중에는 <b class="down">${bot.name}</b>가 ${pctS(bot.q.pct)}로 가장 크게 내렸습니다.`);
+  // 한 지역(지수+종목) → 2줄 요약 생성
+  function regionLines(tag){
+    const ix = idx.filter(d=>d.tag===tag);
+    if (!ix.length) return [];
+    const lines = [];
+    // 1줄: 지수 흐름 (대표 3개까지) — 분위기는 표시된 지수 종합 판정
+    const shown = ix.slice(0,3);
+    lines.push(shown.map(d=>`${d.name} ${pctB(d.q.pct)}`).join(' · ') + ` — ${groupTone(shown)}`);
+    // 2줄: 대표 종목 등락
+    const sk = stk.filter(s=>s.tag===tag).sort((a,b)=>b.q.pct-a.q.pct);
+    if (sk.length){
+      const top = sk[0], bot = sk[sk.length-1];
+      const hasTop = top.q.pct>0.3, hasBot = bot.q.pct<-0.3;
+      if (hasTop && hasBot) lines.push(`<b class="up">${top.name}</b> ${pctB(top.q.pct)} 강세, <b class="down">${bot.name}</b> ${pctB(bot.q.pct)} 약세`);
+      else if (hasTop)      lines.push(`<b class="up">${top.name}</b>가 ${pctB(top.q.pct)}로 가장 강세`);
+      else if (hasBot)      lines.push(`<b class="down">${bot.name}</b>가 ${pctB(bot.q.pct)}로 가장 약세`);
+      else                  lines.push(`주요 종목은 대체로 보합권`);
     }
+    return lines;
   }
 
   const now = new Date();
   const hh = String(now.getHours()).padStart(2,'0'), mm = String(now.getMinutes()).padStart(2,'0');
+  const block = (flag,label,lines)=> lines.length ? `
+      <div class="mk-sum-region">
+        <div class="mk-sum-region-h">${flag} ${label}</div>
+        ${lines.map(l=>`<p class="mk-sum-line">${l}</p>`).join('')}
+      </div>` : '';
 
   el.innerHTML = `
     <div class="mk-article">
-      <div class="mk-eyebrow"><span class="mk-live-dot"></span>지금 증시 · ${hh}:${mm} 기준</div>
-      <div class="mk-headline ${cls}">${arrow} ${headline}</div>
-      ${paras.map(p=>`<p class="mk-lead">${p}</p>`).join('')}
-      <div class="mk-note">※ 실시간 시세 기반 자동 생성 요약입니다.</div>
+      <div class="mk-eyebrow"><span class="mk-live-dot"></span>증시 요약 · ${hh}:${mm} 기준</div>
+      ${block('🇰🇷','국내', regionLines('kr'))}
+      ${block('🇺🇸','미국', regionLines('us'))}
+      <div class="mk-note">※ 실시간 시세 기반 자동 요약입니다.</div>
     </div>`;
 }
 
@@ -1679,46 +1740,113 @@ async function fetchQuote(sym){
   } catch { return null; }
 }
 
-function renderIndices(res){
-  const c = document.getElementById('market-indices');
-  c.innerHTML = INDICES.map((idx,i)=>{
-    const q = res[i];
-    const cls = q?(q.chg>0?'up':q.chg<0?'down':'flat'):'flat';
-    const arr = q?(q.chg>0?'▲':q.chg<0?'▼':'-'):'-';
-    const isKR = idx.tag==='kr';
-    return `<div class="idx-card">
-      <div class="idx-name">${idx.name} <span class="market-tag tag-${idx.tag}">${idx.tag.toUpperCase()}</span></div>
-      <div class="idx-val">${q?fmtN(q.price,isKR):'—'}</div>
-      <div class="idx-chg ${cls}">${q?`${arr} ${Math.abs(q.pct).toFixed(2)}%`:'—'}</div>
-    </div>`;
-  }).join('');
+// 지수·원자재 한 줄 (이름 · 값 · 등락률) — 컴팩트
+function idxRow(name, q, isKR, curr){
+  const { cls, txt } = fmtChg(q);
+  const pre = curr || '';
+  return `<div class="idx-row">
+    <span class="idx-row-name">${name}</span>
+    <span class="idx-row-val">${q ? pre + fmtMarketVal(q.price, isKR) : '—'}</span>
+    <span class="idx-row-chg ${cls}">${txt}</span>
+  </div>`;
 }
+
+function renderIndices(res, com){
+  const c = document.getElementById('market-indices');
+  c.classList.remove('market-grid');
+  const section = (flag, label, rows) => rows
+    ? `<div class="fm-section-label">${flag} ${label}</div><div class="idx-list">${rows}</div>` : '';
+  const idxRows = (tag) => INDICES.map((idx,i)=>({ idx, q:res[i] }))
+    .filter(x=>x.idx.tag===tag)
+    .map(x=>idxRow(x.idx.name, x.q, x.idx.tag==='kr')).join('');
+
+  let html = section('🇰🇷','국내', idxRows('kr')) + section('🇺🇸','미국', idxRows('us'));
+  if (com && com.length) {
+    html += section('🛢','원자재', COMMODITIES.map((cm,i)=>idxRow(cm.name, com[i], false, '$')).join(''));
+  }
+  c.innerHTML = html;
+}
+
+let marketRegion = 'kr';   // 증시 탭 국내/해외 세그먼트 (kr | us)
 
 function renderStockList(res){
   const c = document.getElementById('stocks-list');
-  const kr = STOCKS.filter(s=>s.tag==='kr');
-  const us = STOCKS.filter(s=>s.tag==='us');
-  let h = '<div class="section-label">🇰🇷 국내 종목</div>';
-  kr.forEach((s,i)=> h += stockRow(s, res[i]));
-  h += '<div class="section-label">🇺🇸 미국 종목</div>';
-  us.forEach((s,i)=> h += stockRow(s, res[kr.length+i]));
+  // res는 STOCKS 순서와 정렬됨 → 심볼→시세 맵
+  const qMap = {};
+  STOCKS.forEach((s,i)=> qMap[s.sym] = res[i]);
+
+  const wlSet = new Set(getWatchlist());
+  // 내 관심 종목: 국내 먼저, 해외 뒤
+  const watched = STOCKS.filter(s => wlSet.has(s.sym))
+    .sort((a,b)=> (a.tag==='kr'?0:1) - (b.tag==='kr'?0:1));
+  // 선택한 지역 목록
+  const list = STOCKS.filter(s => s.tag === marketRegion);
+
+  let h = '';
+  // ── 내 관심 종목 (체크된 것만) ──
+  if (watched.length) {
+    h += '<div class="section-label">⭐ 내 관심 종목</div><div class="stock-table">';
+    watched.forEach(s => h += stockRow(s, qMap[s.sym], wlSet));
+    h += '</div>';
+  }
+  // ── 국내 / 해외 세그먼트 ──
+  h += `<div class="seg-tabs" role="tablist">
+    <button class="seg-tab${marketRegion==='kr'?' on':''}" data-region="kr" role="tab">🇰🇷 국내</button>
+    <button class="seg-tab${marketRegion==='us'?' on':''}" data-region="us" role="tab">🇺🇸 미국</button>
+  </div>
+  <div class="seg-hint">✓ 체크하면 위 “내 관심 종목”에 추가돼요</div>
+  <div class="stock-table">`;
+  list.forEach(s => h += stockRow(s, qMap[s.sym], wlSet));
+  h += '</div>';
   c.innerHTML = h;
+
+  // 세그먼트 전환
+  c.querySelectorAll('.seg-tab').forEach(btn => {
+    btn.addEventListener('click', () => { marketRegion = btn.dataset.region; renderStockList(res); });
+  });
+  // 체크박스(기본 설정) 토글
+  c.querySelectorAll('.stock-check').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      toggleWatch(btn.dataset.sym);
+      renderStockList(res);   // 캐시된 시세로 즉시 재렌더
+    });
+  });
 }
 
-function stockRow(s,q){
+function fmtMarketCap(v, isKR){
+  if (v == null || !isFinite(v)) return '';
+  if (isKR) {                       // 원 단위
+    const jo = v / 1e12;
+    if (jo >= 1) return `${jo >= 100 ? Math.round(jo).toLocaleString('ko-KR') : jo.toFixed(1)}조원`;
+    return `${Math.round(v / 1e8).toLocaleString('ko-KR')}억원`;
+  }
+  const jo = v / 1e12;              // 달러
+  if (jo >= 1) return `$${jo.toFixed(2)}조`;
+  return `$${Math.round(v / 1e8).toLocaleString('en-US')}억`;
+}
+
+function stockRow(s, q, wlSet){
   const isKR = s.tag==='kr';
   const up   = q&&q.chg>0, dn = q&&q.chg<0;
-  const bc   = up?'up':dn?'down':'flat';
+  const cls  = up?'up':dn?'down':'flat';
   const arr  = up?'▲':dn?'▼':'';
+  const on   = wlSet && wlSet.has(s.sym);
+  const curr = isKR ? '₩' : '$';
+  const chgAmt = q ? fmtN(Math.abs(q.chg), isKR) : '';
+  const pct    = q ? `${q.pct>0?'+':q.pct<0?'-':''}${Math.abs(q.pct).toFixed(2)}%` : '—';
+  const cap    = q && q.marketCap ? fmtMarketCap(q.marketCap, isKR) : '';
+  const check = `<button class="stock-check${on?' on':''}" data-sym="${s.sym}" aria-label="기본 설정" title="기본 설정으로 추가">${on?'✓':''}</button>`;
   return `<div class="stock-row">
+    ${check}
     <div class="stock-icon">${s.icon}</div>
     <div class="stock-info">
-      <div class="stock-ticker">${s.sym.replace('.KS','').replace('.KQ','')} <span class="market-tag tag-${s.tag}">${s.tag.toUpperCase()}</span></div>
-      <div class="stock-name">${s.name}</div>
+      <div class="stock-ticker">${s.name}</div>
+      <div class="stock-name">${s.sym.replace('.KS','').replace('.KQ','')} <span class="market-tag tag-${s.tag}">${s.tag.toUpperCase()}</span>${cap?` · 시총 ${cap}`:''}</div>
     </div>
     <div class="stock-right">
-      <div class="stock-price">${q?fmtN(q.price,isKR)+'':'—'}</div>
-      <div><span class="badge ${bc}">${q?`${arr}${Math.abs(q.pct).toFixed(2)}%`:'—'}</span></div>
+      <div class="stock-price">${q?curr+fmtN(q.price,isKR):'—'}</div>
+      <div class="stock-chg ${cls}">${q?`${arr} ${chgAmt} (${pct})`:'—'}</div>
     </div>
   </div>`;
 }
