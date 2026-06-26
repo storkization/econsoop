@@ -517,6 +517,15 @@
       margin-top:12px; font-family:var(--font-sans);
       font-size:10px; color:var(--text-dim);
     }
+    /* 증시 요약 — 국내/해외 2줄 */
+    .mk-sum-region { margin:0 0 12px; }
+    .mk-sum-region + .mk-sum-region { padding-top:12px; border-top:1px solid var(--border); }
+    .mk-sum-region-h { font-family:var(--font-sans); font-size:var(--fs-body-sm); font-weight:var(--fw-bold); color:var(--text); margin-bottom:5px; }
+    .mk-sum-line { font-family:var(--font-sans); font-size:var(--fs-caption); color:var(--text-muted); line-height:1.6; margin:2px 0; }
+    .mk-sum-line b { font-weight:800; }
+    .mk-sum-line b.up   { color:var(--green); }
+    .mk-sum-line b.down { color:var(--red); }
+    .mk-sum-line b.flat { color:var(--text); }
 
     /* ── 증시 전망 노트 (AI 모닝 전망) ── */
     .mk-outlook {
