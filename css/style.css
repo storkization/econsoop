@@ -592,6 +592,14 @@
     .down { color:var(--red); }
     .flat { color:var(--text-muted); }
 
+    /* 지수·원자재 컴팩트 리스트 */
+    .idx-list { background:#FFFFFF; border-radius:var(--radius); box-shadow:var(--shadow-sm); overflow:hidden; margin-bottom:10px; }
+    .idx-row { display:flex; align-items:center; padding:11px 14px; border-bottom:1px solid #F3F4F6; }
+    .idx-row:last-child { border-bottom:none; }
+    .idx-row-name { flex:1; font-family:var(--font-sans); font-size:var(--fs-body-sm); font-weight:var(--fw-semi); color:var(--text); }
+    .idx-row-val  { font-family:var(--font-sans); font-size:var(--fs-body-sm); font-weight:var(--fw-semi); color:var(--text); margin-right:12px; letter-spacing:-0.2px; }
+    .idx-row-chg  { font-family:var(--font-sans); font-size:var(--fs-caption); font-weight:var(--fw-semi); min-width:62px; text-align:right; }
+
     /* 국내/해외 세그먼트 탭 */
     .seg-tabs { display:flex; gap:6px; margin:16px 0 8px; background:#EEF0F4; padding:4px; border-radius:12px; }
     .seg-tab { flex:1; padding:10px 0; border:none; background:none; border-radius:9px; font-family:var(--font-sans); font-size:var(--fs-body-sm); font-weight:var(--fw-semi); color:var(--text-muted); cursor:pointer; transition:background .15s, color .15s; -webkit-tap-highlight-color:transparent; }

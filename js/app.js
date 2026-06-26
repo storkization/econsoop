@@ -1740,35 +1740,31 @@ async function fetchQuote(sym){
   } catch { return null; }
 }
 
-// 지수·원자재 카드 (그래프 없음)
-function buildMarketCard(name, q, isKR, curr){
+// 지수·원자재 한 줄 (이름 · 값 · 등락률) — 컴팩트
+function idxRow(name, q, isKR, curr){
   const { cls, txt } = fmtChg(q);
   const pre = curr || '';
-  const prev = q ? q.price - q.chg : null;
-  return `<div class="fm-card">
-    <div class="fm-card-top"><div class="fm-card-label">${name}</div></div>
-    <div class="fm-card-val">${q ? pre + fmtMarketVal(q.price, isKR) : '—'}</div>
-    <div class="fm-card-prev">전일 ${prev != null ? pre + fmtMarketVal(prev, isKR) : '—'}</div>
-    <div class="fm-card-chg ${cls}">${txt}</div>
+  return `<div class="idx-row">
+    <span class="idx-row-name">${name}</span>
+    <span class="idx-row-val">${q ? pre + fmtMarketVal(q.price, isKR) : '—'}</span>
+    <span class="idx-row-chg ${cls}">${txt}</span>
   </div>`;
 }
 
 function renderIndices(res, com){
   const c = document.getElementById('market-indices');
-  c.classList.remove('market-grid');   // 가로 슬라이드로 전환
-  const idxSection = (flag, label, tag) => {
-    const items = INDICES.map((idx,i)=>({ idx, q:res[i] })).filter(x=>x.idx.tag===tag);
-    if (!items.length) return '';
-    return `<div class="fm-section-label">${flag} ${label}</div>
-      <div class="fm-grid">${items.map(x=>buildMarketCard(x.idx.name, x.q, x.idx.tag==='kr')).join('')}</div>`;
-  };
-  let html = idxSection('🇰🇷','국내','kr') + idxSection('🇺🇸','미국','us');
+  c.classList.remove('market-grid');
+  const section = (flag, label, rows) => rows
+    ? `<div class="fm-section-label">${flag} ${label}</div><div class="idx-list">${rows}</div>` : '';
+  const idxRows = (tag) => INDICES.map((idx,i)=>({ idx, q:res[i] }))
+    .filter(x=>x.idx.tag===tag)
+    .map(x=>idxRow(x.idx.name, x.q, x.idx.tag==='kr')).join('');
+
+  let html = section('🇰🇷','국내', idxRows('kr')) + section('🇺🇸','미국', idxRows('us'));
   if (com && com.length) {
-    html += `<div class="fm-section-label">🛢 원자재</div>
-      <div class="fm-grid">${COMMODITIES.map((cm,i)=>buildMarketCard(cm.name, com[i], false, '$')).join('')}</div>`;
+    html += section('🛢','원자재', COMMODITIES.map((cm,i)=>idxRow(cm.name, com[i], false, '$')).join(''));
   }
   c.innerHTML = html;
-  c.querySelectorAll('.fm-grid').forEach(attachDragScroll);
 }
 
 let marketRegion = 'kr';   // 증시 탭 국내/해외 세그먼트 (kr | us)
