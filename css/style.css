@@ -527,6 +527,11 @@
     .mk-sum-line b.down { color:var(--red); }
     .mk-sum-line b.flat { color:var(--text); }
 
+    /* AI 모닝 전망 — 증시 요약 아래 한 줄 */
+    .mk-outlook-line { display:flex; align-items:flex-start; gap:8px; background:#FFFFFF; border:1px solid var(--border); border-left:3px solid var(--viva-gold); border-radius:12px; padding:11px 14px; margin:0 0 12px; box-shadow:var(--shadow-sm); }
+    .mk-outlook-line-tag { flex-shrink:0; font-family:var(--font-sans); font-size:var(--fs-micro); font-weight:700; color:var(--viva-gold); white-space:nowrap; padding-top:1px; }
+    .mk-outlook-line-txt { font-family:var(--font-sans); font-size:var(--fs-caption); color:var(--text); line-height:1.5; }
+
     /* ── 증시 전망 노트 (AI 모닝 전망) ── */
     .mk-outlook {
       background:

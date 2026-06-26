@@ -3,11 +3,14 @@ const DEV_MODE = new URLSearchParams(window.location.search).get('dev') === 'tru
 
 
 const INDICES = [
+  // 국내
   { sym:'^KS11',  name:'KOSPI',   tag:'kr' },
   { sym:'^KQ11',  name:'KOSDAQ',  tag:'kr' },
-  { sym:'^DJI',   name:'다우존스', tag:'us' },
-  { sym:'^IXIC',  name:'NASDAQ',  tag:'us' },
-  { sym:'^GSPC',  name:'S&P 500', tag:'us' },
+  // 해외
+  { sym:'^DJI',   name:'다우존스',  tag:'us' },
+  { sym:'^IXIC',  name:'NASDAQ',   tag:'us' },
+  { sym:'^GSPC',  name:'S&P 500',  tag:'us' },
+  { sym:'^N225',  name:'닛케이225', tag:'us' },
 ];
 
 const STOCKS = [
@@ -329,7 +332,7 @@ function switchTab(id, fromHistory = false) {
     if (isNewsTab) { if (typeof attachGatePopupObserver === 'function') attachGatePopupObserver(); }
     else document.getElementById('subscribe-popup')?.classList.remove('visible');
   }, 50);
-  if (id==='market') { loadStocks(); }   // AI 모닝 전망은 증시 요약 카드로 통합(보류)
+  if (id==='market') { loadStocks(); loadMarketOutlook(); }
   if (id==='fx' && !fxRates) loadFX();
   if (id==='breaking') loadBreaking();
   if (id==='front') {
@@ -1591,7 +1594,12 @@ async function loadStocks(){
     renderStockList(stocksCache.slice(INDICES.length));
     return;
   }
-  const results = await Promise.all([...INDICES,...STOCKS].map(s=>fetchQuote(s.sym)));
+  // 지수는 스파크라인(closes 포함)까지, 종목은 시세만
+  const [idxData, stkData] = await Promise.all([
+    Promise.all(INDICES.map(s => fetchSparkline(s.sym))),
+    Promise.all(STOCKS.map(s => fetchQuote(s.sym))),
+  ]);
+  const results = [...idxData, ...stkData];
   stocksCache = results;
   stocksCacheTime = Date.now();
   renderMarketArticle(results);
@@ -1605,23 +1613,33 @@ async function loadMarketOutlook(){
   const el = document.getElementById('market-outlook');
   if (!el) return;
   if (DEV_MODE) {
-    el.innerHTML = renderOutlookCard({
+    el.innerHTML = renderOutlookLine({
       headline: '⚡ 나스닥 -1.8% 여파, 코스피 2,700 지킬까',
-      body: '밤사이 미국 증시가 기술주 중심으로 밀렸어요. 나스닥이 1.8% 빠지면서 반도체 비중이 큰 우리 시장도 아침부터 부담을 안고 출발할 가능성이 높은데요. 다만 환율이 안정세를 보이고 있어서 외국인 자금이 어느 쪽으로 움직이는지가 오늘 방향을 가를 변수예요.',
-      watch: '· 외국인 순매수 전환 여부\n· 환율 1,400원 선 공방\n· 반도체 대형주 낙폭',
+      body: '밤사이 미국 증시가 기술주 중심으로 밀렸어요.',
       created_at: Date.now(),
     });
     return;
   }
-  if (outlookCache) { el.innerHTML = renderOutlookCard(outlookCache); return; }
+  if (outlookCache) { el.innerHTML = renderOutlookLine(outlookCache); return; }
   try {
     const r = await fetch('/api/cached?type=outlook');
     if (!r.ok) { el.innerHTML = ''; return; }
     const d = await r.json();
-    if (!d.body) { el.innerHTML = ''; return; }
+    if (!d.body && !d.headline) { el.innerHTML = ''; return; }
     outlookCache = d;
-    el.innerHTML = renderOutlookCard(d);
+    el.innerHTML = renderOutlookLine(d);
   } catch { el.innerHTML = ''; }
+}
+
+/* AI 모닝 전망 — 증시 요약 아래 한 줄 요약 */
+function renderOutlookLine(d){
+  if (!d || !(d.headline || d.body)) return '';
+  const text = (d.headline || (d.body||'').split(/[.!?。\n]/)[0] || '').replace(/\*\*/g,'').trim();
+  if (!text) return '';
+  return `<div class="mk-outlook-line">
+    <span class="mk-outlook-line-tag">🔮 AI 전망</span>
+    <span class="mk-outlook-line-txt">${text}</span>
+  </div>`;
 }
 
 function renderOutlookCard(d){
@@ -1662,8 +1680,8 @@ function renderMarketArticle(res){
     const ix = idx.filter(d=>d.tag===tag);
     if (!ix.length) return [];
     const lines = [];
-    // 1줄: 지수 흐름
-    lines.push(ix.map(d=>`${d.name} ${pctB(d.q.pct)}`).join(' · ') + ` — ${tone(ix[0].q.pct)}`);
+    // 1줄: 지수 흐름 (대표 3개까지)
+    lines.push(ix.slice(0,3).map(d=>`${d.name} ${pctB(d.q.pct)}`).join(' · ') + ` — ${tone(ix[0].q.pct)}`);
     // 2줄: 대표 종목 등락
     const sk = stk.filter(s=>s.tag===tag).sort((a,b)=>b.q.pct-a.q.pct);
     if (sk.length){
@@ -1706,17 +1724,20 @@ async function fetchQuote(sym){
 
 function renderIndices(res){
   const c = document.getElementById('market-indices');
-  c.innerHTML = INDICES.map((idx,i)=>{
-    const q = res[i];
-    const cls = q?(q.chg>0?'up':q.chg<0?'down':'flat'):'flat';
-    const arr = q?(q.chg>0?'▲':q.chg<0?'▼':'-'):'-';
-    const isKR = idx.tag==='kr';
-    return `<div class="idx-card">
-      <div class="idx-name">${idx.name} <span class="market-tag tag-${idx.tag}">${idx.tag.toUpperCase()}</span></div>
-      <div class="idx-val">${q?fmtN(q.price,isKR):'—'}</div>
-      <div class="idx-chg ${cls}">${q?`${arr} ${Math.abs(q.pct).toFixed(2)}%`:'—'}</div>
-    </div>`;
-  }).join('');
+  c.classList.remove('market-grid');   // 가로 슬라이드로 전환
+  const card = (idx, q) => buildFmCard(
+    { label: idx.name, kr: idx.tag==='kr', dot: idx.tag==='kr' ? '#A51C30' : '#1D4ED8' },
+    q ? { price:q.price, chg:q.chg, pct:q.pct } : null,
+    q?.closes || null
+  );
+  const section = (flag, label, tag) => {
+    const items = INDICES.map((idx,i)=>({ idx, q:res[i] })).filter(x=>x.idx.tag===tag);
+    if (!items.length) return '';
+    return `<div class="fm-section-label">${flag} ${label}</div>
+      <div class="fm-grid">${items.map(x=>card(x.idx, x.q)).join('')}</div>`;
+  };
+  c.innerHTML = section('🇰🇷','국내','kr') + section('🇺🇸','해외','us');
+  c.querySelectorAll('.fm-grid').forEach(attachDragScroll);
 }
 
 let marketRegion = 'kr';   // 증시 탭 국내/해외 세그먼트 (kr | us)
