@@ -62,6 +62,10 @@ function formatDateKorWithDay(dateStr) {
   const d = new Date(`${dateStr.slice(0,4)}-${dateStr.slice(4,6)}-${dateStr.slice(6,8)}`);
   return `${parseInt(dateStr.slice(4,6))}월 ${parseInt(dateStr.slice(6,8))}일 (${days[d.getDay()]})`;
 }
+function formatMonthKor(monthStr) {
+  if (!monthStr) return '';
+  return `${parseInt(monthStr.slice(0,4))}년 ${parseInt(monthStr.slice(5,7))}월`;
+}
 
 function showToast(msg) {
   const t = document.createElement('div');
@@ -1858,6 +1862,7 @@ const TAB_META = {
 };
 const archiveSectorCache = {};
 const archiveEntryCache = {};
+const archiveSelectedMonth = {};
 
 async function loadArchive() {
   await loadArchiveSector('economy');
@@ -1866,17 +1871,22 @@ async function loadArchive() {
 async function loadArchiveSector(tab) {
   const root = document.getElementById('archive-root');
   if (!root) return;
-  if (archiveSectorCache[tab]) { renderSectorList(tab, archiveSectorCache[tab]); return; }
-  renderSectorList(tab, null);
+  if (archiveSectorCache[tab]) { renderSectorList(tab); return; }
+  renderSectorList(tab);
   try {
     const r = await fetch(`/api/archive?action=list&tab=${tab}`);
     const j = await r.json();
-    archiveSectorCache[tab] = (j.items || []).slice(0, 7);
-    renderSectorList(tab, archiveSectorCache[tab]);
+    archiveSectorCache[tab] = j.items || [];
+    renderSectorList(tab);
   } catch (e) {
     const root2 = document.getElementById('archive-root');
     if (root2) root2.innerHTML = `<div class="loading-wrap"><p style="color:var(--text-dim);">불러올 수 없습니다.</p></div>`;
   }
+}
+
+function selectArchiveMonth(tab, month) {
+  archiveSelectedMonth[tab] = month;
+  renderSectorList(tab);
 }
 
 async function loadArchiveEntryDetail(id, tab) {
@@ -1895,7 +1905,7 @@ async function loadArchiveEntryDetail(id, tab) {
   }
 }
 
-function renderSectorList(tab, items) {
+function renderSectorList(tab) {
   const root = document.getElementById('archive-root');
   if (!root) return;
   const meta = TAB_META[tab];
@@ -1904,13 +1914,25 @@ function renderSectorList(tab, items) {
     return `<button class="arc-chip${t === tab ? ' active' : ''}" style="${t === tab ? `--chip-color:${m.color}` : ''}" onclick="loadArchiveSector('${t}')">${m.icon} ${m.label}</button>`;
   }).join('');
 
+  const items = archiveSectorCache[tab];
+  const monthOf = it => it.month || (it.date ? `${it.date.slice(0,4)}-${it.date.slice(4,6)}` : '');
+  let monthChipsHtml = '';
   let bodyHtml;
   if (!items) {
     bodyHtml = `<div class="loading-wrap"><div class="dots"><span></span><span></span><span></span></div></div>`;
   } else if (!items.length) {
     bodyHtml = `<div class="loading-wrap" style="padding:48px 0;"><p style="color:var(--text-dim);font-size:13px;line-height:1.8;">아직 저장된 브리핑이 없습니다.<br>매일 07:00에 자동 저장됩니다.</p></div>`;
   } else {
-    bodyHtml = `<div class="arc-entry-list" style="--tab-color:${meta.color}">${items.map(item => `
+    // 월(月) 칩 — 데이터가 있는 달만, 최신순
+    const months = [...new Set(items.map(monthOf).filter(Boolean))].sort().reverse();
+    let sel = archiveSelectedMonth[tab];
+    if (!sel || !months.includes(sel)) sel = months[0];
+    archiveSelectedMonth[tab] = sel;
+    monthChipsHtml = `<div class="arc-months">${months.map(mo =>
+      `<button class="arc-month-chip${mo === sel ? ' active' : ''}" style="${mo === sel ? `--chip-color:${meta.color}` : ''}" onclick="selectArchiveMonth('${tab}','${mo}')">${formatMonthKor(mo)}</button>`
+    ).join('')}</div>`;
+    const monthItems = items.filter(it => monthOf(it) === sel);
+    bodyHtml = `<div class="arc-entry-list" style="--tab-color:${meta.color}">${monthItems.map(item => `
       <div class="arc-entry-row" onclick="loadArchiveEntryDetail('${item.id}', '${tab}')">
         <div class="arc-entry-date">${formatDateKorWithDay(item.date)}</div>
         <div class="arc-entry-headline">${item.headline || '—'}</div>
@@ -1925,6 +1947,7 @@ function renderSectorList(tab, items) {
         <div class="edition-page-title">브리핑 아카이브</div>
       </div>
       <div class="arc-chips">${chipsHtml}</div>
+      ${monthChipsHtml}
       ${bodyHtml}
     </div>`;
 }
