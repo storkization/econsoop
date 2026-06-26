@@ -19,11 +19,12 @@ async function fetchNaverDomestic(path) {
     const j = await r.json();
     const d = j?.datas?.[0];
     if (!d) return null;
-    const price = parseNum(d.closePrice);
-    const pct = parseNum(d.fluctuationsRatio);     // 부호 포함 (예: -5.43)
+    // 정규장 종가 기준 (Raw 우선 — 콤마 없는 원본값, 부호 포함)
+    const price = parseNum(d.closePriceRaw ?? d.closePrice);
+    const pct   = parseNum(d.fluctuationsRatioRaw ?? d.fluctuationsRatio);
+    let   chg   = parseNum(d.compareToPreviousClosePriceRaw ?? d.compareToPreviousClosePrice);
     if (price == null || pct == null) return null;
-    const prev = price / (1 + pct / 100);
-    const chg = price - prev;
+    if (chg == null) chg = price - price / (1 + pct / 100);
     return { price, chg, pct, source: 'naver' };
   } catch { return null; }
 }

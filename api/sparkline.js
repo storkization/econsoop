@@ -18,11 +18,12 @@ async function fetchNaverIndex(naverCode) {
     const j = await r.json();
     const d = j?.datas?.[0];
     if (!d) return null;
-    const price = parseNum(d.closePrice);
-    const pct = parseNum(d.fluctuationsRatio);
+    const price = parseNum(d.closePriceRaw ?? d.closePrice);
+    const pct   = parseNum(d.fluctuationsRatioRaw ?? d.fluctuationsRatio);
+    let   chg   = parseNum(d.compareToPreviousClosePriceRaw ?? d.compareToPreviousClosePrice);
     if (price == null || pct == null) return null;
-    const prev = price / (1 + pct / 100);
-    return { price, chg: price - prev, pct };
+    if (chg == null) chg = price - price / (1 + pct / 100);
+    return { price, chg, pct };
   } catch { return null; }
 }
 
